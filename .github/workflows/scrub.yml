@@ -46,10 +46,50 @@ jobs:
           sudo mv gitleaks /usr/local/bin/
           gitleaks version
 
+      # THE COUNT IS THE ASSERTION.
+      #
+      # gitleaks-action's failure mode was to scan 0 bytes, report "no leaks
+      # found", and exit 1. A gate that reports clean over nothing is worse than
+      # no gate, because it produces a green tick. So this step fails if the scan
+      # touched nothing, rather than relying on someone reading the number.
+      #
+      # WHAT THE COUNT COUNTS: commits with a content diff, not commits.
+      # gitleaks walks `git log -p`, so a commit that changes no bytes is neither
+      # scanned nor counted. Verified 2026-07-17 against 49687f2 ("Restore exec
+      # bit on audit-pii.sh", 100644 -> 100755, 0 insertions, 0 deletions):
+      #
+      #     gitleaks git . --log-opts="-1 49687f2"  ->  0 commits scanned, 0 bytes
+      #     git rev-list --count HEAD               ->  13
+      #     gitleaks git .                          ->  12 commits scanned
+      #
+      # That is correct: a commit with no content cannot leak. But it means the
+      # count does NOT equal `git rev-list --count HEAD`, and never will once a
+      # mode-only commit exists. Merge commits are excluded for the same reason —
+      # `git log -p` does not diff them by default.
+      #
+      # Hence non-zero, not an exact match. An exact expected value has to be
+      # recomputed on every push, is wrong the first time either case above
+      # appears, and puts a parser of gitleaks' stdout on the critical path for
+      # resolution nobody uses. Zero is what the failure actually looked like.
       - name: Scan full history
         run: |
+          set -o pipefail
           gitleaks git . --config .gitleaks.toml --redact --no-banner \
-            --report-format sarif --report-path results.sarif
+            --report-format sarif --report-path results.sarif 2>&1 \
+            | sed -E 's/\x1b\[[0-9;]*m//g' | tee scan.log
+
+          commits=$(grep -oE '[0-9]+ commits scanned' scan.log | tail -1 | cut -d' ' -f1 || true)
+          bytes=$(grep -oE 'scanned ~[0-9]+ bytes' scan.log | tail -1 | tr -dc '0-9' || true)
+
+          if [ -z "$commits" ] || [ -z "$bytes" ]; then
+            echo "::error::Could not parse the gitleaks scan summary. The gate cannot prove it looked, so it fails."
+            exit 1
+          fi
+          if [ "$commits" -eq 0 ] || [ "$bytes" -eq 0 ]; then
+            echo "::error::gitleaks scanned $commits commit(s) / $bytes byte(s). A clean result over nothing is not a clean result."
+            exit 1
+          fi
+          echo "Scanned $commits commit(s), $bytes byte(s) of history."
 
       - name: Upload SARIF
         if: always()

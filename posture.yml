@@ -138,19 +138,31 @@ entries:
     lab: "00"
     setting: Lab VM power state discipline
     location: Azure > Virtual machines
-    state: Powered off between sessions - deallocation not confirmed
+    state: Stopped (deallocated) - verified in portal
     baseline: n/a
-    kind: gap
+    kind: hardened
     production: Stopped (deallocated) + auto-shutdown schedule
     revisit: true
-    verified: null
+    verified: 2026-07-16
     note: >-
-      Operator reports powering the box off between sessions, which is the
-      right habit. Not yet confirmed whether the portal reads "Stopped
-      (deallocated)" rather than "Stopped" — shutting down from inside the
-      guest OS leaves compute allocated and billing. This is the primary cost
-      control on an uncapped subscription (POS-005), so the distinction is
-      load-bearing rather than pedantic.
+      Portal status column reads "Stopped (deallocated)", not "Stopped".
+      Compute is released and not billing. The distinction is load-bearing
+      rather than pedantic: shutting down from inside the guest OS leaves the
+      VM allocated and billing, and the portal reports that state as plain
+      "Stopped".
+
+      This is the primary cost control on this subscription. POS-005 records
+      that pay-as-you-go has no spending limit, and POS-015 records that Azure
+      budgets notify but do not cap and are evaluated only every 8-24 hours.
+      Deallocation is therefore the only mechanism here that actually ends
+      spend rather than reporting it.
+
+      REVISIT: verified as a one-time observation, not as a control. The
+      current mechanism is operator memory, which is not a control at all —
+      Lab 03 onward introduces sessions that end at whatever time they end. An
+      auto-shutdown schedule (VM > Operations > Auto-shutdown) would make it
+      one, and would cost nothing. Left open deliberately rather than closed on
+      the strength of a habit.
 
   # ---------- Lab 01 — device registration and enrollment ----------
   - id: POS-017

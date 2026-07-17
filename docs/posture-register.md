@@ -26,16 +26,16 @@ entries are assertions, not findings, and are listed separately below.
 | Metric | Count |
 |---|---|
 | Settings tracked | 17 |
-| Verified by direct observation | 11 |
-| Asserted but unverified | 6 |
+| Verified by direct observation | 12 |
+| Asserted but unverified | 5 |
 | Flagged to revisit | 10 |
 
 | Kind | Count |
 |---|---|
-| hardened | 3 |
+| hardened | 4 |
 | default | 7 |
 | **weakening** | 3 |
-| **gap** | 4 |
+| **gap** | 3 |
 
 ## Flagged to revisit
 
@@ -50,7 +50,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-003` | 00 | Conditional Access policies | None believed configured | **gap** | Risk-based and device-compliance grant controls | **no** |
 | `POS-005` | 00 | Azure subscription funding model | Pay-as-you-go, uncapped consumption | **gap** | Budgets with alert thresholds; auto-shutdown on lab compute | 2026-07-16 |
 | `POS-015` | 00 | Cost budgets - two, at different scopes | Resource group $15/mo (actual 50/80/100); subscription $25/mo (actual 50/80/100 + forecasted 100) | hardened | Same, plus an action group driving automated shutdown | 2026-07-16 |
-| `POS-016` | 00 | Lab VM power state discipline | Powered off between sessions - deallocation not confirmed | **gap** | Stopped (deallocated) + auto-shutdown schedule | **no** |
+| `POS-016` | 00 | Lab VM power state discipline | Stopped (deallocated) - verified in portal | hardened | Stopped (deallocated) + auto-shutdown schedule | 2026-07-16 |
 | `POS-017` | 00 | M365 trial recurring billing | O365 E5 recurring OFF (expires 2026-08-14); M365 E5 recurring ON, converts 2026-08-13 | hardened | n/a | 2026-07-16 |
 | `POS-006` | 01 | Users may join devices to Microsoft Entra ID | All | **weakening** | Selected, scoped to a security group | **no** |
 | `POS-010` | 02 | Allow MDE to enforce Endpoint Security Configurations | On | default | On only where MDE-onboarded devices are not Intune-enrolled | 2026-07-16 |
@@ -68,7 +68,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-004` | Elevate access to all Azure subscriptions | `Entra ID > Overview > Properties` | Off | default | no | 2026-07-16 |
 | `POS-005` | Azure subscription funding model | `Azure > Subscriptions` | Pay-as-you-go, uncapped consumption | **gap** | yes | 2026-07-16 |
 | `POS-015` | Cost budgets - two, at different scopes | `Cost Management + Billing > Budgets` | Resource group $15/mo (actual 50/80/100); subscription $25/mo (actual 50/80/100 + forecasted 100) | hardened | yes | 2026-07-16 |
-| `POS-016` | Lab VM power state discipline | `Azure > Virtual machines` | Powered off between sessions - deallocation not confirmed | **gap** | yes | **no** |
+| `POS-016` | Lab VM power state discipline | `Azure > Virtual machines` | Stopped (deallocated) - verified in portal | hardened | yes | 2026-07-16 |
 | `POS-017` | M365 trial recurring billing | `M365 admin center > Billing > Your products` | O365 E5 recurring OFF (expires 2026-08-14); M365 E5 recurring ON, converts 2026-08-13 | hardened | yes | 2026-07-16 |
 
 **`POS-001` — Security Defaults.** Active change, not inherited. Nothing replaced it — no Conditional Access exists, so the tenant runs with no baseline identity protection. Required to be off before Conditional Access can be used at all.
@@ -83,7 +83,7 @@ it is an oversight. Closing an item means recording which one it was.
 
 **`POS-015` — Cost budgets - two, at different scopes.** Two budgets exist deliberately rather than one. The resource-group budget ($15) is the tighter tripwire on the lab's own resources; the subscription budget ($25) is the backstop that catches spend the first one structurally cannot see. Consolidating to one was rejected in both directions: a resource-group budget cannot see spend outside its group — which matters once Lab 04 creates the Log Analytics workspace, since ingestion is the largest projected cost and may not land there — and a subscription budget cannot attribute spend to a component. Cost of keeping both is duplicate mail when spend falls inside the group. Budget scope is fixed at creation, so the subscription budget had to be created new rather than rescoped. LIMITS, recorded rather than assumed away: (1) Azure budgets notify, they do not cap. There is no spending limit on pay-as-you-go, so spend continues past 100 percent. POS-016 — deallocating the VM — remains the only actual control; the budget only reports that the habit slipped. (2) Azure evaluates budgets roughly every 8-24 hours, not on demand, so an alert can arrive a day after a runaway resource starts billing. (3) These budgets cover Azure consumption ONLY. The Microsoft 365 E5 conversion (POS-017) bills through a separate system and is invisible to Azure Cost Management at any scope. The most certain charge on this tenant has no alert attached to it — only a calendar date. (4) Forecasted alerting was added to the subscription budget but the resource-group budget remains actual-only, so its warnings still arrive after the spend. (5) Neither alert has ever fired. Recipients are configured but the notification path is unvalidated, which by this repo's own standard makes it a hypothesis rather than a control.
 
-**`POS-016` — Lab VM power state discipline.** Operator reports powering the box off between sessions, which is the right habit. Not yet confirmed whether the portal reads "Stopped (deallocated)" rather than "Stopped" — shutting down from inside the guest OS leaves compute allocated and billing. This is the primary cost control on an uncapped subscription (POS-005), so the distinction is load-bearing rather than pedantic.
+**`POS-016` — Lab VM power state discipline.** Portal status column reads "Stopped (deallocated)", not "Stopped". Compute is released and not billing. The distinction is load-bearing rather than pedantic: shutting down from inside the guest OS leaves the VM allocated and billing, and the portal reports that state as plain "Stopped". This is the primary cost control on this subscription. POS-005 records that pay-as-you-go has no spending limit, and POS-015 records that Azure budgets notify but do not cap and are evaluated only every 8-24 hours. Deallocation is therefore the only mechanism here that actually ends spend rather than reporting it. REVISIT: verified as a one-time observation, not as a control. The current mechanism is operator memory, which is not a control at all — Lab 03 onward introduces sessions that end at whatever time they end. An auto-shutdown schedule (VM > Operations > Auto-shutdown) would make it one, and would cost nothing. Left open deliberately rather than closed on the strength of a habit.
 
 **`POS-017` — M365 trial recurring billing.** Two subscriptions exist. Office 365 E5 was the acquisition path — the operator reports it had to be signed up for before Microsoft 365 E5 could be added — and each carries its own recurring billing setting, so turning one off does nothing for the other. Both are configured 1 license, 1 month, pay monthly: O365 E5 at $49.20/mo, M365 E5 rate not yet displayed while in trial. Left alone, BOTH convert on 2026-08-13. Microsoft 365 E5 is a superset of Office 365 E5 and is the license actually assigned to the admin account, so O365 E5 contributes nothing operationally. Its recurring billing was turned OFF on 2026-07-16 and verified: the panel now reads "Expires on August 14, 2026" in place of "changes to paid subscription", which is the documented indication that recurring billing is off. Turning it off did not cancel — the trial still runs its full term. Microsoft 365 E5 recurring billing remains ON deliberately. It converts on 2026-08-13 at 1 license, 1 month, pay monthly unless extended or turned off. That is a decision point, not a deadline: month-to-month is cancellable at any renewal, so the lab need not be compressed to fit the trial window. UNVERIFIED, AND TESTED LIVE ON 2026-08-13: whether Microsoft 365 E5 survives Office 365 E5 lapsing. If O365 E5 was structurally required to obtain M365 E5, it may or may not be required to retain it. An acquisition path is not normally an ongoing dependency and M365 E5 is a standalone SKU, so this is expected to be a non-event — but that is a vendor expectation, not an observation, and the distinction is the whole point of this register. Mitigation is free: recurring billing can be turned back on at any point before 2026-08-13 if M365 E5 shows any sign of depending on it.
 
@@ -125,7 +125,6 @@ They are the register's weakest entries and the cheapest to fix.
 |---|---|---|---|
 | `POS-002` | 00 | Admin identity model | `Tenant-wide` |
 | `POS-003` | 00 | Conditional Access policies | `Entra ID > Protection > Conditional Access` |
-| `POS-016` | 00 | Lab VM power state discipline | `Azure > Virtual machines` |
 | `POS-006` | 01 | Users may join devices to Microsoft Entra ID | `Entra ID > Devices > Device settings` |
 | `POS-007` | 01 | MDM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` |
 | `POS-008` | 01 | WIP / MAM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` |

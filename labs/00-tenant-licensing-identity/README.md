@@ -56,8 +56,13 @@ The third is the one that surprises people: an intentionally weakened box left r
 
 | Tracked | Value |
 |---|---|
-| M365 E5 trial ends | *(pending)* |
-| Azure budget + alert configured | *(pending)* |
+| M365 trial term | **2026-07-14 to 2026-08-13** (25 licenses) |
+| M365 recurring billing | *(pending — see `POS-017`)* |
+| Azure budget, resource-group scope | Configured — `$15/month`, actual alerts at 50/80/100% |
+| Azure budget, subscription scope | *(pending — see `POS-015`)* |
+| Azure budget, forecasted alert | *(pending — see `POS-015`)* |
+
+**The tenant expires 2026-08-13.** That is the project's clock, not merely a billing date. Labs 03 through 13 must be built and their evidence committed before it, because a lapsed trial takes every incident, timeline and query result with it. Nothing here is reconstructable afterwards.
 
 ## 4. Build
 

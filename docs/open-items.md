@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**7 open item(s) across 3 file(s).**
+**8 open item(s) across 3 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -14,10 +14,11 @@ Status: 🔨 Built, documentation in progress
 | Line | Section | Item |
 |---|---|---|
 | 9 | Lab 00 — Tenant, Licensing, and Identity Foundation | **Built** / *(pending — see Environment Clock below)* |
-| 59 | 3. Environment Clock | M365 E5 trial ends / *(pending)* |
-| 60 | 3. Environment Clock | Azure budget + alert configured / *(pending)* |
-| 64 | 4. Build | *(pending — configuration state recorded below; narrative to follow)* |
-| 82 | 5. Validation | *(pending)* |
+| 60 | 3. Environment Clock | M365 recurring billing / *(pending — see `POS-017`)* |
+| 62 | 3. Environment Clock | Azure budget, subscription scope / *(pending — see `POS-015`)* |
+| 63 | 3. Environment Clock | Azure budget, forecasted alert / *(pending — see `POS-015`)* |
+| 69 | 4. Build | *(pending — configuration state recorded below; narrative to follow)* |
+| 87 | 5. Validation | *(pending)* |
 
 ## `labs/01-device-registration-intune-enrollment/README.md`
 

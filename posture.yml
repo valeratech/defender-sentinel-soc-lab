@@ -132,6 +132,48 @@ entries:
       load-bearing rather than pedantic.
 
   # ---------- Lab 01 — device registration and enrollment ----------
+  - id: POS-017
+    lab: "00"
+    setting: M365 trial recurring billing
+    location: M365 admin center > Billing > Your products
+    state: O365 E5 recurring OFF (expires 2026-08-14); M365 E5 recurring ON, converts 2026-08-13
+    baseline: "On"
+    kind: hardened
+    production: n/a
+    revisit: true
+    verified: 2026-07-16
+    note: >-
+      Two subscriptions exist. Office 365 E5 was the acquisition path — the
+      operator reports it had to be signed up for before Microsoft 365 E5 could
+      be added — and each carries its own recurring billing setting, so turning
+      one off does nothing for the other. Both are configured 1 license, 1
+      month, pay monthly: O365 E5 at $49.20/mo, M365 E5 rate not yet displayed
+      while in trial. Left alone, BOTH convert on 2026-08-13.
+
+      Microsoft 365 E5 is a superset of Office 365 E5 and is the license
+      actually assigned to the admin account, so O365 E5 contributes nothing
+      operationally. Its recurring billing was turned OFF on 2026-07-16 and
+      verified: the panel now reads "Expires on August 14, 2026" in place of
+      "changes to paid subscription", which is the documented indication that
+      recurring billing is off. Turning it off did not cancel — the trial still
+      runs its full term.
+
+      Microsoft 365 E5 recurring billing remains ON deliberately. It converts
+      on 2026-08-13 at 1 license, 1 month, pay monthly unless extended or
+      turned off. That is a decision point, not a deadline: month-to-month is
+      cancellable at any renewal, so the lab need not be compressed to fit the
+      trial window.
+
+      UNVERIFIED, AND TESTED LIVE ON 2026-08-13: whether Microsoft 365 E5
+      survives Office 365 E5 lapsing. If O365 E5 was structurally required to
+      obtain M365 E5, it may or may not be required to retain it. An
+      acquisition path is not normally an ongoing dependency and M365 E5 is a
+      standalone SKU, so this is expected to be a non-event — but that is a
+      vendor expectation, not an observation, and the distinction is the whole
+      point of this register. Mitigation is free: recurring billing can be
+      turned back on at any point before 2026-08-13 if M365 E5 shows any sign
+      of depending on it.
+
   - id: POS-006
     lab: "01"
     setting: Users may join devices to Microsoft Entra ID

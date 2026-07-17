@@ -81,14 +81,24 @@ tags = ["ocr", "operational"]
 [[rules]]
 id = "ocr-email"
 description = "Email / UPN visible in screenshot"
-regex = '''[a-zA-Z0-9._%+\-]+[ \t]*@[ \t]*[a-zA-Z0-9][a-zA-Z0-9.\-]*[ \t]*\.[ \t]*[a-zA-Z]{2,}'''
+# Does NOT require the dot before the TLD. Tesseract routinely eats periods in
+# small UI text: a real portal screenshot rendered "analyst@contoso.com" as
+# "analyst@contosocom", which defeated a dot-requiring pattern entirely.
+# In a portal screenshot an "@" flanked by word characters is an email; the
+# only other source is OCR misreading the external-link glyph, and that case
+# has nothing after the "@", so requiring 3+ trailing characters excludes it.
+regex = '''[a-zA-Z0-9._%+\-]{2,}[ \t]*@[ \t]*[a-zA-Z0-9][a-zA-Z0-9._\-]{2,}'''
 tags = ["ocr", "pii"]
   [rules.allowlist]
   regexTarget = "match"
   regexes = [
-    '''(?i)@[ \t]*contoso[ \t]*\.''',
-    '''(?i)@[ \t]*example[ \t]*\.''',
-    '''(?i)@[ \t]*microsoft[ \t]*\.[ \t]*com''',
+    # Dot optional here too: a sanitized screenshot whose placeholder OCRs
+    # as "analyst@contosocom" must still clear the allowlist, or the gate
+    # blocks correctly-redacted evidence and gets switched off.
+    '''(?i)@[ \t]*contoso[ \t]*\.?[ \t]*(com|onmicrosoft)''',
+    '''(?i)@[ \t]*example[ \t]*\.?[ \t]*(com|org|net)''',
+    '''(?i)@[ \t]*microsoft[ \t]*\.?[ \t]*com''',
+    '''(?i)@[ \t]*users[ \t]*\.?[ \t]*noreply''',
   ]
 
 [[rules]]

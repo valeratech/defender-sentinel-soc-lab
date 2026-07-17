@@ -84,11 +84,52 @@ entries:
     kind: gap
     production: Budgets with alert thresholds; auto-shutdown on lab compute
     revisit: true
-    verified: null
+    verified: 2026-07-16
     note: >-
       Free-credit offer unavailable, so the "services disabled, never charged"
-      safety net does not exist. Spending limit is unavailable on PAYG. Budget
-      alerts required before Lab 03 introduces billable compute and ingestion.
+      safety net does not exist. The spending limit feature is unavailable on
+      pay-as-you-go, so there is no mechanism that stops spend — only ones that
+      report it. Deallocating lab compute is therefore the actual cost control;
+      the budget is what reports that the habit slipped.
+
+  - id: POS-015
+    lab: "00"
+    setting: Cost budget - Defender-Lab-Budget
+    location: Cost Management + Billing > Budgets
+    state: $15/month, resets monthly, expires 2028-06-30
+    baseline: none
+    kind: hardened
+    production: Budget at subscription scope with actual + forecasted alerts
+    revisit: true
+    verified: 2026-07-16
+    note: >-
+      Exists with recipients configured and alerting at 50/80/100 percent.
+      Two limitations recorded rather than assumed away. First, scope is the
+      resource group rg-defender-lab, NOT the subscription — anything created
+      outside that group is unmonitored, which matters once Lab 04 creates the
+      Log Analytics workspace, since ingestion is the largest projected cost
+      and may not land in that group. Second, all three thresholds are Actual
+      cost only; no Forecasted alert exists, so every notification arrives
+      after the spend rather than before it. Azure budgets notify, they do not
+      cap.
+
+  - id: POS-016
+    lab: "00"
+    setting: Lab VM power state discipline
+    location: Azure > Virtual machines
+    state: Powered off between sessions - deallocation not confirmed
+    baseline: n/a
+    kind: gap
+    production: Stopped (deallocated) + auto-shutdown schedule
+    revisit: true
+    verified: null
+    note: >-
+      Operator reports powering the box off between sessions, which is the
+      right habit. Not yet confirmed whether the portal reads "Stopped
+      (deallocated)" rather than "Stopped" — shutting down from inside the
+      guest OS leaves compute allocated and billing. This is the primary cost
+      control on an uncapped subscription (POS-005), so the distinction is
+      load-bearing rather than pedantic.
 
   # ---------- Lab 01 — device registration and enrollment ----------
   - id: POS-006

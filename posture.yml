@@ -1,0 +1,209 @@
+# Security posture register — source of truth for docs/posture-register.md
+#
+# Every security-relevant setting observed in the environment, its state, and
+# whether it needs revisiting before the project is called done.
+#
+# kind:
+#   hardened  — set to the secure/recommended value
+#   default   — inherited, not chosen; recorded so it is not mistaken for a decision
+#   weakening — deliberately loosened for lab convenience; production answer differs
+#   gap       — should be on per vendor guidance / exam scope, currently is not
+#
+# verified: ISO date the state was observed directly (screenshot/portal), or null
+#           if only asserted. Unverified entries are claims, not findings.
+#
+# revisit:  true if this must be reconsidered before the project is complete.
+
+entries:
+  # ---------- Lab 00 — tenant, licensing, identity ----------
+  - id: POS-001
+    lab: "00"
+    setting: Security Defaults
+    location: Entra ID > Overview > Properties
+    state: Disabled
+    baseline: Enabled (tenant default since 2019-10-22)
+    kind: weakening
+    production: Conditional Access policies replacing the baseline
+    revisit: true
+    verified: 2026-07-16
+    note: >-
+      Active change, not inherited. Nothing replaced it — no Conditional Access
+      exists, so the tenant runs with no baseline identity protection. Required
+      to be off before Conditional Access can be used at all.
+
+  - id: POS-002
+    lab: "00"
+    setting: Admin identity model
+    location: Tenant-wide
+    state: Single standing Global Administrator across all portals
+    baseline: n/a
+    kind: weakening
+    production: Role-scoped admin accounts; PIM eligible assignment
+    revisit: true
+    verified: null
+    note: >-
+      Asserted by the operator, not observed in a portal view. One credential
+      holds total authority; audit trail cannot distinguish this identity's
+      actions from any other's because there is no other.
+
+  - id: POS-003
+    lab: "00"
+    setting: Conditional Access policies
+    location: Entra ID > Protection > Conditional Access
+    state: None believed configured
+    baseline: n/a
+    kind: gap
+    production: Risk-based and device-compliance grant controls
+    revisit: true
+    verified: null
+    note: >-
+      Inferred, not observed. The Manage security defaults control being
+      available is suggestive (the option is hidden where CA is in use) but is
+      not proof. Needs a direct look at the CA blade.
+
+  - id: POS-004
+    lab: "00"
+    setting: Elevate access to all Azure subscriptions
+    location: Entra ID > Overview > Properties
+    state: "Off"
+    baseline: "Off"
+    kind: default
+    production: "Off, elevated only transiently when required"
+    revisit: false
+    verified: 2026-07-16
+    note: >-
+      Governs whether the Global Administrator can assume User Access
+      Administrator across every subscription and management group. At default.
+
+  - id: POS-005
+    lab: "00"
+    setting: Azure subscription funding model
+    location: Azure > Subscriptions
+    state: Pay-as-you-go, uncapped consumption
+    baseline: n/a
+    kind: gap
+    production: Budgets with alert thresholds; auto-shutdown on lab compute
+    revisit: true
+    verified: null
+    note: >-
+      Free-credit offer unavailable, so the "services disabled, never charged"
+      safety net does not exist. Spending limit is unavailable on PAYG. Budget
+      alerts required before Lab 03 introduces billable compute and ingestion.
+
+  # ---------- Lab 01 — device registration and enrollment ----------
+  - id: POS-006
+    lab: "01"
+    setting: Users may join devices to Microsoft Entra ID
+    location: Entra ID > Devices > Device settings
+    state: All
+    baseline: All
+    kind: weakening
+    production: Selected, scoped to a security group
+    revisit: true
+    verified: null
+    note: >-
+      Device identity is an authentication surface. Set to All, any credential
+      — including a compromised one — can register an attacker-controlled
+      device into the directory.
+
+  - id: POS-007
+    lab: "01"
+    setting: MDM user scope
+    location: Entra ID > Mobility (MDM and WIP) > Microsoft Intune
+    state: All
+    baseline: None
+    kind: default
+    production: Scoped by group during staged rollout
+    revisit: false
+    verified: null
+
+  - id: POS-008
+    lab: "01"
+    setting: WIP / MAM user scope
+    location: Entra ID > Mobility (MDM and WIP) > Microsoft Intune
+    state: All
+    baseline: None
+    kind: default
+    production: Scoped by group
+    revisit: false
+    verified: null
+
+  # ---------- Lab 02 — MDE / Intune integration ----------
+  - id: POS-009
+    lab: "02"
+    setting: Microsoft Intune connection (Defender side)
+    location: Defender > Settings > Endpoints > Advanced features
+    state: "On"
+    baseline: "Off"
+    kind: hardened
+    production: "On"
+    revisit: false
+    verified: 2026-07-16
+    note: Connection status reads Available from the Intune side.
+
+  - id: POS-010
+    lab: "02"
+    setting: Allow MDE to enforce Endpoint Security Configurations
+    location: Intune > Endpoint security > Microsoft Defender for Endpoint
+    state: "On"
+    baseline: "Off"
+    kind: default
+    production: "On only where MDE-onboarded devices are not Intune-enrolled"
+    revisit: true
+    verified: 2026-07-16
+    note: >-
+      This is Security Settings Management — it governs MDE enforcing
+      configuration on devices onboarded to MDE but NOT enrolled in Intune.
+      Lab devices are expected to be Intune-enrolled, so this toggle does not
+      serve the scenario being built. Harmless, but not load-bearing here.
+
+  - id: POS-011
+    lab: "02"
+    setting: Connect Windows devices to Microsoft Defender for Endpoint
+    location: Intune > Endpoint security > Microsoft Defender for Endpoint > Compliance policy evaluation
+    state: "Off"
+    baseline: "Off"
+    kind: gap
+    production: "On"
+    revisit: true
+    verified: 2026-07-16
+    note: >-
+      The toggle that makes Intune compliance policies include MDE risk signals
+      (threat detections, risk scores) when evaluating the device threat level
+      rule. Off means the connection is Available but device risk does NOT
+      reach compliance for Windows — the risk > compliance > Conditional Access
+      chain is architecture, not a working control. Vendor guidance sets this On.
+
+  - id: POS-012
+    lab: "02"
+    setting: Connect Android / iOS devices to MDE (compliance + app protection)
+    location: Intune > Endpoint security > Microsoft Defender for Endpoint
+    state: "Off"
+    baseline: "Off"
+    kind: default
+    production: On where mobile is in scope
+    revisit: false
+    verified: 2026-07-16
+    note: No mobile devices in this lab. Out of scope rather than missing.
+
+  - id: POS-013
+    lab: "02"
+    setting: Block unsupported OS versions
+    location: Intune > Endpoint security > Microsoft Defender for Endpoint
+    state: "Off"
+    baseline: "Off"
+    kind: default
+    production: Considered per fleet
+    revisit: false
+    verified: 2026-07-16
+
+  - id: POS-014
+    lab: "02"
+    setting: Number of days until partner is unresponsive
+    location: Intune > Endpoint security > Microsoft Defender for Endpoint
+    state: "7"
+    baseline: "7"
+    kind: default
+    production: "7"
+    revisit: false
+    verified: 2026-07-16

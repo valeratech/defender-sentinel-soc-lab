@@ -1,0 +1,157 @@
+title = "defender-sentinel-soc-lab — Azure / Sentinel scrub rules"
+
+# Inherit gitleaks' default rule set (AWS keys, GitHub PATs, private keys, JWTs,
+# generic high-entropy strings) and layer Azure-specific rules on top.
+#
+# NOTE: gitleaks compiles patterns with RE2 — no lookahead/lookbehind.
+# Exceptions are expressed via allowlists, never via negative lookahead.
+[extend]
+useDefault = true
+
+# ──────────────────────────────────────────────────────────────
+# Global allowlist — approved placeholders from SANITIZATION.md
+# ──────────────────────────────────────────────────────────────
+[allowlist]
+description = "Approved synthetic placeholders and reserved documentation ranges"
+regexTarget = "match"
+regexes = [
+  '''00000000-0000-0000-0000-000000000000''',
+  '''contoso\.(com|onmicrosoft\.com)''',
+  '''2001:0?db8:''',
+]
+paths = [
+  '''SANITIZATION\.md''',
+  '''\.gitleaks\.toml''',
+  '''\.gitignore''',
+]
+
+# ──────────────────────────────────────────────────────────────
+# Identifiers — not secrets, but real tenant coordinates
+# ──────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "azure-guid-any"
+description = "GUID that is not an approved placeholder — possible tenant/subscription/workspace/object ID"
+regex = '''\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b'''
+tags = ["azure", "identifier", "pii"]
+  [rules.allowlist]
+  regexTarget = "match"
+  regexes = [
+    '''00000000-0000-0000-0000-000000000000''',
+    '''11111111-1111-1111-1111-111111111111''',
+  ]
+
+[[rules]]
+id = "azure-resource-id"
+description = "Fully-qualified Azure resource ID (embeds subscription GUID and resource group)"
+regex = '''/subscriptions/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/resourceGroups/[\w\-.()]+'''
+tags = ["azure", "identifier"]
+  [rules.allowlist]
+  regexTarget = "match"
+  regexes = ['''/subscriptions/00000000-0000-0000-0000-000000000000/''']
+
+[[rules]]
+id = "azure-tenant-domain"
+description = "Real .onmicrosoft.com tenant domain"
+regex = '''\b[a-zA-Z0-9][a-zA-Z0-9\-]{2,}\.onmicrosoft\.com\b'''
+tags = ["azure", "identifier", "pii"]
+  [rules.allowlist]
+  regexTarget = "match"
+  regexes = ['''(?i)^contoso\.onmicrosoft\.com$''']
+
+[[rules]]
+id = "upn-email"
+description = "Email address / UPN that is not an approved placeholder"
+regex = '''\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9][a-zA-Z0-9.\-]*\.[a-zA-Z]{2,}\b'''
+tags = ["pii"]
+  [rules.allowlist]
+  regexTarget = "match"
+  regexes = [
+    '''(?i)@contoso\.(com|onmicrosoft\.com)$''',
+    '''(?i)@example\.(com|org|net)$''',
+    '''(?i)@(microsoft|github)\.com$''',
+    '''(?i)@users\.noreply\.github\.com$''',
+  ]
+
+# ──────────────────────────────────────────────────────────────
+# Hard secrets
+# ──────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "log-analytics-workspace-key"
+description = "Log Analytics workspace shared key (88-char base64)"
+regex = '''(?i)(workspace[_\-]?key|shared[_\-]?key|primary[_\-]?key|secondary[_\-]?key)["']?\s*[:=]\s*["']?([A-Za-z0-9+/]{86}==)'''
+secretGroup = 2
+tags = ["azure", "secret", "critical"]
+
+[[rules]]
+id = "azure-ad-client-secret"
+description = "Entra ID application client secret (assignment form)"
+regex = '''(?i)(client[_\-]?secret|app[_\-]?secret|application[_\-]?password)["']?\s*[:=]\s*["']?([A-Za-z0-9~._\-]{34,60})'''
+secretGroup = 2
+tags = ["azure", "secret", "critical"]
+
+[[rules]]
+id = "azure-ad-secret-prefixed"
+description = "Entra ID client secret (current prefixed format)"
+regex = '''\b[A-Za-z0-9_~.\-]{3}8Q~[A-Za-z0-9_~.\-]{31,34}\b'''
+tags = ["azure", "secret", "critical"]
+
+[[rules]]
+id = "logic-app-callback-url"
+description = "Logic App / playbook trigger callback URL — contains SAS signature"
+regex = '''https://[a-z0-9\-]+(\.[a-z0-9\-]+)*\.logic\.azure\.com[^\s"']*[?&]sig=[A-Za-z0-9%_\-]+'''
+tags = ["azure", "secret", "critical", "sentinel"]
+
+[[rules]]
+id = "azure-sas-token"
+description = "Azure Shared Access Signature token"
+regex = '''[?&]sig=[A-Za-z0-9%+/=_\-]{20,}'''
+tags = ["azure", "secret"]
+
+[[rules]]
+id = "azure-storage-connection-string"
+description = "Azure Storage account connection string"
+regex = '''DefaultEndpointsProtocol=https;AccountName=[^;]+;AccountKey=[A-Za-z0-9+/=]{40,}'''
+tags = ["azure", "secret", "critical"]
+
+[[rules]]
+id = "automation-webhook"
+description = "Azure Automation webhook URI"
+regex = '''https://[a-z0-9\-]+\.webhook\.[a-z0-9\-]+\.azure-automation\.net/webhooks\?token=[A-Za-z0-9%+/=]+'''
+tags = ["azure", "secret", "critical"]
+
+# ──────────────────────────────────────────────────────────────
+# Operational — live lab attack surface
+# ──────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "public-ipv4-review"
+description = "Routable IPv4 — confirm it is attacker-side/TI, not a lab endpoint"
+regex = '''\b((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\b'''
+tags = ["operational", "review"]
+  [rules.allowlist]
+  regexTarget = "match"
+  regexes = [
+    # RFC 5737 documentation ranges
+    '''^192\.0\.2\.''',
+    '''^198\.51\.100\.''',
+    '''^203\.0\.113\.''',
+    # RFC 1918 private
+    '''^10\.''',
+    '''^192\.168\.''',
+    '''^172\.(1[6-9]|2[0-9]|3[01])\.''',
+    # Loopback / link-local / unspecified / broadcast
+    '''^127\.''',
+    '''^169\.254\.''',
+    '''^0\.0\.0\.0$''',
+    '''^255\.255\.255\.''',
+    # Common version strings misread as IPs are handled by path allowlist below
+  ]
+  paths = ['''(?i)(package-lock\.json|yarn\.lock|requirements\.txt|CHANGELOG\.md)''']
+
+[[rules]]
+id = "azure-vm-public-dns"
+description = "Azure-assigned public DNS name for a lab VM"
+regex = '''\b[a-z0-9\-]+\.[a-z0-9\-]+\.cloudapp\.azure\.com\b'''
+tags = ["operational", "critical"]

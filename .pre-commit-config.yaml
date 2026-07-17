@@ -1,0 +1,73 @@
+# One-time setup:
+#   pre-commit install
+#   pre-commit run --all-files
+#
+# Dependencies — all hooks fail closed, so install these first:
+#   gitleaks version      (brew install gitleaks | github.com/gitleaks/gitleaks/releases)
+#   exiftool -ver         (brew install exiftool | apt-get install libimage-exiftool-perl)
+#   tesseract --version   (brew install tesseract | apt-get install tesseract-ocr)
+#   pre-commit --version  (pip install pre-commit)
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]
+      - id: detect-private-key
+      - id: check-json
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+
+  - repo: local
+    hooks:
+      # Uses the locally installed gitleaks binary rather than the upstream
+      # pre-commit hook, which is language:golang and builds gitleaks from
+      # source on first run — a slow, network-dependent step that fails behind
+      # a proxy. The binary is already a dependency of the OCR hook below, so
+      # this also guarantees both hooks scan with the same version.
+      - id: gitleaks
+        name: gitleaks (Azure/Sentinel scrub rules)
+        entry: gitleaks git --staged --redact --config .gitleaks.toml --no-banner
+        language: system
+        pass_filenames: false
+
+      - id: block-binaries
+        name: block executable/binary artifacts
+        entry: "Binary artifact staged - see SANITIZATION.md section 6"
+        language: fail
+        files: '\.(exe|dll|bin|msi|scr|jar|iso|vhd|vhdx)$'
+
+      - id: block-raw-captures
+        name: block raw packet/event captures
+        entry: "Raw capture staged - commit sanitized excerpts only (SANITIZATION.md section 3)"
+        language: fail
+        files: '\.(pcap|pcapng|etl|evtx|har|nettrace)$'
+
+      # Order matters: strip metadata BEFORE OCR scanning, so the scan runs
+      # against the image that will actually be committed.
+      - id: strip-image-metadata
+        name: strip EXIF/metadata from images
+        entry: bash -c 'command -v exiftool >/dev/null || { echo "exiftool not installed - required before committing images"; exit 1; }; exiftool -all= -overwrite_original "$@" && git add "$@"' --
+        language: system
+        files: '\.(png|jpg|jpeg|gif|webp)$'
+
+      - id: ocr-scan-images
+        name: OCR images and scan extracted text
+        description: >-
+          gitleaks reads bytes, not pixels. This OCRs each staged image and
+          scans the recovered text. A net, not a guarantee - manual visual
+          review is still mandatory per SANITIZATION.md section 4.
+        entry: bash scripts/scan-image-text.sh
+        language: system
+        files: '\.(png|jpg|jpeg|webp)$'
+        pass_filenames: true
+
+      - id: generated-docs-fresh
+        name: generated docs match their sources
+        entry: bash -c 'python3 scripts/build-attack-matrix.py --check && python3 scripts/open-items.py --check && python3 scripts/build-posture-register.py --check'
+        language: system
+        pass_filenames: false
+        files: '^(labs/|detections/|posture\.yml|scripts/)'

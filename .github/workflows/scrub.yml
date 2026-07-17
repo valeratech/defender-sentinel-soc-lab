@@ -1,0 +1,73 @@
+name: scrub
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: gitleaks (source)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history: a leak in an old commit still leaks
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  image-ocr:
+    name: gitleaks (image OCR)
+    runs-on: ubuntu-latest
+    # The pre-commit hook can be bypassed with --no-verify, and a clone without
+    # `pre-commit install` has no hooks at all. This is the backstop.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OCR toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq tesseract-ocr
+
+      - name: Install gitleaks
+        run: |
+          VER=8.28.0
+          curl -sL "https://github.com/gitleaks/gitleaks/releases/download/v${VER}/gitleaks_${VER}_linux_x64.tar.gz" \
+            | tar xz gitleaks
+          sudo mv gitleaks /usr/local/bin/
+          gitleaks version
+
+      - name: Scan images
+        run: |
+          shopt -s nullglob globstar
+          imgs=( **/*.png **/*.jpg **/*.jpeg **/*.webp )
+          if [ ${#imgs[@]} -eq 0 ]; then
+            echo "No images in repository - nothing to scan."
+            exit 0
+          fi
+          echo "Scanning ${#imgs[@]} image(s)."
+          bash scripts/scan-image-text.sh "${imgs[@]}"
+
+  attack-matrix:
+    name: Generated docs freshness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify coverage matrix matches detection specs
+        run: python3 scripts/build-attack-matrix.py --check
+
+      - name: Verify open-items report matches writeups
+        run: python3 scripts/open-items.py --check
+
+      - name: Install PyYAML
+        run: pip install --quiet pyyaml
+
+      - name: Verify posture register matches posture.yml
+        run: python3 scripts/build-posture-register.py --check

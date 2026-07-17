@@ -1,0 +1,22 @@
+# Normalize line endings. The scrub hooks are shell scripts invoked by bash;
+# a CRLF checkout on Windows breaks them with "\r: command not found", which
+# fails open-looking (hook errors, commit proceeds if --no-verify is reflexive).
+* text=auto eol=lf
+
+*.sh    text eol=lf
+*.py    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.toml  text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+
+# Binary — never diff, never normalize
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+
+# Generated — collapse in PR diffs
+docs/attack-coverage.md linguist-generated=true

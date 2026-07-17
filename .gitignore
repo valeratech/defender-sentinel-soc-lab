@@ -1,0 +1,95 @@
+# ── Secrets and credentials ────────────────────────────────
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+*.p12
+*.cer
+*.publishsettings
+secrets.json
+credentials.json
+
+# ── Azure CLI / PowerShell state ───────────────────────────
+.azure/
+.azcli/
+*.azurePubxml
+AzureProfile.json
+
+# ── Terraform ──────────────────────────────────────────────
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform/
+.terraform.lock.hcl
+crash.log
+
+# ── ARM / Bicep parameter files (contain real IDs) ─────────
+*.parameters.json
+!*.parameters.example.json
+
+# ── Exports that commonly carry tenant identifiers ─────────
+*-export.json
+*.workspace.json
+armviz.json
+
+# ── Offensive artifacts — never commit ─────────────────────
+payloads/
+samples/
+*.bin
+*.exe
+*.dll
+*.ps1.encoded
+
+# ── Raw, unsanitized evidence staging ──────────────────────
+_raw/
+_unsanitized/
+*.raw.png
+*.raw.csv
+
+# ── Notebooks ──────────────────────────────────────────────
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# ── OS / editor noise ──────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# ── Azure authentication and local state ───────────────────
+.azure-devops/
+TokenCache.dat
+ServicePrincipals.json
+local.settings.json
+
+# ── PowerShell / Azure exports ─────────────────────────────
+*.publishsettings.xml
+*.bacpac
+*.har
+
+# ── Certificates and signing material ──────────────────────
+*.crt
+*.der
+*.jks
+*.keystore
+
+# ── Deployment outputs (contain resource IDs) ──────────────
+deployment-output.json
+*-outputs.json
+
+# ── Packet captures & raw investigation evidence ───────────
+# Contain internal IPs, hostnames, UPNs, MACs, tokens, cookies,
+# and unrelated traffic. Commit sanitized excerpts only.
+*.pcap
+*.pcapng
+*.etl
+*.evtx
+*.nettrace
+
+# ── Additional unsanitized staging ─────────────────────────
+evidence/raw/
+screenshots/raw/

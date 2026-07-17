@@ -94,24 +94,45 @@ entries:
 
   - id: POS-015
     lab: "00"
-    setting: Monthly cost budget
+    setting: Cost budgets - two, at different scopes
     location: Cost Management + Billing > Budgets
-    state: $15/month, resets monthly, expires 2028-06-30
+    state: Resource group $15/mo (actual 50/80/100); subscription $25/mo (actual 50/80/100 + forecasted 100)
     baseline: none
     kind: hardened
-    production: Budget at subscription scope with actual + forecasted alerts
+    production: Same, plus an action group driving automated shutdown
     revisit: true
     verified: 2026-07-16
     note: >-
-      Exists with recipients configured and alerting at 50/80/100 percent.
-      Two limitations recorded rather than assumed away. First, scope is
-      a single resource group (`rg-soc-lab`), NOT the subscription — anything
-      created outside that group is unmonitored, which matters once Lab 04 creates the
-      Log Analytics workspace, since ingestion is the largest projected cost
-      and may not land in that group. Second, all three thresholds are Actual
-      cost only; no Forecasted alert exists, so every notification arrives
-      after the spend rather than before it. Azure budgets notify, they do not
-      cap.
+      Two budgets exist deliberately rather than one. The resource-group budget
+      ($15) is the tighter tripwire on the lab's own resources; the
+      subscription budget ($25) is the backstop that catches spend the first
+      one structurally cannot see. Consolidating to one was rejected in both
+      directions: a resource-group budget cannot see spend outside its group —
+      which matters once Lab 04 creates the Log Analytics workspace, since
+      ingestion is the largest projected cost and may not land there — and a
+      subscription budget cannot attribute spend to a component. Cost of
+      keeping both is duplicate mail when spend falls inside the group.
+
+      Budget scope is fixed at creation, so the subscription budget had to be
+      created new rather than rescoped.
+
+      LIMITS, recorded rather than assumed away:
+      (1) Azure budgets notify, they do not cap. There is no spending limit on
+      pay-as-you-go, so spend continues past 100 percent. POS-016 —
+      deallocating the VM — remains the only actual control; the budget only
+      reports that the habit slipped.
+      (2) Azure evaluates budgets roughly every 8-24 hours, not on demand, so
+      an alert can arrive a day after a runaway resource starts billing.
+      (3) These budgets cover Azure consumption ONLY. The Microsoft 365 E5
+      conversion (POS-017) bills through a separate system and is invisible to
+      Azure Cost Management at any scope. The most certain charge on this
+      tenant has no alert attached to it — only a calendar date.
+      (4) Forecasted alerting was added to the subscription budget but the
+      resource-group budget remains actual-only, so its warnings still arrive
+      after the spend.
+      (5) Neither alert has ever fired. Recipients are configured but the
+      notification path is unvalidated, which by this repo's own standard makes
+      it a hypothesis rather than a control.
 
   - id: POS-016
     lab: "00"

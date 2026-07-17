@@ -14,11 +14,11 @@ Status: 🔨 Built, documentation in progress
 | Line | Section | Item |
 |---|---|---|
 | 9 | Lab 00 — Tenant, Licensing, and Identity Foundation | **Built** / *(pending — see Environment Clock below)* |
-| 60 | 3. Environment Clock | M365 recurring billing / *(pending — see `POS-017`)* |
-| 62 | 3. Environment Clock | Azure budget, subscription scope / *(pending — see `POS-015`)* |
-| 63 | 3. Environment Clock | Azure budget, forecasted alert / *(pending — see `POS-015`)* |
-| 69 | 4. Build | *(pending — configuration state recorded below; narrative to follow)* |
-| 87 | 5. Validation | *(pending)* |
+| 87 | 3. Environment Clock | M365 recurring billing / *(pending — see `POS-017`)* |
+| 89 | 3. Environment Clock | Azure budget, subscription scope / *(pending — see `POS-015`)* |
+| 90 | 3. Environment Clock | Azure budget, forecasted alert / *(pending — see `POS-015`)* |
+| 96 | 4. Build | *(pending — configuration state recorded below; narrative to follow)* |
+| 114 | 5. Validation | *(pending)* |
 
 ## `labs/01-device-registration-intune-enrollment/README.md`
 

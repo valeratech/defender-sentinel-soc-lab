@@ -12,7 +12,34 @@
 
 ---
 
-## 1. Objective
+## 0. Provenance
+
+This environment was built by following three setup guides. They are cited throughout
+the repository as **G1**, **G2**, **G3** so that instructions taken from them are not
+presented as native knowledge, and so that a reader can tell which decisions were
+inherited and which were made here.
+
+| Ref | Guide | Covers |
+|---|---|---|
+| **G1** | Microsoft 365 & Azure Sandbox — regional limitations and Teams activation | Tenant creation, E5 trial acquisition, licence assignment, Azure subscription |
+| **G2** | Device Registration and Automatic Intune Enrollment Configuration Guide | Entra device join settings, MDM/MAM scope |
+| **G3** | Integrating Microsoft Defender for Endpoint with Intune | Defender↔Intune connection, both directions |
+
+Their content is not reproduced. `docs/configuration-inventory.md` records, per setting,
+what the guides instructed and what this environment actually does — including three
+points where those disagree. The most consequential:
+
+- **G1 describes an Azure safety net this subscription does not have** (see §3). The
+  free-account credit model it assumes — services paused at exhaustion, card never
+  auto-charged — does not apply to pay-as-you-go. Budget and deallocation discipline
+  exist here because that assumption failed, not because a guide called for them.
+- **G3 states the MDE↔Intune connection lets Intune enforce compliance on Defender's
+  device risk, then gives two steps that do not enable it.** The toggle that does is
+  never mentioned. See Lab 02 and `POS-011`.
+
+Recording provenance is not bookkeeping. A guide that is right about the procedure and
+wrong about the outcome is the most expensive kind of documentation to follow, because
+nothing errors.
 
 Establish the tenant and licensing baseline every later capability depends on: an Entra ID directory with the E5 security workloads provisioned and assigned, and an Azure subscription capable of hosting a Log Analytics workspace and lab compute.
 

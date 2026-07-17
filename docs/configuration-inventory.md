@@ -25,14 +25,22 @@ from source and CI-checked. If the two disagree, the register is right.
 ## Source guidance
 
 Three setup guides were used to build this environment. They are referenced throughout
-as **G1**, **G2**, **G3**. Their content is not reproduced here; only what was
+as **G1** through **G5**. Their content is not reproduced here; only what was
 configured, and what was found to differ.
 
 | Ref | Guide | Covers |
 |---|---|---|
 | **G1** | Microsoft 365 & Azure Sandbox — regional limitations and Teams activation | Tenant creation, E5 trial acquisition, licence assignment, Azure subscription |
 | **G2** | Device Registration and Automatic Intune Enrollment Configuration Guide | Entra device join settings, MDM/MAM scope |
-| **G3** | Integrating Microsoft Defender for Endpoint with Intune — steps and important notices | Defender↔Intune connection, both directions |
+| **G3** | Disabling Entra ID Security Defaults for Custom Conditional Access Policies | Security Defaults, the transition to CA |
+| **G4** | Integrating Microsoft Defender for Endpoint with Intune — steps and important notices | Defender↔Intune connection, both directions |
+| **G5** | Deploying and Accessing an Azure Windows 11 VM with Entra ID Login | VM deployment, RBAC, NLA, Entra sign-in |
+
+`G3` and `G5` surfaced during a documentation audit after the first version of
+this file was written. That first version recorded Security Defaults (`POS-001`) as
+*not in source guidance* — which was wrong, and wrong in a specific way worth naming:
+absence was asserted from a partial view of the sources. The same error, in the same
+document, that `POS-011` records the guides making about the environment.
 
 Anything marked **not in source guidance** was found or decided during the build.
 Roughly half this document falls into that category, and that is the reason to keep it:
@@ -50,7 +58,7 @@ Intune — seen from opposite ends. Enabling it in Defender does not enable the 
 half. Nothing in either portal says so, and no error is raised.
 
 **G2** makes this explicit for enrolment, giving both an Entra path and an Intune path
-to the same settings and stating the portals are linked. **G3** does not extend the
+to the same settings and stating the portals are linked. G4 does not extend the
 same treatment to the compliance connector, which is exactly where the Lab 02 finding
 lives.
 
@@ -93,8 +101,15 @@ renamed **Marketplace** under Billing.
 
 ### 1.2 Licence assignment — `POS-017`
 
-- [ ] **Path:** Users → Active users → *(admin account)* → Licenses and apps
-      *(G1's route: Billing → Licenses → subscription → Assign licenses)*
+- [ ] **Path:** `admin.microsoft.com` → Users → Active users → *(account)* →
+      Licenses and apps *(G1's route: Billing → Licenses → subscription → Assign
+      licenses)*
+- **Portal trap:** **Entra ID shows licensing read-only.** `entra.microsoft.com` →
+  Users → *(user)* → Licenses renders a page that cannot assign anything and says so
+  only in a banner: *"Adding, removing, and reprocessing licensing assignments is only
+  available within the M365 Admin Center."* Same setting, two portals, one a dead end —
+  the same shape as `POS-009`/`POS-011`, and the reason the five-portal note above
+  isn't padding.
 - **What it is:** Which SKUs are active on the account that operates the lab.
 - **Why:** G1 is explicit that adding a subscription to the tenant does **not** assign
   it to your account — that is a separate manual step.
@@ -104,7 +119,7 @@ renamed **Marketplace** under Billing.
   assigned, 1/25 each. 173 service plans listed under Apps.
 - **Observation:** M365 E5 is a superset of O365 E5, so both being assigned is
   redundancy. It resolves itself when O365 E5 lapses.
-- **Cross-reference:** G3 notes that greyed-out or failing endpoint settings usually
+- **Cross-reference:** G4 notes that greyed-out or failing endpoint settings usually
   mean this step was missed — see 5.2.
 
 ### 1.3 Recurring billing — `POS-017`
@@ -155,7 +170,18 @@ renamed **Marketplace** under Billing.
   since 2019-10-22.
 - **Why it is off:** Security Defaults and Conditional Access are mutually exclusive.
   Lab work requiring CA cannot proceed with Defaults enabled.
-- **Source guidance:** Not in G1, G2, or G3.
+- **Source guidance (G3):** An entire guide covers this. Disable via Entra ID →
+  Overview → Properties → Manage security defaults, selecting *"My organization is
+  planning to use Conditional Access"* as the reason. G3's stated rationale: the
+  blanket MFA and legacy-auth rules disrupt scripts, CLI tooling, and device-joining
+  exercises, and Entra will not run Defaults and custom CA simultaneously.
+- **G3 contains a copy-paste error worth knowing about.** Its *Quick Step* block is
+  Microsoft's **enable** procedure, ending *"Set Security defaults to Enabled"* —
+  directly contradicting its own TLDR, which says disable. Following the Quick Step
+  literally does the opposite of the guide's purpose.
+- **G3 also warns**, explicitly: never leave Security Defaults disabled in production
+  without immediately replacing them with equivalent or stronger Conditional Access.
+  See `POS-003` — **that is a gap the guidance warned about, not one it omitted.**
 - **What we verified (2026-07-16):** **Disabled.** Since the tenant default is Enabled,
   this was an **active change**, not an inherited state — recorded as such so it is not
   mistaken for a default.
@@ -200,7 +226,7 @@ renamed **Marketplace** under Billing.
   separate planes; this toggle is the bridge.
 - **Why recorded:** It is **Off**, matching baseline — recorded so it is not mistaken
   for a decision.
-- **Source guidance:** Not in G1, G2, or G3.
+- **Source guidance:** Not in G1–G5.
 - **Verified:** 2026-07-16.
 
 ### 2.5 Users may join devices to Microsoft Entra ID — `POS-006` ⚠️ weakening
@@ -236,8 +262,65 @@ renamed **Marketplace** under Billing.
 - **Expected behaviour (G2):** on sign-in with an organizational account, the device
   registers in Entra, silently registers with Intune, and receives baselines,
   compliance policies, and Defender rules. G2 notes enrolment can take 5–10 minutes and
-  suggests a manual sync from Windows settings if the device does not appear —
-  **relevant to Lab 03, where that latency gets measured rather than assumed.**
+  suggests a manual sync from Windows settings if the device does not appear.
+
+### 2.7 Automatic MDM enrolment never fires — `POS-022` ❌ gap — **the Lab 01 finding**
+
+**It doesn't happen.** The device joined Entra on 2026-07-14 and was still absent from
+Intune three days later. Not slow — absent.
+
+**Every precondition verified individually. All pass:**
+
+| Precondition | State | Verified by |
+|---|---|---|
+| MDM user scope = All | ✅ | Entra portal (`POS-007`) |
+| Device holds the MDM discovery URL | ✅ | `dsregcmd` — **matches the portal value exactly** |
+| Device eligible for auto-enrolment | ✅ | `DeviceEligible : YES` |
+| Primary Refresh Token | ✅ | `AzureAdPrt : YES`, 17:09:30 UTC |
+
+**And nothing happens:**
+
+| Check | Result |
+|---|---|
+| Scheduled tasks under `\Microsoft\Windows\EnterpriseMgmt` | **none** |
+| Enrolment events (ID 71/72/75/76) in `DeviceManagement-Enterprise-Diagnostics-Provider/Admin` | **none**, in a log spanning back before the VM existed |
+| Device in Intune | **absent** |
+
+**Not blocked. Never started.** No error is raised because nothing is attempted.
+
+**Hypothesis, not conclusion:** the join path. G5 builds a VM whose Entra join is done
+by the `AADLoginForWindows` extension at deployment — not by a user-driven join through
+Settings or OOBE. MDM scope is *necessary but not sufficient*; something must trigger
+enrolment, and the extension join appears not to. Suggestive: Azure Virtual Desktop's
+host-pool creation offers an explicit *"enrol VMs with Intune"* checkbox that plain VM
+creation lacks — which would be redundant if extension joins enrolled themselves.
+
+**What is established** is the observation: preconditions met, behaviour absent, silent.
+
+**Why this is the sharpest divergence yet:** G2 and G5 are each internally correct. G2
+describes user-driven join behaviour; G5 builds a VM that doesn't join that way.
+Followed together they produce a device that will **never** enrol — and neither guide is
+wrong enough for the failure to surface.
+
+**Left unenrolled deliberately.** Lab 03 onboards to Defender via local script and
+doesn't need Intune. Forcing it (`deviceenroller.exe /c /AutoEnrollMDM`) requires local
+admin, which `POS-021` deliberately removed, and it enrols in the *calling user's*
+context — so forcing it as Global Admin would bind the device to the very account
+`POS-021` exists to keep off the endpoint.
+
+**Diagnostic path worth keeping** — every step was read from the device, not inferred
+from documentation:
+
+```powershell
+dsregcmd /status                     # AzureAdPrt, DeviceEligible, MdmUrl, TpmProtected
+Get-ScheduledTask -TaskPath "\Microsoft\Windows\EnterpriseMgmt\*"
+Get-WinEvent -LogName "Microsoft-Windows-DeviceManagement-Enterprise-Diagnostics-Provider/Admin" |
+  Where-Object { $_.Id -in 75,76,71,72 }
+```
+
+Note `dsregcmd`'s **SSO State is per-user**. Run via Azure Run command it executes as
+SYSTEM and reports `AzureAdPrt : NO` regardless of truth. It must be run inside the
+user's session.
 
 ---
 
@@ -317,6 +400,99 @@ renamed **Marketplace** under Billing.
 - **Watch:** which resource group it lands in — see `POS-015`. And retention, the main
   ingestion-cost lever.
 
+### 3.5 Lab endpoint VM — `POS-018`, `POS-019`, `POS-020`, `POS-023`
+
+- [ ] **Path:** Virtual machines → *(VM)* → Overview · Networking · Operations
+- **What it is:** The Windows 11 endpoint every later lab acts on.
+- **Source guidance (G5):** Resource group, VM name, closest region, no infrastructure
+  redundancy, **Security Type → Standard**, Windows 11 Enterprise, 2 vCPU / 8 GiB,
+  local admin account, **RDP 3389 allowed**, Standard HDD, **Login with Microsoft
+  Entra ID**, **auto-shutdown enabled**, boot diagnostics disabled.
+- **What we deployed:** `Standard_D2s_v3` (2 vCPU / 8 GiB), Windows 11
+  `10.0.26200.8875`, Entra login on, auto-shutdown 23:00 Pacific with notification.
+  **Deviation:** named for its purpose rather than G5's suggested name.
+- **Cost:** ~$70/month running continuously, against a $25/month subscription budget
+  (`POS-015`) — 100% in roughly ten days of uptime. `POS-023` is what keeps that
+  theoretical.
+
+#### Security Type = Standard — `POS-018` ⚠️
+
+G5 says to change it. It doesn't say what it costs. **Four independent observations,
+one cause:**
+
+| Observation | Source |
+|---|---|
+| no `securityProfile` block | VM JSON view |
+| `TpmPresent: False`, `TpmReady: False` | `Get-Tpm` |
+| `Confirm-SecureBootUEFI` → `False` | in-session PowerShell |
+| `TpmProtected: NO`, `KeyProvider: Microsoft Software Key Storage Provider` | `dsregcmd /status` |
+
+And it surfaces in the identity plane too — the Entra sign-in log records
+**`Token protection - Sign In Session: Unbound (Status code: 1003)`**. With no vTPM the
+Primary Refresh Token cannot be bound to the device, so a stolen token is replayable
+elsewhere.
+
+**It also breaks compliance from a second direction.** Intune compliance policies
+commonly evaluate Secure Boot and TPM. This device can satisfy neither. So
+`POS-011` blocks the risk signal *and* the device would fail the checks even if the
+signal arrived — fixing the toggle alone would not produce a working control.
+
+#### RDP exposure — `POS-019`
+
+G5: *"Ensure RDP (3389) is allowed."* Portal default source is **Any** — the entire
+internet. Scoped to the operator's IP on 2026-07-17.
+
+**The exposure was never RDP alone. It was the composition:**
+
+```
+3389 open to Any            (G5 default)
+  + NLA disabled            (POS-020, G5 instructs)
+  + no MFA baseline         (POS-001)
+  + no Conditional Access   (POS-003)
+  + sign-in as Global Admin (POS-002, G5 instructs)
+  = internet-facing path to tenant compromise
+```
+
+Every element is individually defensible in a lab. Together they are not, and **no
+single guide step is wrong enough to notice.** The VM being deallocated between
+sessions is what kept it theoretical.
+
+#### NLA disabled — `POS-020` ⚠️
+
+Genuinely required for G5's approach: Entra auth happens at the Windows login screen,
+and NLA validates credentials before a session exists, so it blocks the flow.
+
+Verified at both ends: registry `UserAuthentication = 0` (read via **Run command** — the
+exposed path was not used to inspect the exposed path), and `enablecredsspsupport:i:0`
+in the `.rdp` file.
+
+```
+full address:s:203.0.113.10:3389
+prompt for credentials:i:1
+username:s:azuread\analyst@contoso.onmicrosoft.com
+enablecredsspsupport:i:0
+authentication level:i:2
+```
+
+**The file weakens two things and G5 explains one.** `authentication level:i:2` means
+*warn but connect* when server identity can't be verified — a downgrade of server
+authentication, not just client pre-auth. Unmentioned.
+
+#### Sign-in identity — `POS-021` ✅ not in source guidance
+
+G5 signs in as the tenant Global Administrator, because at that point in the course
+it's the only Entra account that exists.
+
+An Entra-joined device receives a **Primary Refresh Token** for whoever signs in, and
+it lives on the device. So G5's flow places a tenant-admin token on the endpoint that
+later labs deliberately attack — and per `POS-018` that token is unbound, so it's
+replayable.
+
+Created `labuser`: no roles, no groups, **M365 E5 assigned** (required — an unlicensed
+account won't enrol), **Virtual Machine User Login** (not *Administrator* Login), scoped
+to the single VM. Also more faithful for the labs ahead: ASR and attack-simulation
+results as a non-admin are what an analyst actually sees.
+
 ---
 
 ## 4. Microsoft Intune admin center — `intune.microsoft.com`
@@ -328,9 +504,9 @@ renamed **Marketplace** under Billing.
       Configurations*
 - **What it is:** Security-settings management via MDE — lets Intune policy reach
   devices MDE sees but Intune does not manage.
-- **Why:** G3 presents this as Step 2 of the integration, the Intune-side counterpart
+- **Why:** G4 presents this as Step 2 of the integration, the Intune-side counterpart
   to `POS-009`.
-- **Source guidance (G3):** Toggle **On**, then Save at the top of the blade.
+- **Source guidance (G4):** Toggle **On**, then Save at the top of the blade.
 - **What we verified (2026-07-16):** On. Baseline is Off — so this was a change.
 - **Production answer:** On only where MDE-onboarded devices are not Intune-enrolled;
   worth scoping deliberately rather than leaving broadly on.
@@ -343,18 +519,18 @@ renamed **Marketplace** under Billing.
 - **What it is:** The toggle allowing MDE's device risk score to reach Intune compliance
   evaluation.
 - **What we verified (2026-07-16):** **Off.**
-- **Source guidance (G3): not mentioned.** This is the divergence that matters.
+- **Source guidance (G4): not mentioned.** This is the divergence that matters.
 
-  G3 states that integrating MDE and Intune enables real-time telemetry sharing, and
+  G4 states that integrating MDE and Intune enables real-time telemetry sharing, and
   that the connection **allows Intune to enforce compliance based on a device's risk
   level reported by Defender**. That is the stated purpose of the entire procedure.
 
-  G3 then gives two steps — the Defender-side connection (`POS-009`) and the
+  G4 then gives two steps — the Defender-side connection (`POS-009`) and the
   enforcement toggle (`POS-010`). **Neither enables risk-based compliance.** The toggle
-  that does sits on a different blade in the same portal, and G3 never mentions it.
+  that does sits on a different blade in the same portal, and G4 never mentions it.
 
-  Following G3 exactly and completely therefore produces an integration that reports
-  *Available*, raises no error, and **does not do the thing G3 says it does.**
+  Following G4 exactly and completely therefore produces an integration that reports
+  *Available*, raises no error, and **does not do the thing G4 says it does.**
 - **Consequence:** device risk does not reach Intune compliance. The risk → compliance →
   Conditional Access chain is architecture, not a working control. A compliance policy
   written against device risk will deploy successfully, report healthy, and **silently
@@ -369,13 +545,13 @@ renamed **Marketplace** under Billing.
 - [ ] **Path:** Endpoint security → Microsoft Defender for Endpoint
 - **State:** Off for both compliance and app protection — matches baseline. Mobile is
   out of scope for this lab.
-- **Source guidance:** Not in G3.
+- **Source guidance:** Not in G1–G5.
 
 ### 4.4 Block unsupported OS versions — `POS-013` ✅ default
 
 - [ ] **Path:** Endpoint security → Microsoft Defender for Endpoint
 - **State:** Off — matches baseline.
-- **Source guidance:** Not in G3.
+- **Source guidance:** Not in G1–G5.
 
 ### 4.5 Days until partner is unresponsive — `POS-014` ✅ default
 
@@ -383,7 +559,7 @@ renamed **Marketplace** under Billing.
 - **What it is:** How long Intune keeps trusting MDE's last-known signal before treating
   the partner as unresponsive.
 - **State:** 7 — matches baseline.
-- **Source guidance:** Not in G3.
+- **Source guidance:** Not in G1–G5.
 
 ---
 
@@ -395,8 +571,8 @@ renamed **Marketplace** under Billing.
       connection* → Save preferences
 - **What it is:** The Defender half of the MDE↔Intune bridge — permits Defender to
   communicate outward to Intune.
-- **Why:** G3 Step 1.
-- **Source guidance (G3):** Toggle On, Save preferences. G3 warns the Defender portal's
+- **Why:** G4 Step 1.
+- **Source guidance (G4):** Toggle On, Save preferences. G4 warns the Defender portal's
   left navigation is collapsed by default in newer versions and must be expanded to
   reach System → Settings — and advises focusing on the objective (linking the endpoint
   security tool to the management suite) rather than memorising a layout Microsoft keeps
@@ -410,7 +586,7 @@ renamed **Marketplace** under Billing.
 
 - **What it is:** The backend provisioning lag between assigning an E5 licence and
   Defender's Endpoints features actually appearing.
-- **Source guidance (G3):** three notes that explain most "it's broken" moments in
+- **Source guidance (G4):** three notes that explain most "it's broken" moments in
   Labs 02–03:
   1. After assigning an MDE or M365 E5 licence, Endpoints features may not appear
      immediately — M365, Entra ID, and Defender need time to complete backend
@@ -650,16 +826,20 @@ appears only when genuinely observed and attributed.
 
 ---
 
-## The three divergences
+## The six divergences
 
-Where the source guides and this environment disagree. These are the entries worth
-re-reading:
+Where the source guides and this environment disagree. Every one was found by checking
+rather than assuming, and every one is silent — no guide step is wrong enough to raise
+an error.
 
 | # | Guide says | Environment is | Consequence |
 |---|---|---|---|
 | 1 | **G1**: Azure free trial gives $200 credit; services pause at exhaustion; card never auto-charged | Pay-as-you-go, uncapped, no credit (`POS-005`) | **The safety net does not exist.** No spending limit is available. Budgets notify but cannot cap. Deallocation (`POS-016`) is the only real control |
-| 2 | **G3**: The MDE↔Intune connection lets Intune enforce compliance based on Defender's device risk | Connection *Available*, but `POS-011` is **Off** | G3's two steps do not enable risk-based compliance. The step that does is never mentioned. Following the guide exactly produces an integration that reports healthy and does not do what the guide says |
+| 2 | G4: The MDE↔Intune connection lets Intune enforce compliance based on Defender's device risk | Connection *Available*, but `POS-011` is **Off** | G4's two steps do not enable risk-based compliance. The step that does is never mentioned. Following the guide exactly produces an integration that reports healthy and does not do what the guide says |
 | 3 | **G1**: Cancel the subscription before the trial ends | Turned recurring billing off instead (`POS-017`) | Cancelling ends access immediately; turning recurring billing off keeps the trial to full term and stops the conversion. Same cost, four more weeks of lab |
+| 4 | **G2**: the device silently registers with Intune after sign-in | Never enrols (`POS-022`) | **The sharpest one.** G2 describes user-driven join behaviour; G5 builds a VM joined by the `AADLoginForWindows` extension. Both guides individually correct; together they produce a device that never enrols, with every precondition satisfied and no error raised |
+| 5 | **G4**: troubleshoot Entra sign-in failure by disabling blocking Conditional Access policies | **Zero CA policies exist** (`POS-003`) | The prescribed remedy has no cause to address. The real failure was `AADSTS50055` — expired password on a new account — found in `dsregcmd`, not in the guide. Following the guidance would mean hunting for policies that aren't there, or disabling unrelated things to make an error go away |
+| 6 | **G3**: *Quick Step* block instructs setting Security defaults to **Enabled** | Its own TLDR says disable | A copy-paste of Microsoft's *enable* procedure into a guide about disabling. Following the Quick Step literally does the opposite of the guide's purpose |
 
 ---
 
@@ -681,5 +861,8 @@ Then, without looking:
 - Which setting makes a compliance policy silently never fire? → `POS-011`
 - Which single mechanism actually stops Azure spend here? → `POS-016`, deallocation
 - Which charge has no alert attached at all? → the M365 conversion, `POS-017`
-- Which settings are asserted but never observed? → `POS-002`, `POS-003`, `POS-006`,
-  `POS-007`, `POS-008`
+- Which settings are asserted but never observed? → `POS-002`, `POS-006` — down from
+  five; `POS-003`, `POS-007`, `POS-008` were verified 2026-07-17
+- Which two independent faults each break device-risk compliance on their own? →
+  `POS-011` (connector off) and `POS-018` (no TPM/Secure Boot to evaluate)
+- Which finding has every precondition satisfied and still never happens? → `POS-022`

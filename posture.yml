@@ -55,7 +55,7 @@ entries:
     kind: gap
     production: Risk-based and device-compliance grant controls
     revisit: true
-    verified: null
+    verified: 2026-07-17
     note: >-
       Inferred, not observed. The Manage security defaults control being
       available is suggestive (the option is hidden where CA is in use) but is
@@ -231,7 +231,7 @@ entries:
     kind: default
     production: Scoped by group during staged rollout
     revisit: false
-    verified: null
+    verified: 2026-07-17
 
   - id: POS-008
     lab: "01"
@@ -242,7 +242,212 @@ entries:
     kind: default
     production: Scoped by group
     revisit: false
-    verified: null
+    verified: 2026-07-17
+
+
+  # ---------- Lab 01 — lab endpoint (Azure Windows 11 VM) ----------
+  - id: POS-018
+    lab: "01"
+    setting: VM Security Type
+    location: Azure > Virtual machines > (VM) > JSON view > securityProfile
+    state: Standard - no securityProfile block present; vTPM and Secure Boot absent
+    baseline: Trusted Launch
+    kind: weakening
+    production: Trusted Launch (vTPM + Secure Boot), which is the portal default
+    revisit: true
+    verified: 2026-07-17
+    note: >-
+      Instructed by G5, which says to change Security Type to Standard without
+      stating what that costs. Observed at four independent layers rather than
+      inferred from one: the VM JSON has no securityProfile block; Get-Tpm
+      reports TpmPresent False and TpmReady False; Confirm-SecureBootUEFI
+      returns False; and dsregcmd reports TpmProtected NO with KeyProvider
+      "Microsoft Software Key Storage Provider".
+
+      Two consequences the guide does not mention.
+
+      First, the device's Entra identity key is software-protected on disk
+      rather than sealed in hardware. The Entra sign-in log independently
+      records "Token protection - Sign In Session: Unbound (Status code:
+      1003)": with no vTPM the Primary Refresh Token cannot be bound to the
+      device, so a stolen token is replayable elsewhere. That is the same fact
+      surfacing in the identity plane.
+
+      Second, Intune compliance policies commonly evaluate Secure Boot and TPM.
+      This device cannot satisfy either. So the risk-to-compliance chain is
+      broken in two independent places — POS-011 blocks the signal, and this
+      entry means the device would fail the checks even if the signal arrived.
+      Fixing POS-011 alone would not produce a working control.
+
+  - id: POS-019
+    lab: "01"
+    setting: RDP inbound exposure (NSG)
+    location: Azure > Virtual machines > (VM) > Networking > Network settings
+    state: TCP 3389 allow, source restricted to operator public IP (was Any)
+    baseline: Any (as deployed per G5)
+    kind: hardened
+    production: No public RDP - Bastion, or JIT VM access via Defender for Cloud
+    revisit: true
+    verified: 2026-07-17
+    note: >-
+      G5 instructs "Ensure RDP (3389) is allowed" and the portal default source
+      is Any, which means the entire internet. Azure VMs with 3389 open to Any
+      are found by opportunistic scanners within minutes of the public IP
+      becoming live.
+
+      Not in source guidance; changed to "My IP address" on 2026-07-17.
+
+      The exposure was never RDP alone — it was the composition. Open 3389,
+      plus NLA disabled (POS-020) removing pre-authentication, plus no MFA
+      baseline (POS-001), plus no Conditional Access (POS-003), plus a standing
+      Global Administrator as the sign-in identity (POS-002), is an
+      internet-facing path to tenant compromise. Each element is individually
+      defensible in a lab. Together they are not, and no single guide step is
+      wrong enough to notice. The VM being deallocated between sessions is what
+      kept this theoretical.
+
+      Residential source IP rotates; the rule needs updating when it does.
+      Symptom is an RDP timeout rather than an error.
+
+  - id: POS-020
+    lab: "01"
+    setting: Network Level Authentication
+    location: VM registry HKLM\...\WinStations\RDP-Tcp\UserAuthentication + local .rdp file
+    state: Disabled on both server and client side
+    baseline: Enabled
+    kind: weakening
+    production: NLA enabled; Entra login reached via Bastion rather than by disabling NLA
+    revisit: true
+    verified: 2026-07-17
+    note: >-
+      Instructed by G5, and genuinely required for its approach: Entra ID
+      authentication happens at the Windows login screen, and NLA forces
+      credential validation before a session exists, so NLA blocks the flow.
+
+      Verified at both ends independently. Server side: registry
+      UserAuthentication = 0, read via Azure Run command without opening an RDP
+      session — the exposed path was not used to inspect the exposed path.
+      Client side: the .rdp file carries enablecredsspsupport:i:0.
+
+      The .rdp file weakens two things, and G5 explains one. It also sets
+      "authentication level:i:2", which means warn-but-connect when server
+      identity cannot be verified — a downgrade of server authentication, not
+      just of client pre-authentication. Unmentioned in the guide.
+
+      With NLA off, the pre-authentication attack surface is exposed to anything
+      that can reach 3389. That was the entire internet until POS-019 was
+      scoped.
+
+  - id: POS-021
+    lab: "01"
+    setting: Endpoint sign-in identity
+    location: Entra ID > Users; Azure > (VM) > Access control (IAM)
+    state: Dedicated labuser account, no roles, Virtual Machine User Login on the VM only
+    baseline: n/a
+    kind: hardened
+    production: Same - endpoints are never signed into with privileged accounts
+    revisit: false
+    verified: 2026-07-17
+    note: >-
+      Not in source guidance. G5 signs into the VM as the tenant Global
+      Administrator, because at that point in the course it is the only Entra
+      account that exists.
+
+      That matters more than it appears. When an Entra-joined device
+      authenticates a user, it receives a Primary Refresh Token for that
+      account and the token lives on the device. Signing in as Global Admin
+      places a tenant-admin token on the endpoint that later labs deliberately
+      attack. Combined with POS-018 (no vTPM, so the PRT is unbound and
+      replayable), compromising the box would mean compromising the tenant.
+
+      Created labuser: no directory roles, no group memberships, Microsoft 365
+      E5 assigned (required — an unlicensed account will not enrol), and
+      Virtual Machine User Login rather than Administrator Login, scoped to the
+      single VM resource. The Global Administrator no longer touches the
+      endpoint.
+
+      This is also more faithful for the labs that follow: ASR and
+      attack-simulation results taken as a non-admin reflect what a real
+      analyst would see.
+
+  - id: POS-022
+    lab: "01"
+    setting: Intune automatic MDM enrolment
+    location: Entra ID > Mobility (MDM and WIP); Intune > Devices > All devices
+    state: Never occurs - every precondition satisfied, no enrolment ever attempted
+    baseline: n/a
+    kind: gap
+    production: Enrolment driven by Autopilot, Company Portal, or a policy-driven trigger
+    revisit: true
+    verified: 2026-07-17
+    note: >-
+      THE LAB 01 FINDING. G2 states that on sign-in the device registers with
+      Entra and then silently registers with Intune. It does not. The device
+      joined Entra on 2026-07-14 and was still absent from Intune three days
+      later.
+
+      Every precondition was verified individually, and all of them pass:
+        - MDM user scope = All (Entra portal, POS-007)
+        - device holds the correct MDM discovery URL (dsregcmd Tenant Details,
+          matching the portal value exactly — the setting confirmed from both
+          ends independently)
+        - DeviceEligible : YES (dsregcmd Ngc Prerequisite Check)
+        - AzureAdPrt : YES, acquired 2026-07-17 17:09:30 UTC
+
+      And nothing happens:
+        - no scheduled tasks under \Microsoft\Windows\EnterpriseMgmt
+        - no enrolment events (ID 71/72/75/76) anywhere in the
+          DeviceManagement-Enterprise-Diagnostics-Provider/Admin log, which
+          spans back before the VM existed
+        - device absent from Intune
+
+      Not blocked. Never started. No error is raised because nothing is
+      attempted.
+
+      The likely cause is the join path. G5 builds an Azure VM whose Entra join
+      is performed by the AADLoginForWindows extension at deployment, not by a
+      user-driven join through Settings or OOBE. MDM user scope is necessary
+      but not sufficient — something must trigger enrolment, and the extension
+      join appears not to. Suggestive but not proven: Azure Virtual Desktop
+      host-pool creation offers an explicit "enrol VMs with Intune" checkbox
+      that plain VM creation does not, which would be unnecessary if extension
+      joins enrolled by themselves.
+
+      Stated as a hypothesis rather than a conclusion. What is established is
+      the observation: preconditions met, behaviour absent, silent.
+
+      G2 and G5 are each internally correct. G2 describes user-driven join
+      behaviour; G5 builds a VM that does not join that way. Followed together
+      they produce a device that will never enrol, and neither guide is wrong
+      enough for the failure to surface.
+
+      Left unenrolled deliberately. Lab 03 onboards to Defender via local
+      script and does not require Intune. Forcing enrolment
+      (deviceenroller.exe /c /AutoEnrollMDM) requires local administrator,
+      which POS-021 deliberately removed, and it enrols in the calling user's
+      context — so forcing it as Global Admin would bind the device to the
+      account POS-021 exists to keep off the endpoint.
+
+  - id: POS-023
+    lab: "01"
+    setting: VM auto-shutdown schedule
+    location: Azure > Virtual machines > (VM) > Operations > Auto-shutdown
+    state: Enabled, 23:00 Pacific, email notification configured
+    baseline: Disabled
+    kind: hardened
+    production: Same, plus budget-triggered automation
+    revisit: false
+    verified: 2026-07-17
+    note: >-
+      Instructed by G5 as part of deployment. This is what closes POS-016's
+      open item: deallocation was previously a habit, and a habit is not a
+      control. Notification before shutdown was configured beyond what the
+      guide specifies.
+
+      Load-bearing because of POS-005 and POS-015: pay-as-you-go has no
+      spending limit, and budgets notify but do not cap and are only evaluated
+      every 8-24 hours. This schedule is the only mechanism in the environment
+      that ends spend without a human deciding to.
 
   # ---------- Lab 02 — MDE / Intune integration ----------
   - id: POS-009

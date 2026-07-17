@@ -64,7 +64,7 @@ fi
 # ── 3. Email addresses ───────────────────────────────────────
 hdr "Email addresses"
 mails=$(grep "${GREP_OPTS[@]}" "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" . 2>/dev/null \
-        | grep -viE "@(contoso|example)\.(com|org|net)|@(microsoft|github)\.com|users\.noreply\.github\.com" \
+        | grep -viE "@(contoso|example)\.(com|org|net)|@contoso\.onmicrosoft\.com|@(microsoft|github)\.com|users\.noreply\.github\.com" \
         | sort -u)
 if [ -z "$mails" ]; then ok "only approved placeholders"
 else hit "non-placeholder addresses:"; echo "$mails" | sed 's/^/       /'; fi

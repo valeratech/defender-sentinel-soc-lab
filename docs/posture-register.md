@@ -25,17 +25,17 @@ entries are assertions, not findings, and are listed separately below.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 17 |
-| Verified by direct observation | 12 |
-| Asserted but unverified | 5 |
-| Flagged to revisit | 10 |
+| Settings tracked | 23 |
+| Verified by direct observation | 21 |
+| Asserted but unverified | 2 |
+| Flagged to revisit | 14 |
 
 | Kind | Count |
 |---|---|
-| hardened | 4 |
+| hardened | 7 |
 | default | 7 |
-| **weakening** | 3 |
-| **gap** | 3 |
+| **weakening** | 5 |
+| **gap** | 4 |
 
 ## Flagged to revisit
 
@@ -47,12 +47,16 @@ it is an oversight. Closing an item means recording which one it was.
 |---|---|---|---|---|---|---|
 | `POS-001` | 00 | Security Defaults | Disabled | **weakening** | Conditional Access policies replacing the baseline | 2026-07-16 |
 | `POS-002` | 00 | Admin identity model | Single standing Global Administrator across all portals | **weakening** | Role-scoped admin accounts; PIM eligible assignment | **no** |
-| `POS-003` | 00 | Conditional Access policies | None believed configured | **gap** | Risk-based and device-compliance grant controls | **no** |
+| `POS-003` | 00 | Conditional Access policies | None believed configured | **gap** | Risk-based and device-compliance grant controls | 2026-07-17 |
 | `POS-005` | 00 | Azure subscription funding model | Pay-as-you-go, uncapped consumption | **gap** | Budgets with alert thresholds; auto-shutdown on lab compute | 2026-07-16 |
 | `POS-015` | 00 | Cost budgets - two, at different scopes | Resource group $15/mo (actual 50/80/100); subscription $25/mo (actual 50/80/100 + forecasted 100) | hardened | Same, plus an action group driving automated shutdown | 2026-07-16 |
 | `POS-016` | 00 | Lab VM power state discipline | Stopped (deallocated) - verified in portal | hardened | Stopped (deallocated) + auto-shutdown schedule | 2026-07-16 |
 | `POS-017` | 00 | M365 trial recurring billing | O365 E5 recurring OFF (expires 2026-08-14); M365 E5 recurring ON, converts 2026-08-13 | hardened | n/a | 2026-07-16 |
 | `POS-006` | 01 | Users may join devices to Microsoft Entra ID | All | **weakening** | Selected, scoped to a security group | **no** |
+| `POS-018` | 01 | VM Security Type | Standard - no securityProfile block present; vTPM and Secure Boot absent | **weakening** | Trusted Launch (vTPM + Secure Boot), which is the portal default | 2026-07-17 |
+| `POS-019` | 01 | RDP inbound exposure (NSG) | TCP 3389 allow, source restricted to operator public IP (was Any) | hardened | No public RDP - Bastion, or JIT VM access via Defender for Cloud | 2026-07-17 |
+| `POS-020` | 01 | Network Level Authentication | Disabled on both server and client side | **weakening** | NLA enabled; Entra login reached via Bastion rather than by disabling NLA | 2026-07-17 |
+| `POS-022` | 01 | Intune automatic MDM enrolment | Never occurs - every precondition satisfied, no enrolment ever attempted | **gap** | Enrolment driven by Autopilot, Company Portal, or a policy-driven trigger | 2026-07-17 |
 | `POS-010` | 02 | Allow MDE to enforce Endpoint Security Configurations | On | default | On only where MDE-onboarded devices are not Intune-enrolled | 2026-07-16 |
 | `POS-011` | 02 | Connect Windows devices to Microsoft Defender for Endpoint | Off | **gap** | On | 2026-07-16 |
 
@@ -64,7 +68,7 @@ it is an oversight. Closing an item means recording which one it was.
 |---|---|---|---|---|---|---|
 | `POS-001` | Security Defaults | `Entra ID > Overview > Properties` | Disabled | **weakening** | yes | 2026-07-16 |
 | `POS-002` | Admin identity model | `Tenant-wide` | Single standing Global Administrator across all portals | **weakening** | yes | **no** |
-| `POS-003` | Conditional Access policies | `Entra ID > Protection > Conditional Access` | None believed configured | **gap** | yes | **no** |
+| `POS-003` | Conditional Access policies | `Entra ID > Protection > Conditional Access` | None believed configured | **gap** | yes | 2026-07-17 |
 | `POS-004` | Elevate access to all Azure subscriptions | `Entra ID > Overview > Properties` | Off | default | no | 2026-07-16 |
 | `POS-005` | Azure subscription funding model | `Azure > Subscriptions` | Pay-as-you-go, uncapped consumption | **gap** | yes | 2026-07-16 |
 | `POS-015` | Cost budgets - two, at different scopes | `Cost Management + Billing > Budgets` | Resource group $15/mo (actual 50/80/100); subscription $25/mo (actual 50/80/100 + forecasted 100) | hardened | yes | 2026-07-16 |
@@ -92,10 +96,28 @@ it is an oversight. Closing an item means recording which one it was.
 | ID | Setting | Location | State | Kind | Revisit | Verified |
 |---|---|---|---|---|---|---|
 | `POS-006` | Users may join devices to Microsoft Entra ID | `Entra ID > Devices > Device settings` | All | **weakening** | yes | **no** |
-| `POS-007` | MDM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` | All | default | no | **no** |
-| `POS-008` | WIP / MAM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` | All | default | no | **no** |
+| `POS-007` | MDM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` | All | default | no | 2026-07-17 |
+| `POS-008` | WIP / MAM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` | All | default | no | 2026-07-17 |
+| `POS-018` | VM Security Type | `Azure > Virtual machines > (VM) > JSON view > securityProfile` | Standard - no securityProfile block present; vTPM and Secure Boot absent | **weakening** | yes | 2026-07-17 |
+| `POS-019` | RDP inbound exposure (NSG) | `Azure > Virtual machines > (VM) > Networking > Network settings` | TCP 3389 allow, source restricted to operator public IP (was Any) | hardened | yes | 2026-07-17 |
+| `POS-020` | Network Level Authentication | `VM registry HKLM\...\WinStations\RDP-Tcp\UserAuthentication + local .rdp file` | Disabled on both server and client side | **weakening** | yes | 2026-07-17 |
+| `POS-021` | Endpoint sign-in identity | `Entra ID > Users; Azure > (VM) > Access control (IAM)` | Dedicated labuser account, no roles, Virtual Machine User Login on the VM only | hardened | no | 2026-07-17 |
+| `POS-022` | Intune automatic MDM enrolment | `Entra ID > Mobility (MDM and WIP); Intune > Devices > All devices` | Never occurs - every precondition satisfied, no enrolment ever attempted | **gap** | yes | 2026-07-17 |
+| `POS-023` | VM auto-shutdown schedule | `Azure > Virtual machines > (VM) > Operations > Auto-shutdown` | Enabled, 23:00 Pacific, email notification configured | hardened | no | 2026-07-17 |
 
 **`POS-006` — Users may join devices to Microsoft Entra ID.** Device identity is an authentication surface. Set to All, any credential — including a compromised one — can register an attacker-controlled device into the directory.
+
+**`POS-018` — VM Security Type.** Instructed by G5, which says to change Security Type to Standard without stating what that costs. Observed at four independent layers rather than inferred from one: the VM JSON has no securityProfile block; Get-Tpm reports TpmPresent False and TpmReady False; Confirm-SecureBootUEFI returns False; and dsregcmd reports TpmProtected NO with KeyProvider "Microsoft Software Key Storage Provider". Two consequences the guide does not mention. First, the device's Entra identity key is software-protected on disk rather than sealed in hardware. The Entra sign-in log independently records "Token protection - Sign In Session: Unbound (Status code: 1003)": with no vTPM the Primary Refresh Token cannot be bound to the device, so a stolen token is replayable elsewhere. That is the same fact surfacing in the identity plane. Second, Intune compliance policies commonly evaluate Secure Boot and TPM. This device cannot satisfy either. So the risk-to-compliance chain is broken in two independent places — POS-011 blocks the signal, and this entry means the device would fail the checks even if the signal arrived. Fixing POS-011 alone would not produce a working control.
+
+**`POS-019` — RDP inbound exposure (NSG).** G5 instructs "Ensure RDP (3389) is allowed" and the portal default source is Any, which means the entire internet. Azure VMs with 3389 open to Any are found by opportunistic scanners within minutes of the public IP becoming live. Not in source guidance; changed to "My IP address" on 2026-07-17. The exposure was never RDP alone — it was the composition. Open 3389, plus NLA disabled (POS-020) removing pre-authentication, plus no MFA baseline (POS-001), plus no Conditional Access (POS-003), plus a standing Global Administrator as the sign-in identity (POS-002), is an internet-facing path to tenant compromise. Each element is individually defensible in a lab. Together they are not, and no single guide step is wrong enough to notice. The VM being deallocated between sessions is what kept this theoretical. Residential source IP rotates; the rule needs updating when it does. Symptom is an RDP timeout rather than an error.
+
+**`POS-020` — Network Level Authentication.** Instructed by G5, and genuinely required for its approach: Entra ID authentication happens at the Windows login screen, and NLA forces credential validation before a session exists, so NLA blocks the flow. Verified at both ends independently. Server side: registry UserAuthentication = 0, read via Azure Run command without opening an RDP session — the exposed path was not used to inspect the exposed path. Client side: the .rdp file carries enablecredsspsupport:i:0. The .rdp file weakens two things, and G5 explains one. It also sets "authentication level:i:2", which means warn-but-connect when server identity cannot be verified — a downgrade of server authentication, not just of client pre-authentication. Unmentioned in the guide. With NLA off, the pre-authentication attack surface is exposed to anything that can reach 3389. That was the entire internet until POS-019 was scoped.
+
+**`POS-021` — Endpoint sign-in identity.** Not in source guidance. G5 signs into the VM as the tenant Global Administrator, because at that point in the course it is the only Entra account that exists. That matters more than it appears. When an Entra-joined device authenticates a user, it receives a Primary Refresh Token for that account and the token lives on the device. Signing in as Global Admin places a tenant-admin token on the endpoint that later labs deliberately attack. Combined with POS-018 (no vTPM, so the PRT is unbound and replayable), compromising the box would mean compromising the tenant. Created labuser: no directory roles, no group memberships, Microsoft 365 E5 assigned (required — an unlicensed account will not enrol), and Virtual Machine User Login rather than Administrator Login, scoped to the single VM resource. The Global Administrator no longer touches the endpoint. This is also more faithful for the labs that follow: ASR and attack-simulation results taken as a non-admin reflect what a real analyst would see.
+
+**`POS-022` — Intune automatic MDM enrolment.** THE LAB 01 FINDING. G2 states that on sign-in the device registers with Entra and then silently registers with Intune. It does not. The device joined Entra on 2026-07-14 and was still absent from Intune three days later. Every precondition was verified individually, and all of them pass: - MDM user scope = All (Entra portal, POS-007) - device holds the correct MDM discovery URL (dsregcmd Tenant Details, matching the portal value exactly — the setting confirmed from both ends independently) - DeviceEligible : YES (dsregcmd Ngc Prerequisite Check) - AzureAdPrt : YES, acquired 2026-07-17 17:09:30 UTC And nothing happens: - no scheduled tasks under \Microsoft\Windows\EnterpriseMgmt - no enrolment events (ID 71/72/75/76) anywhere in the DeviceManagement-Enterprise-Diagnostics-Provider/Admin log, which spans back before the VM existed - device absent from Intune Not blocked. Never started. No error is raised because nothing is attempted. The likely cause is the join path. G5 builds an Azure VM whose Entra join is performed by the AADLoginForWindows extension at deployment, not by a user-driven join through Settings or OOBE. MDM user scope is necessary but not sufficient — something must trigger enrolment, and the extension join appears not to. Suggestive but not proven: Azure Virtual Desktop host-pool creation offers an explicit "enrol VMs with Intune" checkbox that plain VM creation does not, which would be unnecessary if extension joins enrolled by themselves. Stated as a hypothesis rather than a conclusion. What is established is the observation: preconditions met, behaviour absent, silent. G2 and G5 are each internally correct. G2 describes user-driven join behaviour; G5 builds a VM that does not join that way. Followed together they produce a device that will never enrol, and neither guide is wrong enough for the failure to surface. Left unenrolled deliberately. Lab 03 onboards to Defender via local script and does not require Intune. Forcing enrolment (deviceenroller.exe /c /AutoEnrollMDM) requires local administrator, which POS-021 deliberately removed, and it enrols in the calling user's context — so forcing it as Global Admin would bind the device to the account POS-021 exists to keep off the endpoint.
+
+**`POS-023` — VM auto-shutdown schedule.** Instructed by G5 as part of deployment. This is what closes POS-016's open item: deallocation was previously a habit, and a habit is not a control. Notification before shutdown was configured beyond what the guide specifies. Load-bearing because of POS-005 and POS-015: pay-as-you-go has no spending limit, and budgets notify but do not cap and are only evaluated every 8-24 hours. This schedule is the only mechanism in the environment that ends spend without a human deciding to.
 
 ### Lab 02
 
@@ -124,7 +146,4 @@ They are the register's weakest entries and the cheapest to fix.
 | ID | Lab | Setting | How to verify |
 |---|---|---|---|
 | `POS-002` | 00 | Admin identity model | `Tenant-wide` |
-| `POS-003` | 00 | Conditional Access policies | `Entra ID > Protection > Conditional Access` |
 | `POS-006` | 01 | Users may join devices to Microsoft Entra ID | `Entra ID > Devices > Device settings` |
-| `POS-007` | 01 | MDM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` |
-| `POS-008` | 01 | WIP / MAM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` |

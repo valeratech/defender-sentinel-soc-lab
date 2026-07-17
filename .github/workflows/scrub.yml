@@ -8,17 +8,56 @@ on:
 permissions:
   contents: read
 
+env:
+  # Single source of truth. The pre-commit hook uses whatever gitleaks is
+  # installed locally; pinning the same version here keeps CI and local honest
+  # about each other.
+  GITLEAKS_VERSION: "8.28.0"
+
 jobs:
   gitleaks:
     name: gitleaks (source)
     runs-on: ubuntu-latest
+    # Deliberately NOT gitleaks/gitleaks-action. Two reasons, both learned the
+    # hard way:
+    #
+    #   1. The action derives its scan range from the push event as
+    #      `first_commit^..last_commit`. After a history rewrite, the first
+    #      commit in the push is the ROOT commit — and `root^` does not exist.
+    #      git fatals, the action scans 0 bytes, reports "no leaks found", and
+    #      then exits 1 because stderr was non-empty. A gate that fails on a
+    #      force-push while reporting no leaks is worse than no gate.
+    #
+    #   2. The action pins its own gitleaks build (8.24.3 at time of writing)
+    #      regardless of what runs locally. CI and pre-commit were scanning with
+    #      different engines and different default rule sets.
+    #
+    # Scanning full history explicitly costs a few seconds and has neither
+    # problem.
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0          # full history: a leak in an old commit still leaks
-      - uses: gitleaks/gitleaks-action@v3
-        env:
-          GITLEAKS_CONFIG: .gitleaks.toml
+
+      - name: Install gitleaks
+        run: |
+          curl -sL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar xz gitleaks
+          sudo mv gitleaks /usr/local/bin/
+          gitleaks version
+
+      - name: Scan full history
+        run: |
+          gitleaks git . --config .gitleaks.toml --redact --no-banner \
+            --report-format sarif --report-path results.sarif
+
+      - name: Upload SARIF
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: gitleaks-results.sarif
+          path: results.sarif
+          if-no-files-found: ignore
 
   image-ocr:
     name: gitleaks (image OCR)
@@ -35,8 +74,7 @@ jobs:
 
       - name: Install gitleaks
         run: |
-          VER=8.28.0
-          curl -sL "https://github.com/gitleaks/gitleaks/releases/download/v${VER}/gitleaks_${VER}_linux_x64.tar.gz" \
+          curl -sL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
             | tar xz gitleaks
           sudo mv gitleaks /usr/local/bin/
           gitleaks version

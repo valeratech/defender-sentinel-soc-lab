@@ -19,11 +19,15 @@ regexes = [
   '''contoso\.(com|onmicrosoft\.com)''',
   '''2001:0?db8:''',
 ]
-paths = [
-  '''SANITIZATION\.md''',
-  '''\.gitleaks\.toml''',
-  '''\.gitignore''',
-]
+# No global path exemptions.
+#
+# SANITIZATION.md, .gitleaks.toml and .gitignore were previously exempted so
+# their placeholder examples would not trip rules. That was both unnecessary —
+# the regex allowlists above already clear every placeholder — and actively
+# harmful: it exempted those files from EVERY rule, meaning the document that
+# defines the redaction policy was the one document the scanner never read. A
+# real workspace key pasted into an example there would have passed all three
+# gates. Verified: with no path exemptions, the repository scans clean.
 
 # ──────────────────────────────────────────────────────────────
 # Identifiers — not secrets, but real tenant coordinates

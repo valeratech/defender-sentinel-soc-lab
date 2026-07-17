@@ -72,12 +72,17 @@ Screenshots are the highest-risk artifact in this repository. Portal chrome carr
 
 | Content | OCR recovery | Caught by scan? |
 |---|---|---|
-| Email / UPN | Reliable | Yes |
-| `*.onmicrosoft.com` domain | Degraded (separators dropped) | Yes — fuzzy rule |
+| Email / UPN | Degraded — periods dropped | Yes — the `@` survives and anchors the match |
+| `*.onmicrosoft.com` domain | Degraded — separators dropped | Yes — the literal word survives and anchors it |
 | GUID / tenant ID | **Poor** (`72f988bf` → `7 2(988bf`) | Only via fuzzy + despaced pass |
+| **IPv4** | **Poor** (`203.0.113.135` → `2030113.135`) | **Warning tier only — not reliably** |
 | Identifier labels ("Tenant ID") | Reliable | Warning tier |
 
-The cause is structural: OCR language models assist word-shaped tokens and actively harm high-entropy hex, which has no linguistic pattern to fall back on. A GUID can survive OCR too mangled for any pattern to match.
+The cause is structural, and it decides which of these can be caught at all. Tesseract's language model assists word-shaped tokens and actively harms high-entropy strings, and in small UI text it routinely eats periods. What survives that is an **anchor** — an invariant the pattern can grip. Emails keep their `@`; domains keep the literal string `onmicrosoft`. Both are recoverable despite the damage.
+
+**An IP address has no anchor.** Strip its dots and `203.0.113.135` becomes `2030113.135`, indistinguishable in principle from a version string, a timestamp, or an order number. There is no rule that catches it without also firing on every four-digit number in every screenshot — and a gate that always warns is a gate nobody reads. So IPs get a heuristic at warning tier and nothing more.
+
+This is the limitation stated plainly rather than papered over: **the OCR gate does not reliably catch IP addresses in images.** It was found the only way such things are found — a real screenshot that the gate passed while an address sat in plain view.
 
 **Therefore: a green hook result is not proof that an image is sanitized.** Every image requires manual visual review after cropping and redaction, even when the metadata hook, the gitleaks scan, and the OCR scan all pass. The automation exists to catch the screenshot committed at the end of a long session, not to replace the look.
 
@@ -132,6 +137,10 @@ Use a nearby inline allow directive, never a global one:
 // Verified as not belonging to the lab environment.
 | where RemoteIP == "<observed-attacker-ip>"
 ```
+
+The literal address replaces the placeholder in real usage; `gitleaks:allow` is what lets it past `public-ipv4-review`.
+
+**This document deliberately does not print a real IOC.** Annotating a live, routable address as attacker infrastructure is a factual claim about whoever holds that allocation, and a public repository publishes it. Documentation examples are also copied without their context, so an invented "example" IP propagates as though it were sourced. An address is only labelled here once it is genuinely observed and attributed in a lab writeup.
 
 Adding IOCs to `.gitleaks.toml` permanently would erode the rule until a lab IP eventually slips through under cover of the exception list.
 

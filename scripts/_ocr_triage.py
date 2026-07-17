@@ -19,13 +19,22 @@ for f in findings:
     tags = [t.lower() for t in (f.get("Tags") or [])]
     (warn if "label" in tags else block).append(f)
 
+ADVICE = {
+    "ocr-identifier-label": "identifier label - confirm the adjacent value is redacted",
+    "ocr-directory-chrome": "directory/account chrome - crop tighter if not needed",
+    "ocr-ip-context":       "wording that usually precedes an IP - check for an address beside it",
+    "ocr-fuzzy-ipv4":       "possible IP with OCR-eaten separators - verify by eye, OCR cannot confirm",
+}
+
 seen = set()
 for f in warn:
+    rule = f.get("RuleID") or "?"
     m = (f.get("Match") or "").strip()[:40]
-    if m in seen:
+    if (rule, m) in seen:
         continue
-    seen.add(m)
-    print(f"  WARN  {img}: portal chrome {m!r} - confirm adjacent value is redacted.")
+    seen.add((rule, m))
+    advice = ADVICE.get(rule, "review this")
+    print(f"  WARN  {img}: {m!r} - {advice}")
 
 if block:
     print("")

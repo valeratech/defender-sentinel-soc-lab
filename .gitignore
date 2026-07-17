@@ -93,3 +93,8 @@ deployment-output.json
 # ── Additional unsanitized staging ─────────────────────────
 evidence/raw/
 screenshots/raw/
+
+# ── Personal terms for scripts/audit-pii.sh ────────────────
+# Your username, hostname, personal email, tenant display name.
+# Committing this file would publish the identifiers it exists to find.
+.pii-terms

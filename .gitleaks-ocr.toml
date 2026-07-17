@@ -101,6 +101,48 @@ tags = ["ocr", "pii"]
     '''(?i)@[ \t]*users[ \t]*\.?[ \t]*noreply''',
   ]
 
+# ── Mangled-IP heuristics (WARN tier) ────────────────────────
+#
+# OCR cannot reliably recover IPv4 from small UI text. A real screenshot
+# rendered "203.0.113.135" as "2030113.135" and "20301133.35" — the periods were
+# eaten, leaving a digit run no dotted-quad pattern can match. Unlike emails
+# (where "@" survives) and domains (where "onmicrosoft" survives), an IP has no
+# invariant anchor: strip its dots and it is indistinguishable from a version
+# string, a timestamp, or an order number.
+#
+# So these two rules WARN rather than BLOCK. Blocking on every digit run would
+# fire on nearly every screenshot; warning prompts the look that
+# SANITIZATION.md section 4 already requires. This is the limitation, stated
+# honestly rather than patched over: the OCR gate does not reliably catch IPs
+# in images. Only a human does.
+
+[[rules]]
+id = "ocr-ip-context"
+description = "Wording that typically sits beside an IP address — check for an adjacent address"
+regex = '''(?i)(requested[ \t]+from|ip[ \t]*address|source[ \t]*ip|remote[ \t]*ip|client[ \t]*ip|public[ \t]*ip|signed[ \t]*in[ \t]*from)'''
+tags = ["ocr", "label", "review"]
+
+[[rules]]
+id = "ocr-fuzzy-ipv4"
+description = "Digit run that may be an IPv4 with OCR-eaten separators"
+# Targets the SHAPE of a dot-eaten IP: a long digit run, then a surviving dot,
+# then a short run — "203.0.113.135" collapsing to "2030113.135" or "20301133.35".
+# An earlier version allowed all dots to be optional, which matched any 4-digit
+# number: every date and timestamp warned. A gate that always warns is one
+# nobody reads, so the pattern requires at least one surviving separator.
+regex = '''\b\d{4,12}[ \t]*\.[ \t]*\d{1,3}\b'''
+tags = ["ocr", "label", "review"]
+  [rules.allowlist]
+  regexTarget = "match"
+  regexes = [
+    '''^192[ \t]*\.[ \t]*0[ \t]*\.[ \t]*2[ \t]*\.''',
+    '''^198[ \t]*\.[ \t]*51[ \t]*\.[ \t]*100[ \t]*\.''',
+    '''^203[ \t]*\.[ \t]*0[ \t]*\.[ \t]*113[ \t]*\.''',
+    '''^10[ \t]*\.''',
+    '''^192[ \t]*\.[ \t]*168[ \t]*\.''',
+    '''^127[ \t]*\.''',
+  ]
+
 [[rules]]
 id = "ocr-ipv4"
 description = "IPv4 visible in screenshot — classify as attacker-side or lab-side"

@@ -49,7 +49,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-002` | 00 | Admin identity model | Single standing Global Administrator across all portals | **weakening** | Role-scoped admin accounts; PIM eligible assignment | **no** |
 | `POS-003` | 00 | Conditional Access policies | None believed configured | **gap** | Risk-based and device-compliance grant controls | **no** |
 | `POS-005` | 00 | Azure subscription funding model | Pay-as-you-go, uncapped consumption | **gap** | Budgets with alert thresholds; auto-shutdown on lab compute | 2026-07-16 |
-| `POS-015` | 00 | Cost budget - Defender-Lab-Budget | $15/month, resets monthly, expires 2028-06-30 | hardened | Budget at subscription scope with actual + forecasted alerts | 2026-07-16 |
+| `POS-015` | 00 | Monthly cost budget | $15/month, resets monthly, expires 2028-06-30 | hardened | Budget at subscription scope with actual + forecasted alerts | 2026-07-16 |
 | `POS-016` | 00 | Lab VM power state discipline | Powered off between sessions - deallocation not confirmed | **gap** | Stopped (deallocated) + auto-shutdown schedule | **no** |
 | `POS-006` | 01 | Users may join devices to Microsoft Entra ID | All | **weakening** | Selected, scoped to a security group | **no** |
 | `POS-010` | 02 | Allow MDE to enforce Endpoint Security Configurations | On | default | On only where MDE-onboarded devices are not Intune-enrolled | 2026-07-16 |
@@ -66,7 +66,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-003` | Conditional Access policies | `Entra ID > Protection > Conditional Access` | None believed configured | **gap** | yes | **no** |
 | `POS-004` | Elevate access to all Azure subscriptions | `Entra ID > Overview > Properties` | Off | default | no | 2026-07-16 |
 | `POS-005` | Azure subscription funding model | `Azure > Subscriptions` | Pay-as-you-go, uncapped consumption | **gap** | yes | 2026-07-16 |
-| `POS-015` | Cost budget - Defender-Lab-Budget | `Cost Management + Billing > Budgets` | $15/month, resets monthly, expires 2028-06-30 | hardened | yes | 2026-07-16 |
+| `POS-015` | Monthly cost budget | `Cost Management + Billing > Budgets` | $15/month, resets monthly, expires 2028-06-30 | hardened | yes | 2026-07-16 |
 | `POS-016` | Lab VM power state discipline | `Azure > Virtual machines` | Powered off between sessions - deallocation not confirmed | **gap** | yes | **no** |
 
 **`POS-001` — Security Defaults.** Active change, not inherited. Nothing replaced it — no Conditional Access exists, so the tenant runs with no baseline identity protection. Required to be off before Conditional Access can be used at all.
@@ -79,7 +79,7 @@ it is an oversight. Closing an item means recording which one it was.
 
 **`POS-005` — Azure subscription funding model.** Free-credit offer unavailable, so the "services disabled, never charged" safety net does not exist. The spending limit feature is unavailable on pay-as-you-go, so there is no mechanism that stops spend — only ones that report it. Deallocating lab compute is therefore the actual cost control; the budget is what reports that the habit slipped.
 
-**`POS-015` — Cost budget - Defender-Lab-Budget.** Exists with recipients configured and alerting at 50/80/100 percent. Two limitations recorded rather than assumed away. First, scope is the resource group rg-defender-lab, NOT the subscription — anything created outside that group is unmonitored, which matters once Lab 04 creates the Log Analytics workspace, since ingestion is the largest projected cost and may not land in that group. Second, all three thresholds are Actual cost only; no Forecasted alert exists, so every notification arrives after the spend rather than before it. Azure budgets notify, they do not cap.
+**`POS-015` — Monthly cost budget.** Exists with recipients configured and alerting at 50/80/100 percent. Two limitations recorded rather than assumed away. First, scope is a single resource group (`rg-soc-lab`), NOT the subscription — anything created outside that group is unmonitored, which matters once Lab 04 creates the Log Analytics workspace, since ingestion is the largest projected cost and may not land in that group. Second, all three thresholds are Actual cost only; no Forecasted alert exists, so every notification arrives after the spend rather than before it. Azure budgets notify, they do not cap.
 
 **`POS-016` — Lab VM power state discipline.** Operator reports powering the box off between sessions, which is the right habit. Not yet confirmed whether the portal reads "Stopped (deallocated)" rather than "Stopped" — shutting down from inside the guest OS leaves compute allocated and billing. This is the primary cost control on an uncapped subscription (POS-005), so the distinction is load-bearing rather than pedantic.
 

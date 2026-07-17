@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**8 open item(s) across 3 file(s).**
+**9 open item(s) across 3 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -26,7 +26,8 @@ Status: 🔨 Built, documentation in progress
 
 | Line | Section | Item |
 |---|---|---|
-| 63 | 5. Evidence | *(pending — sanitized per SANITIZATION.md; device names are attributable, see §1)* |
+| 67 | 5. Evidence | *(pending — sanitized per SANITIZATION.md; device names are attributable, see §1)* |
+| 95 | 7. Analysis | *(pending — further analysis; the VM build itself (`POS-018`–`POS-021`, `POS-023`) is recorded in th |
 
 ## `labs/02-mde-intune-integration/README.md`
 

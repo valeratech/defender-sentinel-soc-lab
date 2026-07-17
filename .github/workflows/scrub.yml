@@ -109,3 +109,9 @@ jobs:
 
       - name: Verify posture register matches posture.yml
         run: python3 scripts/build-posture-register.py --check
+
+      # Closes the gap that let POS-022 sit in the register for three days while
+      # labs/01 printed the claim it disproves. Fails only for labs marked ✅ —
+      # see the script's docstring for why it is not strict yet.
+      - name: Verify every posture entry is cited in its own lab
+        run: python3 scripts/check-lab-coverage.py --check

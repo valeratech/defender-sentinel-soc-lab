@@ -67,7 +67,7 @@ repos:
 
       - id: generated-docs-fresh
         name: generated docs match their sources
-        entry: bash -c 'python3 scripts/build-attack-matrix.py --check && python3 scripts/open-items.py --check && python3 scripts/build-posture-register.py --check'
+        entry: bash -c 'python3 scripts/build-attack-matrix.py --check && python3 scripts/open-items.py --check && python3 scripts/build-posture-register.py --check && python3 scripts/check-lab-coverage.py --check'
         language: system
         pass_filenames: false
         files: '^(labs/|detections/|posture\.yml|scripts/)'

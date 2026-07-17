@@ -23,6 +23,7 @@ This is a working lab, not a course notebook. Every capability here was built, b
 | [`docs/documentation-standard.md`](docs/documentation-standard.md) | Evidence, decision, and detection rules |
 | [`docs/open-items.md`](docs/open-items.md) | Tracked documentation debt — generated |
 | [`docs/posture-register.md`](docs/posture-register.md) | Every security-relevant setting, its state, and whether it needs revisiting — generated from `posture.yml` |
+| [`docs/lab-coverage.md`](docs/lab-coverage.md) | Whether each posture entry is cited in the lab that owns it — generated |
 
 ---
 
@@ -78,9 +79,9 @@ Product names are used precisely throughout this repository. "Defender" alone is
 | Tenant | Single Entra tenant, lab-only |
 | Licensing | M365 E5 trial + Defender for Endpoint / Vulnerability Management |
 | Sentinel workspace | *(Lab 04 — not yet created)* |
-| Device management | Entra device join + Intune auto-enrollment (Lab 01) |
-| Endpoint security | Defender for Endpoint ↔ Intune integrated (Lab 02) |
-| Endpoints | *(Lab 03 — in progress)* |
+| Device management | Entra device join configured; **Intune auto-enrolment never fires** — every precondition verified, enrolment never attempted (Lab 01, `POS-022`) |
+| Endpoint security | Defender for Endpoint ↔ Intune connection **Available**; device risk does **not** reach compliance (Lab 02, `POS-011`) |
+| Endpoints | *(Lab 03 — 🔜 next)* |
 | Data connectors | *(in progress)* |
 
 **The environment is ephemeral, and the two halves expire in opposite directions.**
@@ -190,6 +191,19 @@ The register separates **verified** (observed in a portal view) from **asserted*
 ```bash
 python3 scripts/build-posture-register.py          # regenerate
 python3 scripts/build-posture-register.py --check  # CI staleness check
+```
+
+**The register is not the writeup.** Every entry names the lab it belongs to, and
+[`docs/lab-coverage.md`](docs/lab-coverage.md) checks that the lab cites it back.
+A finding can land in the register, pass every gate, and never reach the document
+it belongs to — `POS-022` did exactly that for three days while `labs/01` went on
+printing the vendor claim it disproves. The generators were all in sync the entire
+time, because they check generated docs against their sources and prose is neither.
+
+```bash
+python3 scripts/check-lab-coverage.py          # regenerate
+python3 scripts/check-lab-coverage.py --check  # CI: fails for labs marked ✅
+python3 scripts/check-lab-coverage.py --strict # fails on any uncited entry
 ```
 
 ---

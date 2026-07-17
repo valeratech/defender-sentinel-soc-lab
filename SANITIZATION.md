@@ -172,4 +172,6 @@ Adding IOCs to `.gitleaks.toml` permanently would erode the rule until a lab IP 
 
 | Date | Event |
 |---|---|
-| — | No incidents recorded. |
+| 2026-07-16 | **Invented IOC committed and scrubbed from history.** A public IPv4 address was written into a lab writeup as an example attacker IOC. It was not observed in this environment and not sourced from threat intelligence — it was generated, and it labelled a live, routable allocation as attacker infrastructure. No tenant data was exposed and nothing required rotation. Removed from history with `git-filter-repo`; the address is treated as permanently public per §9.3 regardless. **Cause:** the address was produced while drafting documentation, which is the same path that produced every other near-miss this repo has had — an operator email in code comments (×4) and a lab public IP in prose (×2), all caught pre-commit. The gates catch leaks; the gates do not catch invention. §7 was written afterwards and is the control: this document deliberately does not print a real IOC. |
+
+**On the scope of this table.** Nothing of the tenant's has leaked. This entry is here because §9.5 says to record incidents and the commit graph shows a history rewrite, and a changelog that reads "no incidents" beside a `git-filter-repo` in the log is the one line in this document a reader can falsify for themselves. The near-misses above are not listed as incidents because they never entered history — the gates held. That distinction is the point of keeping the table at all.

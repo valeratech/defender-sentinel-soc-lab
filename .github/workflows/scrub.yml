@@ -13,10 +13,10 @@ jobs:
     name: gitleaks (source)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0          # full history: a leak in an old commit still leaks
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@v3
         env:
           GITLEAKS_CONFIG: .gitleaks.toml
 
@@ -26,7 +26,7 @@ jobs:
     # The pre-commit hook can be bypassed with --no-verify, and a clone without
     # `pre-commit install` has no hooks at all. This is the backstop.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install OCR toolchain
         run: |
@@ -56,8 +56,8 @@ jobs:
     name: Generated docs freshness
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Verify coverage matrix matches detection specs

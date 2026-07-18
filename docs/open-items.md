@@ -27,7 +27,7 @@ Status: 🔨 Built, documentation in progress
 | Line | Section | Item |
 |---|---|---|
 | 67 | 5. Evidence | *(pending — sanitized per SANITIZATION.md; device names are attributable, see §1)* |
-| 95 | 7. Analysis | *(pending — further analysis; the VM build itself (`POS-018`–`POS-021`, `POS-023`) is recorded in th |
+| 95 | 7. Analysis | *(pending — further analysis; the VM build itself (`POS-018`–`POS-021`, `POS-023`–`POS-025`) is reco |
 
 ## `labs/02-mde-intune-integration/README.md`
 

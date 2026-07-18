@@ -24,7 +24,7 @@ from source and CI-checked. If the two disagree, the register is right.
 
 ## Source guidance
 
-Three setup guides were used to build this environment. They are referenced throughout
+Five setup guides were used to build this environment. They are referenced throughout
 as **G1** through **G5**. Their content is not reproduced here; only what was
 configured, and what was found to differ.
 
@@ -41,6 +41,20 @@ this file was written. That first version recorded Security Defaults (`POS-001`)
 *not in source guidance* — which was wrong, and wrong in a specific way worth naming:
 absence was asserted from a partial view of the sources. The same error, in the same
 document, that `POS-011` records the guides making about the environment.
+
+**`G1`–`G5` refer to these guides as originally written.** All five have since been
+revised: the divergences below were folded into the steps, and the current versions no
+longer state what this document records them as stating. Every claim here about what a
+guide says is therefore a claim about a superseded document, and the revised guides
+disagree with it *by design* — that is what revising them was for.
+
+The originals are the instructor's material and cannot be reproduced here, so a reader
+cannot check these records directly. What a reader can know is **which ones were checked
+against the original and which were not** — the same verified/asserted split the posture
+register applies to settings, applied to claims about documents. The divergence table
+below carries that per row. Two of the six have been read back against the original text;
+the rest rest on the revised guides' own account of what changed, which is a secondary
+source with an interest in the answer.
 
 Anything marked **not in source guidance** was found or decided during the build.
 Roughly half this document falls into that category, and that is the reason to keep it:
@@ -832,14 +846,17 @@ Where the source guides and this environment disagree. Every one was found by ch
 rather than assuming, and every one is silent — no guide step is wrong enough to raise
 an error.
 
-| # | Guide says | Environment is | Consequence |
-|---|---|---|---|
-| 1 | **G1**: Azure free trial gives $200 credit; services pause at exhaustion; card never auto-charged | Pay-as-you-go, uncapped, no credit (`POS-005`) | **The safety net does not exist.** No spending limit is available. Budgets notify but cannot cap. Deallocation (`POS-016`) is the only real control |
-| 2 | G4: The MDE↔Intune connection lets Intune enforce compliance based on Defender's device risk | Connection *Available*, but `POS-011` is **Off** | G4's two steps do not enable risk-based compliance. The step that does is never mentioned. Following the guide exactly produces an integration that reports healthy and does not do what the guide says |
-| 3 | **G1**: Cancel the subscription before the trial ends | Turned recurring billing off instead (`POS-017`) | Cancelling ends access immediately; turning recurring billing off keeps the trial to full term and stops the conversion. Same cost, four more weeks of lab |
-| 4 | **G2**: the device silently registers with Intune after sign-in | Never enrols (`POS-022`) | **The sharpest one.** G2 describes user-driven join behaviour; G5 builds a VM joined by the `AADLoginForWindows` extension. Both guides individually correct; together they produce a device that never enrols, with every precondition satisfied and no error raised |
-| 5 | **G4**: troubleshoot Entra sign-in failure by disabling blocking Conditional Access policies | **Zero CA policies exist** (`POS-003`) | The prescribed remedy has no cause to address. The real failure was `AADSTS50055` — expired password on a new account — found in `dsregcmd`, not in the guide. Following the guidance would mean hunting for policies that aren't there, or disabling unrelated things to make an error go away |
-| 6 | **G3**: *Quick Step* block instructs setting Security defaults to **Enabled** | Its own TLDR says disable | A copy-paste of Microsoft's *enable* procedure into a guide about disabling. Following the Quick Step literally does the opposite of the guide's purpose |
+Recorded against the guides **as originally written** (see *Source guidance* above). All
+six have since been corrected in the revised versions.
+
+| # | Guide says | Environment is | Consequence | Record |
+|---|---|---|---|---|
+| 1 | **G1**: Azure free trial gives $200 credit; services pause at exhaustion; card never auto-charged | Pay-as-you-go, uncapped, no credit (`POS-005`) | **The safety net does not exist.** No spending limit is available. Budgets notify but cannot cap. Deallocation (`POS-016`) is the only real control | **revision notes only** — original G1 not read back |
+| 2 | G4: The MDE↔Intune connection lets Intune enforce compliance based on Defender's device risk | Connection *Available*, but `POS-011` is **Off** | G4's two steps do not enable risk-based compliance. The step that does is never mentioned. Following the guide exactly produces an integration that reports healthy and does not do what the guide says | **original, 2026-07-17** — two steps, toggle absent, verbatim |
+| 3 | **G1**: Cancel the subscription before the trial ends | Turned recurring billing off instead (`POS-017`) | Cancelling ends access immediately; turning recurring billing off keeps the trial to full term and stops the conversion. Same cost, four more weeks of lab | **revision notes only** — original G1 not read back |
+| 4 | **G2**: the device silently registers with Intune after sign-in | Never enrols (`POS-022`) | **The sharpest one.** G2 describes user-driven join behaviour; G5 builds a VM joined by the `AADLoginForWindows` extension. Both guides individually correct; together they produce a device that never enrols, with every precondition satisfied and no error raised | **revision notes only** — original G2 not read back |
+| 5 | **G5**: troubleshoot Entra sign-in failure by disabling blocking Conditional Access policies | **Zero CA policies exist** (`POS-003`) | The prescribed remedy has no cause to address. The real failure was `AADSTS50055` — expired password on a new account — found in `dsregcmd`, not in the guide. Following the guidance would mean hunting for policies that aren't there, or disabling unrelated things to make an error go away | **original, 2026-07-17** — §5 read back verbatim |
+| 6 | **G3**: *Quick Step* block instructs setting Security defaults to **Enabled** | Its own TLDR says disable | A copy-paste of Microsoft's *enable* procedure into a guide about disabling. Following the Quick Step literally does the opposite of the guide's purpose | **revision notes only** — original G3 not read back |
 
 ---
 

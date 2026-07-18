@@ -346,7 +346,7 @@ entries:
     baseline: n/a
     kind: hardened
     production: Same - endpoints are never signed into with privileged accounts
-    revisit: false
+    revisit: true
     verified: 2026-07-17
     note: >-
       Not in source guidance. G5 signs into the VM as the tenant Global
@@ -363,8 +363,14 @@ entries:
       Created labuser: no directory roles, no group memberships, Microsoft 365
       E5 assigned (required — an unlicensed account will not enrol), and
       Virtual Machine User Login rather than Administrator Login, scoped to the
-      single VM resource. The Global Administrator no longer touches the
-      endpoint.
+      single VM resource.
+
+      The Global Administrator no longer touches the endpoint — as a practice.
+      The capability survived: POS-024 records the Virtual Machine Administrator
+      Login assignment that G5 created and this change never removed. This entry
+      is a real hardening of which account is used. It is not a hardening of
+      which accounts can be used, and it read as one until POS-024 was looked
+      for.
 
       This is also more faithful for the labs that follow: ASR and
       attack-simulation results taken as a non-admin reflect what a real
@@ -381,8 +387,9 @@ entries:
     revisit: true
     verified: 2026-07-17
     note: >-
-      THE LAB 01 FINDING. G2 states that on sign-in the device registers with
-      Entra and then silently registers with Intune. It does not. The device
+      THE LAB 01 FINDING. G2, as originally written, stated that on sign-in the
+      device registers with Entra and then silently registers with Intune. It
+      does not. The device
       joined Entra on 2026-07-14 and was still absent from Intune three days
       later.
 
@@ -528,3 +535,88 @@ entries:
     production: "7"
     revisit: false
     verified: 2026-07-16
+
+  - id: POS-024
+    lab: "01"
+    setting: Global Administrator interactive login rights on the lab endpoint
+    location: Azure > (VM) > Access control (IAM) > Role assignments
+    state: Tenant Global Administrator holds Virtual Machine Administrator Login, scope "This resource"
+    baseline: No assignment - Entra login to a VM requires an explicit RBAC grant
+    kind: weakening
+    production: Endpoint admin login granted to a named break-glass or privileged-access identity, never to a standing tenant administrator, and removed when the task that needed it ends
+    revisit: true
+    verified: 2026-07-17
+    note: >-
+      Instructed by G5 section 2, which assigns Virtual Machine Administrator
+      Login to "your administrator account" — at that point in the course the
+      Global Administrator is the only Entra account that exists, so the guide
+      is correct for its own sequence. It was never revisited afterwards.
+
+      POS-021 created labuser with Virtual Machine User Login and recorded that
+      the Global Administrator no longer touches the endpoint. That was true of
+      the practice and not of the configuration. This assignment was never
+      removed, so the tenant Global Administrator can open an interactive RDP
+      session on the lab endpoint as a local administrator, today.
+
+      The distinction is the finding: POS-021 changed which account is used, not
+      which accounts can be used. Nothing in the portal reports the gap. The IAM
+      blade lists both assignments side by side and raises nothing, because both
+      are valid — the same shape as POS-009 reading Available while POS-011 is
+      off.
+
+      Compounds with POS-018 and POS-020. No vTPM means a PRT minted on this
+      device is unbound and replayable; NLA is disabled, so the pre-auth lock
+      screen is reachable by anything that can reach 3389. POS-019 scoped that
+      to a single address, and that scoping is currently what carries the weight
+      of this entry.
+
+      Not yet removed, and removal is now known to be free: POS-025 records
+      labadmin, which administers this endpoint with no Entra role at all.
+
+      The scope of this entry is the open part. Local Administrators also holds
+      two Entra-backed SIDs put there by the device join itself, independent of
+      any RBAC assignment. If either is the Global Administrator directory role,
+      then removing this assignment closes nothing and this entry names the
+      wrong mechanism. Unresolved — resolving it costs either an enterprise-app
+      consent or a Cloud Shell storage account, neither of which is on the path
+      to Lab 03. Recorded as a prediction with a date on it, not a conclusion.
+
+  - id: POS-025
+    lab: "01"
+    setting: VM local administrator account
+    location: Azure > (VM) > Run command; Get-LocalUser, net accounts, secedit
+    state: labadmin, enabled, is the built-in Administrator renamed (RID 500), password does not expire
+    baseline: Azure provisioning applies the chosen username to the built-in account and sets never-expires
+    kind: default
+    production: Local admin password rotated by Windows LAPS, the account not used for interactive sign-in, and a named admin account separate from RID 500
+    revisit: true
+    verified: 2026-07-17
+    note: >-
+      Instructed by G5 section 1 step 4 — "Administrator Account: Enter a
+      username and a secure password. Write down this password" — and used in
+      section 3 to RDP in and turn NLA off. It was never recorded here until
+      POS-024 forced the question of what else could administer this box.
+
+      labadmin is not a new account. Its SID ends -500, so it is the built-in
+      Administrator, renamed by Azure provisioning. That is why Get-LocalUser
+      lists four accounts and none of them is called Administrator, and it is
+      why "I created labadmin at provisioning" and "labadmin is the built-in"
+      are the same fact rather than competing ones. The rename buys nothing
+      against anyone enumerating SIDs: the RID is the identifier and the name
+      is decoration.
+
+      The password does not expire. Local policy sets maximum password age to
+      42 days; the account carries the never-expires flag Azure sets at
+      provisioning, and the flag wins. Two settings disagree, both are visible
+      only from the device, and neither surface mentions the other.
+
+      Lockout does apply, and this was verified rather than assumed:
+      AllowAdministratorLockout = 1 in the effective policy, so RID 500 is not
+      exempt the way it was before Windows 11 22H2. Threshold 10, duration 10
+      minutes, observation window 10 minutes. That throttles an attempt against
+      the pre-auth lock screen POS-020 leaves reachable; it does not stop one.
+      POS-019's source scoping is what carries this entry, not the lockout.
+
+      Also default, also unhardened, recorded because "nobody changed it" is a
+      state: minimum password length 0, password history none, minimum password
+      age 0.

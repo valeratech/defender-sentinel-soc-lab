@@ -90,9 +90,9 @@ Every precondition for enrolment is satisfied and individually verified: MDM use
 
 **The reusable part is the diagnostic order.** The temptation was to reason from documentation about what *should* enrol. `DeviceEligible : YES` ended that in one line: the device says it qualifies, so ineligibility is not the explanation. Eligible-and-untriggered is not the same as ineligible. Ask the device.
 
-**Left unenrolled deliberately.** Lab 03 onboards to Defender via local script and does not require Intune. The available force (`deviceenroller.exe /c /AutoEnrollMDM`) needs local administrator — which `POS-021` deliberately removed — and enrols in the calling user's context, so forcing it as Global Admin would bind the device to the exact account `POS-021` exists to keep off the endpoint. The fix is worse than the gap; the gap is better documentation.
+**Left unenrolled deliberately.** Lab 03 onboards to Defender via local script and does not require Intune. The available force (`deviceenroller.exe /c /AutoEnrollMDM`) needs local administrator and enrols in the calling user's context, so running it as Global Admin would bind the device to the exact account `POS-021` exists to keep off the endpoint. The fix is worse than the gap; the gap is better documentation.
 
-*(pending — further analysis; the VM build itself (`POS-018`–`POS-021`, `POS-023`) is recorded in the posture register and not yet written up here, see §3)*
+*(pending — further analysis; the VM build itself (`POS-018`–`POS-021`, `POS-023`–`POS-025`) is recorded in the posture register and not yet written up here, see §3)*
 
 ## 8. References
 

@@ -77,12 +77,23 @@ Screenshots are the highest-risk artifact in this repository. Portal chrome carr
 | GUID / tenant ID | **Poor** (`72f988bf` → `7 2(988bf`) | Only via fuzzy + despaced pass |
 | **IPv4** | **Poor** (`203.0.113.135` → `2030113.135`) | **Warning tier only — not reliably** |
 | Identifier labels ("Tenant ID") | Reliable | Warning tier |
+| **Device / computer name** | Reliable | **No — no rule exists, in either config** |
 
 The cause is structural, and it decides which of these can be caught at all. Tesseract's language model assists word-shaped tokens and actively harms high-entropy strings, and in small UI text it routinely eats periods. What survives that is an **anchor** — an invariant the pattern can grip. Emails keep their `@`; domains keep the literal string `onmicrosoft`. Both are recoverable despite the damage.
 
 **An IP address has no anchor.** Strip its dots and `203.0.113.135` becomes `2030113.135`, indistinguishable in principle from a version string, a timestamp, or an order number. There is no rule that catches it without also firing on every four-digit number in every screenshot — and a gate that always warns is a gate nobody reads. So IPs get a heuristic at warning tier and nothing more.
 
 This is the limitation stated plainly rather than papered over: **the OCR gate does not reliably catch IP addresses in images.** It was found the only way such things are found — a real screenshot that the gate passed while an address sat in plain view.
+
+### Two further gaps, found the same way — a real screenshot, 2026-07-17
+
+**Device names have no rule.** Section 2 assigns them a placeholder; section 5 says hostnames of live endpoints are never published in any form, placeholdered or not. Tesseract reads them cleanly off a portal title bar. Neither `.gitleaks.toml` nor `.gitleaks-ocr.toml` has a rule for one, and cannot easily have a useful one: an arbitrary computer name has no invariant to grip, which is the same structural problem as the IPv4 row above. (`azure-vm-public-dns` catches `*.cloudapp.azure.com` — a DNS name, not a machine name. Do not mistake one for the other.) The thing that *could* catch it is `.pii-terms`, which is the second gap.
+
+**`.pii-terms` never reaches an image.** `audit-pii.sh` checks the operator's own identifiers — tenant name, device names, personal terms — against source text. Nothing checks them against recovered OCR text. The two gates have different notions of what is sensitive, and the image gate has the smaller one.
+
+That matters because **both documented anchors can fail on the same string at once.** On 2026-07-17 a portal screenshot rendered an administrator UPN with the `@` eaten *and* `onmicrosoft` corrupted to a near-miss that the literal-word rule does not match — both anchors in this table gone, in a single line, in an image whose other three instances of the same UPN rendered cleanly and were caught. One bad render is enough. What survived that line intact was the **tenant name** — the one string in it that only `.pii-terms` knows about, and the one thing the image gate never consults.
+
+The ceiling here is structural, not an implementation gap: `.pii-terms` is gitignored, so neither GitHub push protection nor CI can ever run this check. It can exist only at pre-commit — the layer section 1 lists as bypassable. A `.pii-terms`-aware OCR check is worth having and must not be mistaken for a gate.
 
 **Therefore: a green hook result is not proof that an image is sanitized.** Every image requires manual visual review after cropping and redaction, even when the metadata hook, the gitleaks scan, and the OCR scan all pass. The automation exists to catch the screenshot committed at the end of a long session, not to replace the look.
 

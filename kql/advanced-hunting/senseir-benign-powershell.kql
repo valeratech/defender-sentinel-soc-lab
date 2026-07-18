@@ -1,0 +1,26 @@
+// Benign-but-suspicious pattern: Defender investigating itself — Lab 03
+//
+// Within minutes of onboarding, DeviceProcessEvents shows signed PowerShell
+// launched as SYSTEM by senseir.exe (the MDE live-response / automated-
+// investigation sensor) from a DataCollection path. It has the shape of
+// PowerShell abuse — but it is Defender's own automated collection.
+//
+// A PowerShell-abuse detection built on this data WILL false-positive on it
+// unless excluded. The discriminators are all three of:
+//   - InitiatingProcessFileName == senseir.exe
+//   - AccountName == system
+//   - -ExecutionPolicy AllSigned in the command line
+//   - a "\Windows Defender Advanced Threat Protection\DataCollection\" path
+//
+// This query ISOLATES the pattern so you can eyeball it. In a real detection,
+// invert the final filters to EXCLUDE it.
+
+DeviceProcessEvents
+| where DeviceName startswith "lab-win11"     // adjust to your device
+| where FileName =~ "powershell.exe"
+| where InitiatingProcessFileName =~ "senseir.exe"
+| where AccountName == "system"
+| where ProcessCommandLine has "AllSigned"
+   and ProcessCommandLine has @"Windows Defender Advanced Threat Protection\DataCollection"
+| project Timestamp, AccountName, InitiatingProcessFileName, ProcessCommandLine
+| order by Timestamp desc

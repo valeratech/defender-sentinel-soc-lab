@@ -1,0 +1,54 @@
+// Onboarding validation and latency — Lab 03
+// Reusable checks for confirming a freshly onboarded device is streaming, and
+// for measuring ingestion latency honestly. Replace the device filter as needed.
+//
+// TIMEZONE WARNING: DeviceEvents/DeviceInfo Timestamp renders in the portal's
+// configured timezone. Latency computed against a local wall-clock reads wrong
+// until converted. Use ingestion_time() when the question is "when did MDE
+// RECEIVE this", not "when did it happen on the device". See Lab 03 §7.
+
+// --- 1. Is the sensor streaming at all? ---
+DeviceEvents
+| where DeviceName startswith "lab-win11"      // adjust to your device
+| where Timestamp > ago(1h)
+| order by Timestamp asc
+| take 20
+
+// --- 2. Ingestion latency — event time vs. cloud-receive time ---
+// A large, consistent gap here does NOT mean backfill; it usually means the
+// portal timezone differs from the clock you are comparing against. A small
+// gap (single-digit minutes) is a live, healthy stream.
+DeviceEvents
+| where DeviceName startswith "lab-win11"
+| extend EventTime = Timestamp, IngestTime = ingestion_time()
+| extend GapMinutes = datetime_diff('minute', IngestTime, EventTime)
+| project EventTime, IngestTime, GapMinutes, ActionType
+| order by EventTime asc
+| take 15
+
+// --- 3. Telemetry window summary — first/last event, first ingest, count ---
+DeviceEvents
+| where DeviceName startswith "lab-win11"
+| summarize
+    FirstEvent  = min(Timestamp),
+    FirstIngest = min(ingestion_time()),
+    LastEvent   = max(Timestamp),
+    TotalEvents = count()
+
+// --- 4. Onboarding status and connectivity type ---
+// Confirms the connectivity choice (Standard vs Streamlined) actually applied,
+// rather than trusting the download-time selection.
+DeviceInfo
+| where DeviceName startswith "lab-win11"
+| project Timestamp, DeviceName, OnboardingStatus, ConnectivityType
+| order by Timestamp desc
+| take 1
+
+// --- 5. Attribution — which account ran a process ---
+// The point of endpoint telemetry: actions tie to an identity and a lineage.
+DeviceProcessEvents
+| where DeviceName startswith "lab-win11"
+| where Timestamp > ago(1h)
+| where FileName =~ "powershell.exe"
+| project Timestamp, FileName, ProcessCommandLine, AccountName, InitiatingProcessFileName
+| order by Timestamp desc

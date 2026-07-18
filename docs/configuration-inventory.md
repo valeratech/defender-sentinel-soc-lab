@@ -336,6 +336,25 @@ Note `dsregcmd`'s **SSO State is per-user**. Run via Azure Run command it execut
 SYSTEM and reports `AzureAdPrt : NO` regardless of truth. It must be run inside the
 user's session.
 
+**Timestamp trap (Lab 03).** `DeviceEvents` / `DeviceInfo` render `Timestamp` in the
+portal's configured timezone, not necessarily UTC and not necessarily your local
+clock. Latency computed by subtracting an onboarding wall-clock time from a portal
+`Timestamp` reads wildly wrong until both are in one zone — during Lab 03 an apparent
+14-hour gap was briefly read as evidence the sensor had *backfilled* pre-onboarding
+history. It had not: comparing `Timestamp` against `ingestion_time()` showed a
+consistent ~3.5-minute gap, i.e. a live stream. The lesson: confirm the portal
+timezone before computing any latency, and use `ingestion_time()` when the question
+is "when did MDE **receive** this" — `Timestamp` answers "when did it **happen** on
+the device", an adjacent question the column name does not warn you about.
+
+**Guest-agent "Ready" ≠ extensions work (Lab 03, `POS-028`).** A VM guest agent
+reporting `Ready` with a version string still hung every Run Command and VMAccess
+operation indefinitely while control-plane reads returned instantly. Same shape as
+`POS-011`'s "Available" and `POS-026`'s role that "appears complete": a status field
+answering a narrower question than the one asked. Do not treat agent `Ready` as proof
+the extension channel is live; the confirming signal is an extension operation that
+actually **returns**.
+
 ---
 
 ## 3. Azure portal — `portal.azure.com`
@@ -857,6 +876,7 @@ six have since been corrected in the revised versions.
 | 4 | **G2**: the device silently registers with Intune after sign-in | Never enrols (`POS-022`) | **The sharpest one.** G2 describes user-driven join behaviour; G5 builds a VM joined by the `AADLoginForWindows` extension. Both guides individually correct; together they produce a device that never enrols, with every precondition satisfied and no error raised | **revision notes only** — original G2 not read back |
 | 5 | **G5**: troubleshoot Entra sign-in failure by disabling blocking Conditional Access policies | **Zero CA policies exist** (`POS-003`) | The prescribed remedy has no cause to address. The real failure was `AADSTS50055` — expired password on a new account — found in `dsregcmd`, not in the guide. Following the guidance would mean hunting for policies that aren't there, or disabling unrelated things to make an error go away | **original, 2026-07-17** — §5 read back verbatim |
 | 6 | **G3**: *Quick Step* block instructs setting Security defaults to **Enabled** | Its own TLDR says disable | A copy-paste of Microsoft's *enable* procedure into a guide about disabling. Following the Quick Step literally does the opposite of the guide's purpose | **revision notes only** — original G3 not read back |
+| 7 | **Module 25 guide**: run the onboarding script from an elevated *interactive* command prompt | Used SYSTEM via Azure Run Command instead — then, when Run Command proved unavailable (`POS-028`), the interactive `labadmin` path via Bastion | First divergence of the live era, and a chosen one: SYSTEM avoids an interactive privileged session on the endpoint (`POS-021`). Recorded here rather than in a guide revision note, per the live-configuration rule — the guide is correct for a normal device; the deviation is environment-specific | **live, 2026-07-18** — decided during configuration, no revision note exists |
 
 ---
 

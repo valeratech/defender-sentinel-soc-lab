@@ -46,6 +46,15 @@ entries:
       holds total authority; audit trail cannot distinguish this identity's
       actions from any other's because there is no other.
 
+      POS-027 creates a scoped analyst identity for the Defender portal. That
+      does not close this entry and the state above is unchanged: analyst holds
+      one read permission and no directory role, so the admin identity model is
+      still a single standing Global Administrator, and the Global Administrator
+      is still the account doing the work. This closes when the second identity
+      is the one being used, not when it exists. POS-021 recorded the endpoint
+      version of that distinction as closed and POS-024 found it open three days
+      later.
+
   - id: POS-003
     lab: "00"
     setting: Conditional Access policies
@@ -620,3 +629,90 @@ entries:
       Also default, also unhardened, recorded because "nobody changed it" is a
       state: minimum password length 0, password history none, minimum password
       age 0.
+
+  - id: POS-026
+    lab: "00"
+    setting: Defender unified RBAC activation
+    location: security.microsoft.com > System > Permissions > Roles > Workload settings
+    state: All workloads activated 2026-07-17 (previously zero active)
+    baseline: Zero workloads active - roles can be created and assigned, and enforce nothing
+    kind: hardened
+    production: Same, plus a review of which workloads should be governed by the unified model before activating any
+    revisit: true
+    verified: 2026-07-17
+    note: >-
+      The guide states that unified RBAC is the default permissions model for
+      new tenants: Defender for Endpoint since 2025, Defender for Office 365
+      Plan 2 since July 2026. This tenant was created 2026-07-14, after both.
+      Zero workloads were active.
+
+      "Default permissions model" means the legacy model is not available to
+      this tenant. It does not mean the unified model is switched on. Those two
+      sentences read the same and are not the same, and the difference is that
+      nothing enforces a role until a workload is activated.
+
+      Observed directly, and this is the part that will not be reproducible
+      again: the role was created, assigned, and rendered on the Review and
+      finish page as complete. No banner, no warning, no indication that it
+      would not take effect. Signed in as the assigned user before activation -
+      no Incidents, no Hunting, no Assets. Activated the workloads. Signed in
+      again - all three present. Nothing else changed in between.
+
+      Third instance of this shape in this environment, and the first one a
+      source guide called in advance: POS-011 (connector reads Available, device
+      risk never reaches compliance), POS-022 (every precondition verified,
+      enrolment never attempted), and this. The guide says "the role appears
+      complete without it" and it is correct. The portal does not say it.
+
+      The before/after was measured on a tenant with no telemetry, which is the
+      only state in which the absence of data proves anything. Onboarding ends
+      that.
+
+  - id: POS-027
+    lab: "00"
+    setting: Defender portal analyst identity and role scope
+    location: Entra ID > Users; security.microsoft.com > System > Permissions > Roles
+    state: analyst account - no directory roles, no groups, no licence assigned; custom role "SOC Analyst - Read Only" granting Security data basics (read) only; assignment scoped to all four data sources
+    baseline: n/a - not in source guidance
+    kind: hardened
+    production: Role scoped to the workloads actually in use, membership reviewed on a schedule, and the account federated to a joiner-mover-leaver process
+    revisit: true
+    verified: 2026-07-17
+    note: >-
+      Created so that Defender portal work stops requiring the Global
+      Administrator. It does not replace it yet - see POS-002.
+
+      Deliberately minimal: no directory roles, no group memberships, usage
+      location set at creation because a licence cannot be assigned without one
+      and the failure does not say so. Not given Virtual Machine User Login, and
+      not given labuser's role either. Coupling the SOC console to the endpoint
+      sign-in identity would mean that compromising the box under investigation
+      hands over the console it is investigated from - POS-021's own Primary
+      Refresh Token argument, pointed the other way.
+
+      No licence was assigned, and none was needed. analyst reached the Defender
+      portal and, after POS-026's activation, the views the role grants. The
+      guide's prerequisites table covers what is required to create a role and
+      says nothing about what the assignee needs; this is the answer it does not
+      give.
+
+      Scope is wider than it should be. The assignment covers Defender for
+      Endpoint, Office 365, Identity, and Cloud Apps - all four - where this lab
+      has endpoints and nothing else. The guide is explicit that data sources are
+      a hard boundary and that scoping to a single workload is done by
+      deselecting the others. The tighter choice was Defender for Endpoint
+      alone, and the wide default was accepted rather than chosen. Recorded as
+      the weaker of two available options, taken by inattention.
+      "Include future data sources automatically" was left unchecked, which is
+      the same class of decision made correctly.
+
+      Two observations about the portal, neither pursued:
+      analyst reaches the Cloud Discovery landing page - which the assignment's
+      data sources explain - and that page presents "Create a new report" and
+      "Configure automatic upload", write controls offered to an account holding
+      one read permission. Whether they fail on click is untested. Separately,
+      role membership is legible only by opening the Edit assignment dialog; the
+      Roles page reports a count and no names, and unified RBAC is the only
+      store for these assignments, so there is no second surface to check. The
+      only way to audit who holds a Defender role is to open the form that
+      changes it.

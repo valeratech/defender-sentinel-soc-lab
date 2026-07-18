@@ -347,6 +347,15 @@ timezone before computing any latency, and use `ingestion_time()` when the quest
 is "when did MDE **receive** this" — `Timestamp` answers "when did it **happen** on
 the device", an adjacent question the column name does not warn you about.
 
+**`OnboardingState` lives in two places and they disagree (Lab 03, module 27).**
+The registry `HKLM:\SOFTWARE\Microsoft\Windows Advanced Threat Protection\Status`
+value `OnboardingState` read `1` on the onboarded device; the identically-named
+field from `Get-MpComputerStatus` was **blank** on the same device at the same time.
+The registry value is authoritative — it is what the SENSE service writes on first
+start. `Get-MpComputerStatus` is the antivirus-centric view and its onboarding field
+is unreliable. Same field name, two sources, no signal which to trust; confirm onboard
+from the registry `Status` key (and `OrgId` for the tenant), not from the AV cmdlet.
+
 **Guest-agent "Ready" ≠ extensions work (Lab 03, `POS-028`).** A VM guest agent
 reporting `Ready` with a version string still hung every Run Command and VMAccess
 operation indefinitely while control-plane reads returned instantly. Same shape as

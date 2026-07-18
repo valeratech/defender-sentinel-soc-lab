@@ -9,4 +9,23 @@ on a known-true event (`validated: true`). **PARTIAL** means some have.
 **CLAIMED** means none have. The distinction is the point of this table: an
 unvalidated rule is a hypothesis, not coverage.
 
-*No detections specified yet.*
+## Summary
+
+| Metric | Count |
+|---|---|
+| Detections specified | 1 |
+| Active (not retired) | 1 |
+| Validated (proven to fire) | 1 |
+| Unvalidated | 0 |
+
+## By Tactic
+
+| Tactic | Techniques | Detections | State |
+|---|---|---|---|
+| Execution (`TA0002`) | T1059.001 | `DET-001` | COVERED (1/1) |
+
+## Detections
+
+| ID | Name | Platform | Type | Severity | Status | Validated |
+|---|---|---|---|---|---|---|
+| [`DET-001`](detections/defender-xdr/DET-001-suspicious-powershell-detection-test.md) | Suspicious PowerShell command line (EDR detection test) | defender-xdr | ml | medium | active | yes |

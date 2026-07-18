@@ -95,6 +95,10 @@ below was observed, not assumed.
 | Connectivity applied | `DeviceInfo.ConnectivityType` | Streamlined | ✅ Streamlined; OnboardingStatus Onboarded |
 | Attribution | `AccountName` on process events | The account that acted | ✅ `labadmin` on the test process |
 | Detection→alert→incident | Run detection test, watch Incidents | Alert, correlated to an incident | ✅ "Suspicious PowerShell command line" (Medium), grouped into "Execution incident on one endpoint" (priority 35) |
+| **Device-side onboard** (module 27) | `Get-ItemProperty ...\Windows Advanced Threat Protection\Status` in `labadmin`'s session | `OnboardingState = 1` | ✅ `OnboardingState 1`; `OrgId` populated (correct tenant — value not reproduced) |
+| **Defender AV mode** | `Get-MpComputerStatus` → `AMRunningMode` | Normal (AV primary, no third-party) | ✅ **Normal**, `AntivirusEnabled True` — matters for module 33 ASR enforcement |
+| **ATT&CK mapping** (module 30) | Incident → alert summary | A technique, Defender-assigned | ✅ **`T1059.001` PowerShell** (Execution) — first *observed* coverage, tracked as `DET-001` |
+| **Investigation surface** | Incident graph + Process tree + Alert timeline | Full Plan 2 experience | ✅ Full graph, complete process lineage — **Plan 2 confirmed active** (E5) |
 
 ### The four latencies — measured, against vendor expectations
 
@@ -190,6 +194,55 @@ the command is **not reproduced** in this repository; the mechanism is described
 here and the canonical command lives in Microsoft's documentation (§8). It maps
 to the same behavioural signals a SIEM hunt would flag — hidden window,
 execution-policy bypass, download-and-execute — which is why it fires cleanly.
+
+**Verified from the device, not just the cloud (module 27).** Everything above
+is cloud-side (portal, hunting). The onboard was also confirmed from the box
+itself: the registry `Status\OnboardingState` reads `1` and `OrgId` is populated
+with this tenant's ID, proving the sensor installed, registered, and joined the
+*correct* tenant — a device-onboarded-to-the-wrong-tenant would show a different
+`OrgId`. Read in `labadmin`'s interactive session, deliberately **not** via Run
+Command / SYSTEM: `POS-028` makes Run Command unavailable here anyway, and the
+`dsregcmd` trap (SSO state is per-user; SYSTEM reports falsely) means device
+identity reads must run in the user's session regardless.
+
+A small trap surfaced doing this: **`OnboardingState` exists in two places and
+they disagree.** The registry `Status\OnboardingState` read `1`; the same-named
+field from `Get-MpComputerStatus` was blank on this confirmed-onboarded device.
+The registry value is authoritative; the cmdlet's onboarding field is
+AV-centric and unreliable. Same name, two sources, no warning which to trust —
+added to the diagnostic traps register.
+
+**Walking the incident (module 30) turned the synthetic alert into the first
+observed ATT&CK coverage.** Defender mapped it to `T1059.001` (PowerShell,
+under Execution) and reconstructed the full process lineage from logon shell
+(`userinit.exe → explorer.exe → cmd.exe → powershell.exe`) down to the script.
+Two alerts correlated into one incident with the visible reason **"same user
+credentials"** — the behavioural Medium detection and an Informational
+`[Test Alert]` where Defender additionally *fingerprinted the known test*, so
+the sensor both detects the behaviour and recognises the specific sanctioned
+string. The full incident graph, process tree, and timeline all rendered,
+confirming the **Plan 2** investigation surface is active on this E5 tenant
+(resolving whether the mid-course vulnerability-licence activation had left the
+tenant on a reduced surface — it had not). This detection is tracked as
+`DET-001`; `docs/attack-coverage.md` now shows `T1059.001` as observed rather
+than planned.
+
+**The Evidence tab auto-extracted four IOCs and mis-verdicted one — a real
+false-positive class.** Defender pulled `cmd.exe`, `powershell.exe`, the
+download URL, and the IP `127.0.0.1` from the incident, each marked *Suspicious*.
+Loopback cannot be attacker infrastructure; it was flagged only for appearing in
+a malicious-looking download. Any indicator pipeline that auto-promotes
+extracted "suspicious" IPs to block indicators would need to exclude loopback
+and RFC 1918 — the same false-positive family as the `senseir.exe`
+benign-PowerShell pattern, and now the first concrete case. Captured in
+`DET-001` §5.
+
+**The endpoint watches the operator too.** The process tree captured the
+investigator's own later commands — a `tzutil.exe /g` run while diagnosing the
+timezone trap appears in the timeline as its own script event. Harmless, but a
+reminder that once a device is onboarded, *everything* done on it as any account
+is telemetry, including the work of investigating it — the same lesson as the
+`senseir.exe` self-collection pattern.
 
 ## 8. References
 

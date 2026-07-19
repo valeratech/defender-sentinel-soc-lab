@@ -31,14 +31,14 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 31 |
-| Verified by direct observation | 29 |
+| Settings tracked | 32 |
+| Verified by direct observation | 30 |
 | Asserted but unverified | 2 |
-| Flagged to revisit | 23 |
+| Flagged to revisit | 24 |
 
 | Kind | Count |
 |---|---|
-| hardened | 12 |
+| hardened | 13 |
 | default | 8 |
 | **weakening** | 6 |
 | **gap** | 5 |
@@ -74,6 +74,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-029` | 03 | Endpoint sensor (Defender for Endpoint onboarding) | LAB-WIN11-01 onboarded, sensor Active, streaming; ConnectivityType Streamlined; onboarded via local script | hardened | Onboarding delivered by an assigned Intune EDR policy across a fleet, not a per-device local script; the local script is capped at 10 devices and carries no ongoing management | 2026-07-18 |
 | `POS-030` | 05 | Device group, automation level, and scoped delegation | Group "Lab Client Machines", rule Name starts-with the lab prefix, remediation Semi (approval required for non-temporary folders), user access scoped to an Entra group holding the analyst identity | hardened | Groups scoped by security-group-driven membership and rank, remediation level matched to each device's role, and access delegated to teams rather than a single identity | 2026-07-19 |
 | `POS-031` | 06 | Attack Surface Reduction rules | Two rules set to Block - WMI event-subscription persistence, and process creation via PSExec/WMI. Both enforcing and confirmed firing. | hardened | ASR deployed by Intune policy across the fleet with a staged audit-then-block rollout, visible in the ASR report; not per-device local PowerShell | 2026-07-19 |
+| `POS-032` | 04 | Microsoft Sentinel workspace and Defender XDR ingestion | Sentinel enabled on law-soc-lab (West US, PAYG). Defender XDR connector Connected/Primary, forwarding incidents and alerts only. Raw Device* event streaming OFF. | hardened | SIEM with sources beyond Defender, ingestion budgeted against a commitment tier once volume is known, and retention set to policy | 2026-07-19 |
 
 ## All tracked settings
 
@@ -175,6 +176,14 @@ it is an oversight. Closing an item means recording which one it was.
 **`POS-028` — VM guest-agent extension channel.** Found while onboarding. The intended onboarding method was the local script executed as SYSTEM via Azure Run Command, chosen to keep an interactive privileged session off the endpoint (POS-021). Run Command accepted the script and never returned. A later password-reset via the VMAccess extension behaved identically: the control plane reported the operation InProgress and looped indefinitely without completing. Meanwhile control-plane reads about the VM returned instantly, and the guest agent reported Ready, version 2.7.41491.1216. So the agent is up for status but not executing extensions. "Ready" is not evidence the extension channel works — the same shape as POS-011's "Available" and POS-026's role that "appears complete". A status field answered a narrower question than the one being asked. Consequence for Lab 03: the SYSTEM elevation path was unavailable, forcing the interactive labadmin route via Azure Bastion. That is the divergence recorded in the Lab 03 design decisions and the configuration-inventory divergence table — intended SYSTEM, forced to the RID-500 local admin (POS-025) that the VM design otherwise routes around. Not diagnosed to root cause. May clear on an agent restart or VM redeploy; neither attempted, because the interactive path completed the lab. Left open deliberately: a VM whose extension channel is wedged is a real state and worth confirming persists before treating it as resolved.
 
 **`POS-029` — Endpoint sensor (Defender for Endpoint onboarding).** The SOC's first endpoint. Before this the Device* advanced-hunting tables were empty; after it they are the data plane later labs read from. Onboarded by local script because the scalable Intune path (module 26) is structurally foreclosed here: it requires an Intune-enrolled device, and POS-022 records that enrolment never fires. Even were that fixed, the device-risk-to-compliance path is independently off (POS-011) and the VM cannot attest (POS-018, no vTPM). Three independent breaks; local script is the only available path. Measured latencies, all normalised to UTC and all at or under the vendor numbers: onboard to device-in-inventory ~2 min (vendor 5-30 min); onboard to first telemetry ingested ~3.5 min (FirstEvent 08:30:16Z, FirstIngest 08:33:52Z); detection test to alert ~2 min (vendor "a few minutes"). These measured numbers are the finding; the vendor ranges are recorded only for comparison. Connectivity type Streamlined, chosen at download and confirmed applied via DeviceInfo.ConnectivityType rather than assumed from the selection. The device is now watched but not governed - it emits telemetry and obeys no policy, because onboarding is telemetry and enrolment (the management path) never completed. An analyst inheriting this environment sees a fully reporting endpoint and could assume it is managed. It is not. That gap is the whole point of keeping onboarding and enrolment as separate entries.
+
+### Lab 04
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-032` | Microsoft Sentinel workspace and Defender XDR ingestion | `Azure > Log Analytics workspace law-soc-lab; Microsoft Sentinel; Data connectors` | Sentinel enabled on law-soc-lab (West US, PAYG). Defender XDR connector Connected/Primary, forwarding incidents and alerts only. Raw Device* event streaming OFF. | hardened | yes | 2026-07-19 |
+
+**`POS-032` — Microsoft Sentinel workspace and Defender XDR ingestion.** The section capstone - the aggregation layer over every prior lab. Endpoint (Lab 03 sensor) to Defender to XDR to Sentinel, proven with a live detection test: a SecurityIncident arrived carrying ProviderName Microsoft XDR, the proof it came through the connector. Defender-to-Sentinel sync measured at ~2 minutes (UTC-converted; the local-vs-UTC timestamp trap applies a fifth time). Cost-safe by design and verified. Ingestion is the only meaningful Sentinel cost and it is volume-based. Only the free alert/incident sync is enabled; raw Device* event streaming is OFF, confirmed by DeviceEvents failing to resolve as a table in the Sentinel Logs blade (it resolves fine in Defender Advanced Hunting - different store). The trial (2026-07-19 to 2026-08-19) covers 10 GB/day on both Sentinel and Log Analytics; the conservative connector keeps usage far under that. Architecture recorded in Lab 04 for reuse: a sensor produces telemetry (on-device, the source), a connector moves it (cloud-to-cloud, no software); Defender Advanced Hunting and Sentinel Logs both speak KQL but query different stores (Defender's free raw lake with column Timestamp vs the billed Log Analytics workspace with column TimeGenerated holding only forwarded data). The project's existing kql/ queries are portable across both - language transfers, store and cost change. Two behaviours worth remembering: the Defender XDR connector is forward-only (historical incidents do not backfill - prove flow with a fresh event); and the incident wrapper (SecurityIncident) syncs ahead of the discrete SecurityAlert, so query SecurityIncident or search * to confirm flow, not SecurityAlert alone. Permissions note: subscription Owner was required for auto-onboard - Global Administrator (a directory role) is not Azure RBAC (POS-024).
 
 ### Lab 05
 

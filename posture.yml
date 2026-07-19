@@ -879,3 +879,45 @@ entries:
       register and the device stay in sync. Preconditions from earlier labs: AV
       Normal mode (POS-029/Lab 03) makes rules enforce; Semi remediation (POS-030)
       kept the block from being auto-quarantined mid-test.
+
+  - id: POS-032
+    lab: "04"
+    setting: Microsoft Sentinel workspace and Defender XDR ingestion
+    location: Azure > Log Analytics workspace law-soc-lab; Microsoft Sentinel; Data connectors
+    state: Sentinel enabled on law-soc-lab (West US, PAYG). Defender XDR connector Connected/Primary, forwarding incidents and alerts only. Raw Device* event streaming OFF.
+    baseline: No SIEM - Defender telemetry queryable only in Defender's own data lake
+    kind: hardened
+    production: SIEM with sources beyond Defender, ingestion budgeted against a commitment tier once volume is known, and retention set to policy
+    revisit: true
+    verified: 2026-07-19
+    note: >-
+      The section capstone - the aggregation layer over every prior lab. Endpoint
+      (Lab 03 sensor) to Defender to XDR to Sentinel, proven with a live detection
+      test: a SecurityIncident arrived carrying ProviderName Microsoft XDR, the
+      proof it came through the connector. Defender-to-Sentinel sync measured at
+      ~2 minutes (UTC-converted; the local-vs-UTC timestamp trap applies a fifth
+      time).
+
+      Cost-safe by design and verified. Ingestion is the only meaningful Sentinel
+      cost and it is volume-based. Only the free alert/incident sync is enabled;
+      raw Device* event streaming is OFF, confirmed by DeviceEvents failing to
+      resolve as a table in the Sentinel Logs blade (it resolves fine in Defender
+      Advanced Hunting - different store). The trial (2026-07-19 to 2026-08-19)
+      covers 10 GB/day on both Sentinel and Log Analytics; the conservative
+      connector keeps usage far under that.
+
+      Architecture recorded in Lab 04 for reuse: a sensor produces telemetry
+      (on-device, the source), a connector moves it (cloud-to-cloud, no software);
+      Defender Advanced Hunting and Sentinel Logs both speak KQL but query
+      different stores (Defender's free raw lake with column Timestamp vs the
+      billed Log Analytics workspace with column TimeGenerated holding only
+      forwarded data). The project's existing kql/ queries are portable across
+      both - language transfers, store and cost change.
+
+      Two behaviours worth remembering: the Defender XDR connector is forward-only
+      (historical incidents do not backfill - prove flow with a fresh event); and
+      the incident wrapper (SecurityIncident) syncs ahead of the discrete
+      SecurityAlert, so query SecurityIncident or search * to confirm flow, not
+      SecurityAlert alone. Permissions note: subscription Owner was required for
+      auto-onboard - Global Administrator (a directory role) is not Azure RBAC
+      (POS-024).

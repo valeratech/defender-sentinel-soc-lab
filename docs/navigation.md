@@ -48,6 +48,25 @@ being reached is stable even when its location is not.
 | VM reset password | Virtual machines → *(VM)* → Help → Reset password | 2026-07-18 |
 | VM auto-shutdown | Virtual machines → *(VM)* → Operations → Auto-shutdown | 2026-07-17 |
 
+### Microsoft Sentinel — Azure portal / Defender portal
+
+| Setting / view | Path | Confirmed |
+|---|---|---|
+| Create Log Analytics workspace | Azure → Log Analytics workspaces → Create | 2026-07-19 |
+| Enable Sentinel | Azure → Microsoft Sentinel → Create → select workspace | 2026-07-19 |
+| Data connectors | Azure → Microsoft Sentinel → *(workspace)* → Data connectors | 2026-07-19 |
+| Sentinel Logs (KQL) | Azure → Microsoft Sentinel → *(workspace)* → Logs — **switch Simple mode → KQL mode to write queries** | 2026-07-19 |
+| SIEM workspace status (unified) | security.microsoft.com → Settings → Microsoft Sentinel → SIEM workspaces | 2026-07-19 |
+| Content hub (solutions) | Azure → Microsoft Sentinel → *(workspace)* → Content hub | 2026-07-19 |
+
+**Defender Advanced Hunting is NOT Sentinel Logs.** Same KQL, different data
+stores. Defender hunting (`security.microsoft.com` → Advanced hunting) queries
+Defender XDR's free raw lake — the `Device*` tables, column `Timestamp`. Sentinel
+Logs queries the Log Analytics workspace — only connector-forwarded data
+(`SecurityIncident`, `SecurityAlert`), billed, column `TimeGenerated`. A `Device*`
+query works in the first and fails to resolve in the second. Confirm which store
+before querying, and mind the column-name difference.
+
 ## Which surface answers which question
 
 Navigation is not only "where is the setting" — it is also "which view answers my

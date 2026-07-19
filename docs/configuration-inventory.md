@@ -347,6 +347,23 @@ timezone before computing any latency, and use `ingestion_time()` when the quest
 is "when did MDE **receive** this" — `Timestamp` answers "when did it **happen** on
 the device", an adjacent question the column name does not warn you about.
 
+**Assets CSV `Last device update` is check-in time, not config time (Lab 05).**
+The device-inventory export column `Last device update` records the device's last
+telemetry check-in, not when a configuration was applied to it. Computing a
+configuration latency (e.g. device-group propagation) by subtracting an Apply time
+from this column produces a nonsense figure — during Lab 05 it turned ~28 minutes of
+normal propagation into an apparent ~30-hour outage and spawned three false failure
+theories before the real elapsed time was confirmed. Sibling to the UTC timestamp
+trap: confirm which clock a timestamp actually measures before computing against it.
+
+**Device-group rule wizard ships un-deletable empty AND conditions (Lab 05).**
+The Add-device-group rule builder pre-populates four AND-joined conditions (Name,
+Domain, Tag, OS). Only conditions added *beyond* these defaults get a delete icon, so
+the three empty defaults cannot be removed. They are ignored in evaluation — Preview
+matches with them empty — so the rule works, but a reader inspecting a saved rule sees
+three empty AND clauses and reasonably suspects them as the cause of a non-match. They
+are not. Rule out the timestamp and propagation first.
+
 **`OnboardingState` lives in two places and they disagree (Lab 03, module 27).**
 The registry `HKLM:\SOFTWARE\Microsoft\Windows Advanced Threat Protection\Status`
 value `OnboardingState` read `1` on the onboarded device; the identically-named

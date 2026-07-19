@@ -31,14 +31,14 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 29 |
-| Verified by direct observation | 27 |
+| Settings tracked | 30 |
+| Verified by direct observation | 28 |
 | Asserted but unverified | 2 |
-| Flagged to revisit | 21 |
+| Flagged to revisit | 22 |
 
 | Kind | Count |
 |---|---|
-| hardened | 10 |
+| hardened | 11 |
 | default | 8 |
 | **weakening** | 6 |
 | **gap** | 5 |
@@ -72,6 +72,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-027` | 00 | Defender portal analyst identity and role scope | analyst account - no directory roles, no groups, no licence assigned; custom role "SOC Analyst - Read Only" granting Security data basics (read) only; assignment scoped to all four data sources | hardened | Role scoped to the workloads actually in use, membership reviewed on a schedule, and the account federated to a joiner-mover-leaver process | 2026-07-17 |
 | `POS-028` | 03 | VM guest-agent extension channel | Guest agent reports Ready (2.7.41491.1216); Run Command and VMAccess extension operations accept and then hang without completing | **gap** | Monitored agent health that distinguishes "Ready" from "servicing extensions", so a wedged extension channel is detected rather than discovered mid-task | 2026-07-18 |
 | `POS-029` | 03 | Endpoint sensor (Defender for Endpoint onboarding) | LAB-WIN11-01 onboarded, sensor Active, streaming; ConnectivityType Streamlined; onboarded via local script | hardened | Onboarding delivered by an assigned Intune EDR policy across a fleet, not a per-device local script; the local script is capped at 10 devices and carries no ongoing management | 2026-07-18 |
+| `POS-030` | 05 | Device group, automation level, and scoped delegation | Group "Lab Client Machines", rule Name starts-with the lab prefix, remediation Semi (approval required for non-temporary folders), user access scoped to an Entra group holding the analyst identity | hardened | Groups scoped by security-group-driven membership and rank, remediation level matched to each device's role, and access delegated to teams rather than a single identity | 2026-07-19 |
 
 ## All tracked settings
 
@@ -173,6 +174,14 @@ it is an oversight. Closing an item means recording which one it was.
 **`POS-028` — VM guest-agent extension channel.** Found while onboarding. The intended onboarding method was the local script executed as SYSTEM via Azure Run Command, chosen to keep an interactive privileged session off the endpoint (POS-021). Run Command accepted the script and never returned. A later password-reset via the VMAccess extension behaved identically: the control plane reported the operation InProgress and looped indefinitely without completing. Meanwhile control-plane reads about the VM returned instantly, and the guest agent reported Ready, version 2.7.41491.1216. So the agent is up for status but not executing extensions. "Ready" is not evidence the extension channel works — the same shape as POS-011's "Available" and POS-026's role that "appears complete". A status field answered a narrower question than the one being asked. Consequence for Lab 03: the SYSTEM elevation path was unavailable, forcing the interactive labadmin route via Azure Bastion. That is the divergence recorded in the Lab 03 design decisions and the configuration-inventory divergence table — intended SYSTEM, forced to the RID-500 local admin (POS-025) that the VM design otherwise routes around. Not diagnosed to root cause. May clear on an agent restart or VM redeploy; neither attempted, because the interactive path completed the lab. Left open deliberately: a VM whose extension channel is wedged is a real state and worth confirming persists before treating it as resolved.
 
 **`POS-029` — Endpoint sensor (Defender for Endpoint onboarding).** The SOC's first endpoint. Before this the Device* advanced-hunting tables were empty; after it they are the data plane later labs read from. Onboarded by local script because the scalable Intune path (module 26) is structurally foreclosed here: it requires an Intune-enrolled device, and POS-022 records that enrolment never fires. Even were that fixed, the device-risk-to-compliance path is independently off (POS-011) and the VM cannot attest (POS-018, no vTPM). Three independent breaks; local script is the only available path. Measured latencies, all normalised to UTC and all at or under the vendor numbers: onboard to device-in-inventory ~2 min (vendor 5-30 min); onboard to first telemetry ingested ~3.5 min (FirstEvent 08:30:16Z, FirstIngest 08:33:52Z); detection test to alert ~2 min (vendor "a few minutes"). These measured numbers are the finding; the vendor ranges are recorded only for comparison. Connectivity type Streamlined, chosen at download and confirmed applied via DeviceInfo.ConnectivityType rather than assumed from the selection. The device is now watched but not governed - it emits telemetry and obeys no policy, because onboarding is telemetry and enrolment (the management path) never completed. An analyst inheriting this environment sees a fully reporting endpoint and could assume it is managed. It is not. That gap is the whole point of keeping onboarding and enrolment as separate entries.
+
+### Lab 05
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-030` | Device group, automation level, and scoped delegation | `security.microsoft.com > Settings > Endpoints > Permissions > Device groups` | Group "Lab Client Machines", rule Name starts-with the lab prefix, remediation Semi (approval required for non-temporary folders), user access scoped to an Entra group holding the analyst identity | hardened | yes | 2026-07-19 |
+
+**`POS-030` — Device group, automation level, and scoped delegation.** Two boundaries in one object: a policy boundary (the remediation level governs every member) and an access boundary (only assigned identities manage members). Semi remediation was chosen because this tenant's only endpoint is also its detection-test rig - Full could quarantine a test artifact before it is observed; No-automated-response would also drop the device from automatic attack disruption. Semi keeps response capability and preserves evidence. Membership propagation measured: Apply at 06:11, committed by 06:39 - under 28 minutes, at or under the vendor's 30-60 minute window. The finding with consequences: for the whole propagation window the device was NOT in this group. It sat in "Ungrouped devices (default)", which runs FULL remediation - the opposite of the Semi chosen here. The rule previewed as matching instantly while committed membership lagged, so every visible signal said "configured" while the effect (and the intended remediation level) was not yet in force. POS-011's family, sharpest instance: the fallback does not do nothing, it does the specific thing the design chose to avoid. Do not test against a device until membership commits, not merely until the rule previews. Scoped delegation composed across models: the analyst identity (POS-027, Unified RBAC per POS-026, unlicensed) gained scoped visibility of the device as a member of this group, via an Entra security group bound to the legacy device group. That composition was the lab's open prediction and it resolved yes. The exclusive half of scoped access - analyst DENIED a device outside the group - is un-runnable with one device and is the reason this entry stays revisit:true. A scope that has never excluded anything has not been shown to scope. Needs a second, deliberately out-of-group device to close.
 
 ## Asserted but not observed
 

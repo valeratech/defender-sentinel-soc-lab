@@ -789,3 +789,46 @@ entries:
       path) never completed. An analyst inheriting this environment sees a fully
       reporting endpoint and could assume it is managed. It is not. That gap is
       the whole point of keeping onboarding and enrolment as separate entries.
+
+  - id: POS-030
+    lab: "05"
+    setting: Device group, automation level, and scoped delegation
+    location: security.microsoft.com > Settings > Endpoints > Permissions > Device groups
+    state: Group "Lab Client Machines", rule Name starts-with the lab prefix, remediation Semi (approval required for non-temporary folders), user access scoped to an Entra group holding the analyst identity
+    baseline: No custom groups - all devices in "Ungrouped devices (default)", which runs Full remediation
+    kind: hardened
+    production: Groups scoped by security-group-driven membership and rank, remediation level matched to each device's role, and access delegated to teams rather than a single identity
+    revisit: true
+    verified: 2026-07-19
+    note: >-
+      Two boundaries in one object: a policy boundary (the remediation level
+      governs every member) and an access boundary (only assigned identities
+      manage members). Semi remediation was chosen because this tenant's only
+      endpoint is also its detection-test rig - Full could quarantine a test
+      artifact before it is observed; No-automated-response would also drop the
+      device from automatic attack disruption. Semi keeps response capability
+      and preserves evidence.
+
+      Membership propagation measured: Apply at 06:11, committed by 06:39 - under
+      28 minutes, at or under the vendor's 30-60 minute window.
+
+      The finding with consequences: for the whole propagation window the device
+      was NOT in this group. It sat in "Ungrouped devices (default)", which runs
+      FULL remediation - the opposite of the Semi chosen here. The rule previewed
+      as matching instantly while committed membership lagged, so every visible
+      signal said "configured" while the effect (and the intended remediation
+      level) was not yet in force. POS-011's family, sharpest instance: the
+      fallback does not do nothing, it does the specific thing the design chose
+      to avoid. Do not test against a device until membership commits, not merely
+      until the rule previews.
+
+      Scoped delegation composed across models: the analyst identity (POS-027,
+      Unified RBAC per POS-026, unlicensed) gained scoped visibility of the device
+      as a member of this group, via an Entra security group bound to the legacy
+      device group. That composition was the lab's open prediction and it resolved
+      yes.
+
+      The exclusive half of scoped access - analyst DENIED a device outside the
+      group - is un-runnable with one device and is the reason this entry stays
+      revisit:true. A scope that has never excluded anything has not been shown to
+      scope. Needs a second, deliberately out-of-group device to close.

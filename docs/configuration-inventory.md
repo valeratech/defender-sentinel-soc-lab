@@ -402,6 +402,22 @@ actually **returns**.
 
 ---
 
+### 2.8 Scoped analyst identity — `POS-027` ✅ hardened
+
+- [ ] **Path:** Users → All users → New user → Create new user *(set Usage location under Properties)*
+- **What it is:** A dedicated Defender-portal analyst account, created so console work stops requiring the Global Administrator.
+- **Why:** To separate the identity that *operates* the SOC console from the identity that *owns* the tenant — the second half of least-privilege that `POS-002` names and does not yet close.
+- **Source guidance (module 24 guide):** The role-creation prerequisites cover who may *create* a role; they say nothing about what the *assignee* needs.
+- **What we verified (2026-07-17):** Account created with **no directory roles, no group memberships, no licence**. Usage location set at creation — a licence cannot be assigned later without it, and the failure does not say so. After URBAC activation (§5.4), analyst reached the Defender portal and the views the scoped role grants; no licence was needed. Does **not** close `POS-002` — the Global Administrator is still the identity doing the work until analyst is the one used.
+
+### 2.9 SOC Device Admins security group — Lab 05
+
+- [ ] **Path:** Groups → New group → *type: Security, membership: Assigned*
+- **What it is:** An Entra security group holding the analyst identity, created to be bound to a Defender device group's user-access assignment (§5.6).
+- **Why:** The *who* half of scoped device access. An Entra group holds people; a Defender device group holds devices; this group is what connects the two.
+- **Source guidance (module 31 guide):** Create the admin group first, then grant it access to the device group.
+- **What we verified (2026-07-19):** Group created, analyst added as sole member. Bound to the *Lab Client Machines* device group in §5.6, through which analyst gained scoped visibility of the device — the composition `POS-030` records as resolved.
+
 ## 3. Azure portal — `portal.azure.com`
 
 ### 3.1 Subscription funding model — `POS-005` ❌ gap — **major divergence**
@@ -471,12 +487,15 @@ actually **returns**.
   Auto-shutdown (VM → Operations → Auto-shutdown) would make it a control and costs
   nothing.
 
-### 3.4 Log Analytics workspace — Lab 04 🔜
+### 3.4 Log Analytics workspace & Microsoft Sentinel — `POS-032` ✅ hardened
 
-- [ ] **Path:** Log Analytics workspaces
-- **State:** Not yet built.
-- **Watch:** which resource group it lands in — see `POS-015`. And retention, the main
-  ingestion-cost lever.
+- [ ] **Path (workspace):** Log Analytics workspaces → Create
+- [ ] **Path (Sentinel):** Microsoft Sentinel → Create → select workspace
+- **What it is:** The Log Analytics workspace `law-soc-lab` is the data store; Microsoft Sentinel is the SIEM/SOAR layer enabled on top of it.
+- **Why:** The section capstone — the aggregation layer that every prior lab feeds into.
+- **Source guidance (module 35 guide):** Create a workspace, enable Sentinel, connect data sources; retention and ingestion are the cost levers.
+- **What we verified (2026-07-19):** Workspace `law-soc-lab`, **West US** (matches the VM's region), **Pay-as-you-go (Per GB 2018)**, placed in the VM's resource group so the whole lab is one deletable teardown unit (`POS-015`). Sentinel enabled — trial **2026-07-19 → 2026-08-19**, 10 GB/day free on both Sentinel and Log Analytics. Creating the workspace is free; ingestion and retention beyond the free window are the meters. Commitment-tier decision deferred until steady-state volume is known (`POS-032` revisit).
+- **The permissions trap:** the Defender-XDR auto-onboard (§5.7) needs subscription **Owner** (Azure RBAC). Global Administrator is a *directory* role and does not confer it — the account here holds both (`POS-024`), so the auto-onboard succeeded, but GA alone would have been blocked.
 
 ### 3.5 Lab endpoint VM — `POS-018`, `POS-019`, `POS-020`, `POS-023`
 
@@ -679,12 +698,71 @@ results as a non-admin are what an analyst actually sees.
   troubleshooting something that is not wrong. Lab 00 confirmed the wait is real —
   over an hour before Endpoints appeared.
 
-### 5.3 Device onboarding — Lab 03 🔨
+### 5.3 Device onboarding — `POS-029` ✅ hardened
 
-- [ ] **Path:** System → Settings → Endpoints → Onboarding
-- **State:** In progress.
-- **Capture live:** method chosen *and rejected*; enrolled → Intune inventory →
-  Defender device list → first `DeviceEvents` rows; error text verbatim.
+- [ ] **Path:** System → Settings → Endpoints → Onboarding *(select OS, connectivity type, deployment method, download package)*
+- **What it is:** The onboarding package that installs and registers the Defender for Endpoint sensor on a device.
+- **Why:** The SOC's first endpoint. Before this the `Device*` advanced-hunting tables were empty; after it, they are the data plane every later lab reads from.
+- **Source guidance (module 25 guide):** Download the local script, run it elevated on the device, confirm the device appears in the portal.
+- **What we verified (2026-07-18):** `LAB-WIN11-01` onboarded via **local script** — the only available path here, because the Intune path is foreclosed (`POS-022`, and independently `POS-011`/`POS-018`). Connectivity type **Streamlined**, confirmed applied via `DeviceInfo.ConnectivityType` rather than assumed from the selection. Sensor Active and streaming. Latencies all at/under vendor numbers: onboard→inventory ~2 min, →first telemetry ~3.5 min, detection→alert ~2 min. Device-side confirmation: registry `Status\\OnboardingState = 1`, `OrgId` correct tenant, `AMRunningMode Normal` (the ASR precondition, §5.5).
+- **The trap:** the portal showing the device confirms only that the *cloud* sees it. Device-side registry is the authoritative onboard check — and the same `OnboardingState` field from `Get-MpComputerStatus` reads blank on a correctly onboarded device. See the traps register below.
+- **What onboarding is not:** telemetry, not management. The device is *watched* (streaming) but not *governed* (obeys no policy) — onboarding is not enrolment. A fully-reporting endpoint looks managed and is not.
+
+### 5.4 Unified RBAC activation — `POS-026` ✅ hardened
+
+- [ ] **Path:** System → Permissions → Roles → *Activate workloads* / Workload settings
+- **What it is:** The switch that makes Defender begin enforcing custom URBAC roles and their assignments for each workload.
+- **Why:** A custom role is defined and assigned but enforces nothing until its workload is activated. Activation is what turns the analyst role (§5.4a) into a working control.
+- **Source guidance (module 24 guide):** States URBAC is the default model for new tenants — Defender for Endpoint since 2025, Office 365 P2 since July 2026.
+- **What we verified (2026-07-17):** All workloads activated (previously **zero** active). "Default model" means the *legacy* model is unavailable — not that the unified model is switched on. Measured before/after directly: signed in as the assigned analyst before activation — no Incidents, no Hunting, no Assets; activated the workloads; signed in again — all three present, nothing else changed. This before/after is **unrepeatable once telemetry exists** — the absence of data only proves anything on a tenant that has none.
+
+### 5.4a Scoped analyst role — `POS-027` ✅ hardened
+
+- [ ] **Path:** System → Permissions → Roles → Create custom role *(role membership readable only via Edit)*
+- **What it is:** A custom URBAC role, *SOC Analyst — Read Only*, granting **Security data basics (read)** only.
+- **Why:** The permission half of the scoped analyst identity (§2.8) — minimal read access to operate the console without tenant authority.
+- **Source guidance (module 24 guide):** Data sources are a hard boundary; scoping to a single workload is done by deselecting the others.
+- **What we verified (2026-07-17):** Role created, Security data basics (read). ⚠️ Assignment scoped to **all four data sources** (Endpoint, Office 365, Identity, Cloud Apps) where this lab has endpoints only — the wizard defaults to all data sources selected, and tight scoping is an active deselection step that was missed. Role membership is readable only by opening the Edit dialog; the list view shows a count, not members.
+
+### 5.5 Attack Surface Reduction rules — `POS-031` ✅ hardened
+
+- [ ] **Path (view/report):** Reports → Attack surface reduction rules
+- [ ] **Path (set):** local PowerShell on the device — `Add-MpPreference -AttackSurfaceReductionRules_Ids <guid> -AttackSurfaceReductionRules_Actions <Enabled|AuditMode>`
+- **What it is:** Behavioral rules that block attacker techniques (Office child processes, WMI/PSExec process creation, LSASS access, etc.).
+- **Why:** Endpoint hardening, and a demonstration of the audit-vs-block distinction end to end.
+- **Source guidance (module 33 guide):** Deploy via Intune/policy; view results in the ASR report.
+- **What we verified (2026-07-19):** Two rules set via **local PowerShell** (the only path — Intune foreclosed, `POS-022`), both **Block**: WMI event-subscription persistence, and PSExec/WMI process creation. Precondition met: `AMRunningMode Normal` (§5.3) — rules enforce rather than silently no-op. Audit vs Block demonstrated on one rule with an identical trigger: Audit → action allowed, silent, event 1122, `...Audited`; Block → refused, notification, event 1121, `...Blocked`. Near-instant local and cloud latency.
+- **The headline trap:** the ASR **report shows this device "Rules off"** — 0 in block, 0 in audit — while both rules actively block. The report is scoped to *policy-managed* (Intune) rules; locally-set rules enforce but are invisible to the console. A direct downstream consequence of `POS-022`: local PowerShell is the only path here, and it is exactly the path the report cannot see. Verify ASR in **Advanced hunting**, not the report — and ASR blocks are telemetry, not alerts (never in the alert queue).
+
+### 5.6 Device group, automation, and scoped access — `POS-030` ✅ hardened
+
+- [ ] **Path:** System → Settings → Endpoints → Permissions → Device groups → Add device group
+- **What it is:** A rule-based device group binding devices to an automation level and to a set of admins.
+- **Why:** Two boundaries in one object — a policy boundary (remediation level) and an access boundary (which admins manage the devices).
+- **Source guidance (module 31 guide):** Create the group with a membership rule, set the automation level, grant an Entra group access.
+- **What we verified (2026-07-19):** Group *Lab Client Machines*, membership rule *Name starts with the lab prefix*, remediation **Semi (approval for non-temporary folders)** — chosen so ASR/detection tests are not auto-quarantined before observation. User access scoped to *SOC Device Admins* (§2.9). Membership committed in **≤28 min** (Apply 06:11 → committed 06:39; vendor 30–60). Analyst gained scoped visibility of the device as a group member — the RBAC composition (unlicensed Unified-RBAC identity + legacy device-group access) resolved as predicted.
+- **The trap:** during the propagation window the device sat in **Ungrouped (default)** under **Full remediation** — the opposite of the chosen Semi. The rule previewed as matching instantly while committed membership lagged. Do not test against a device until membership commits, not merely until the rule previews. The exclusion half of scoped access (analyst *denied* an out-of-group device) is un-runnable at one device — `POS-030` revisit.
+
+### 5.7 Device discovery — `POS-032`-adjacent ✅ default
+
+- [ ] **Path (on/off):** System → Settings → Endpoints → Advanced features → Device discovery
+- [ ] **Path (mode):** System → Settings → Device discovery → Discovery setup
+- **What it is:** Onboarded devices observing and probing the network to surface unmanaged devices.
+- **Why:** Verify the capability and its blast radius; a candidate source for a second device (Lab 05's T4).
+- **Source guidance (module 32 guide):** Standard is default; watch the network scope.
+- **What we verified (2026-07-19):** **On**, **Standard** mode (active probing), all onboarded devices. Log4j2 unauthenticated-probing sub-toggle **off** (default, correctly). **Zero discovered devices** — the single-VM isolated subnet has no unmanaged neighbours, so the capability is active with nothing to act on. Produced no onboardable second device, so Lab 05's T4 exclusion test stays blocked. Full note in the environment section below.
+
+### 5.8 Defender XDR → Sentinel connector — `POS-032` ✅ hardened
+
+- [ ] **Path:** Microsoft Sentinel → *(workspace)* → Content hub → install *Microsoft Defender XDR* → Data connectors → Microsoft Defender XDR
+- [ ] **Path (status, unified):** security.microsoft.com → Settings → Microsoft Sentinel → SIEM workspaces
+- **What it is:** The cloud-to-cloud connector that forwards Defender XDR incidents and alerts into the Sentinel workspace.
+- **Why:** Completes the pipeline — endpoint telemetry and detections become Sentinel input.
+- **Source guidance (module 35 guide):** Install the connector, connect incidents/alerts, optionally stream raw events.
+- **What we verified (2026-07-19):** Connector **auto-connected** on Sentinel enablement — the unified portal wired the whole Defender family at *Connected/Primary* with no manual step. **Cost-safe:** raw `Device*` streaming **OFF** — confirmed by `DeviceEvents` failing to resolve as a table in the Sentinel Logs blade (it resolves fine in Defender Advanced Hunting — different store). Pipeline proven: detection test → Defender alert → Sentinel `SecurityIncident` (ProviderName *Microsoft XDR*), **~2 min sync** (UTC-converted).
+- **The traps:** connector is **forward-only** (history does not backfill — prove flow with a fresh event); the incident wrapper syncs *ahead* of the discrete alert (query `SecurityIncident` or `search *`, not `SecurityAlert` alone); the Logs blade opens in Simple mode and must be switched to KQL mode.
+
+
 
 ---
 
@@ -904,14 +982,17 @@ appears only when genuinely observed and attributed.
 
 ---
 
-## The six divergences
+## The divergences
 
 Where the source guides and this environment disagree. Every one was found by checking
 rather than assuming, and every one is silent — no guide step is wrong enough to raise
 an error.
 
-Recorded against the guides **as originally written** (see *Source guidance* above). All
-six have since been corrected in the revised versions.
+Rows 1–6 are recorded against the section-1 guides **as originally written**; all six have
+since been corrected in the revised versions. Rows 7+ are live-era divergences from the
+endpoint/Sentinel section — decided or discovered during configuration, per the
+live-configuration rule (the guide is correct for a normal environment; the deviation is
+this environment's).
 
 | # | Guide says | Environment is | Consequence | Record |
 |---|---|---|---|---|
@@ -922,6 +1003,10 @@ six have since been corrected in the revised versions.
 | 5 | **G5**: troubleshoot Entra sign-in failure by disabling blocking Conditional Access policies | **Zero CA policies exist** (`POS-003`) | The prescribed remedy has no cause to address. The real failure was `AADSTS50055` — expired password on a new account — found in `dsregcmd`, not in the guide. Following the guidance would mean hunting for policies that aren't there, or disabling unrelated things to make an error go away | **original, 2026-07-17** — §5 read back verbatim |
 | 6 | **G3**: *Quick Step* block instructs setting Security defaults to **Enabled** | Its own TLDR says disable | A copy-paste of Microsoft's *enable* procedure into a guide about disabling. Following the Quick Step literally does the opposite of the guide's purpose | **revision notes only** — original G3 not read back |
 | 7 | **Module 25 guide**: run the onboarding script from an elevated *interactive* command prompt | Used SYSTEM via Azure Run Command instead — then, when Run Command proved unavailable (`POS-028`), the interactive `labadmin` path via Bastion | First divergence of the live era, and a chosen one: SYSTEM avoids an interactive privileged session on the endpoint (`POS-021`). Recorded here rather than in a guide revision note, per the live-configuration rule — the guide is correct for a normal device; the deviation is environment-specific | **live, 2026-07-18** — decided during configuration, no revision note exists |
+| 8 | **Module 24 guide**: a created and assigned URBAC role is complete | Role enforces nothing until its **workload is activated** (`POS-026`) | "Default model" (legacy unavailable) is not "active" (enforcing). The assigned analyst sees no Incidents/Hunting/Assets until activation, with no warning. The one divergence a source guide named in advance | **live, 2026-07-17** — before/after measured, unrepeatable once telemetry exists |
+| 9 | **Module 31 guide**: the membership rule places the device in the group | Rule matches instantly in **preview**; committed membership lags 30–60 min, during which the device sits in **Ungrouped / Full remediation** — the opposite of the chosen Semi (`POS-030`) | Every visible signal reads "configured" while the intended policy is not in force and the default one is. Do not test until membership *commits*, not merely until the rule previews | **live, 2026-07-19** — Apply 06:11 → committed ≤06:39 |
+| 10 | **Module 33 guide**: the ASR **report** shows which rules are firing | Report shows the device **"Rules off"** — 0 detections at filter=Any — while both locally-set rules actively block (`POS-031`) | The report is scoped to policy-managed rules; locally-set (PowerShell) rules are invisible to it. A downstream consequence of `POS-022` — local PowerShell is the only path here, and the report cannot see it. Verify in Advanced hunting | **live, 2026-07-19** — confirmed with filters at Any and via event log/hunting |
+| 11 | **Module 35 guide**: connect the Defender XDR connector manually; incident sync is a configured step | Connector **auto-connected** on Sentinel enablement (unified portal + Unified RBAC); and it is **forward-only** — history does not backfill (`POS-032`) | No manual connect was needed. Proving flow requires a *fresh* event, not a query for existing incidents; and the incident wrapper syncs ahead of the discrete alert, so `SecurityAlert` alone reads empty while the incident is present | **live, 2026-07-19** — pipeline proven with a fresh detection test |
 
 ---
 
@@ -936,6 +1021,10 @@ Cover the path column. From each portal's home page, find:
 5. Where a budget's scope is chosen, and why it cannot be changed later *(3.2)*
 6. Where you would see whether a VM is billing you right now *(3.3)*
 7. Where recurring billing is turned off without cancelling *(1.3)*
+8. Where a custom Defender role's workloads are activated *(5.4)*
+9. Where a device group's automation (remediation) level is set *(5.6)*
+10. Where you confirm raw endpoint events are NOT streaming to Sentinel *(5.8 — DeviceEvents fails to resolve in Sentinel Logs)*
+11. Where device-discovery mode (Basic/Standard) is chosen *(5.7)*
 
 Then, without looking:
 
@@ -948,6 +1037,10 @@ Then, without looking:
 - Which two independent faults each break device-risk compliance on their own? →
   `POS-011` (connector off) and `POS-018` (no TPM/Secure Boot to evaluate)
 - Which finding has every precondition satisfied and still never happens? → `POS-022`
+- Which role reads "complete" but enforces nothing until a separate step? → `POS-026`, workload activation
+- Which control blocks live while the console reports the device unprotected? → `POS-031`, locally-set ASR vs the policy-scoped report
+- Which query works in Defender hunting and fails in Sentinel Logs — and why that failure is good news? → `DeviceEvents`; it confirms raw streaming is off (cost-safe), `POS-032`
+- Which two SOC surfaces speak the same KQL over different data stores? → Defender Advanced Hunting (free raw lake, `Timestamp`) and Sentinel Logs (billed workspace, `TimeGenerated`)
 
 ## Device discovery — environment note (Lab, module 32)
 

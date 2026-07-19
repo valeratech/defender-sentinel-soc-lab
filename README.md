@@ -1,10 +1,25 @@
 # Microsoft Sentinel & Defender XDR — SOC Build Lab
 
-A ground-up build of a Microsoft security operations environment: ingestion, detection engineering, incident response, and threat hunting across Microsoft Sentinel and Defender XDR.
+A ground-up build of a Microsoft security operations environment: onboarding, detection engineering, incident response, scoped access, and threat hunting across Microsoft Sentinel and Defender XDR — built live, instrumented, and documented one capability at a time.
 
-This is a working lab, not a course notebook. Every capability here was built, broken, instrumented, and documented against the [SC-200 exam blueprint](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-200) (April 2026 revision). Detections are stored as deployable artifacts. Queries are stored as files, not screenshots. Findings are reproducible.
+This is a working lab, not a course notebook. Every capability here was built, broken, measured, and documented against the [SC-200 exam blueprint](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-200). Detections are stored as deployable artifacts. Queries are stored as files, not screenshots. Every finding is dated, gated, and reproducible — and where the environment behaved differently from the vendor's documentation, the difference is the finding.
 
-> Structured coursework alongside this build came from John Christopher's SC-200 course on Udemy — a solid instructor-led path through the material and worth the time if you're starting from zero. Everything in this repo is my own build, structure, and analysis.
+> Structured coursework alongside this build came from an instructor-led SC-200 course on Udemy — a solid path through the material. Everything in this repo is my own build, structure, measurement, and analysis.
+
+---
+
+## What this repository demonstrates
+
+A synthetic attack travels the full pipeline, and every stage is proven with committed evidence:
+
+```
+Endpoint (onboarded sensor)
+   → Defender for Endpoint (EDR alert)
+   → Defender XDR (incident correlation)
+   → Microsoft Sentinel (SecurityIncident, via connector)
+```
+
+The recurring theme, and the reason the posture register exists: **configured is not the same as effective.** A status reads healthy while the control does nothing — a connector reads *Available* while device risk never reaches compliance; a role reads *complete* while it enforces nothing; an ASR rule blocks live while the console reports the device *unprotected*. The lab is built to catch that gap and measure it, not to average it away.
 
 ---
 
@@ -12,18 +27,18 @@ This is a working lab, not a course notebook. Every capability here was built, b
 
 | Path | Contents |
 |---|---|
-| `docs/` | Concept references — architecture, product boundaries, terminology, KQL |
-| `labs/` | One folder per capability: objective, build, validation, evidence, analysis |
-| `kql/` | Hunting and investigation queries, organized by data source |
-| `detections/` | Analytics rules and custom detection rules as exported JSON/YAML |
-| `playbooks/` | Logic App definitions for automated response |
-| `infra/` | Infrastructure-as-code for lab resources |
-| `scripts/` | Scrub tooling and generators for the coverage matrix, posture register, and open-items report |
-| `SANITIZATION.md` | Redaction policy and placeholder convention for this repo |
-| [`docs/documentation-standard.md`](docs/documentation-standard.md) | Evidence, decision, and detection rules |
-| [`docs/open-items.md`](docs/open-items.md) | Tracked documentation debt — generated |
-| [`docs/posture-register.md`](docs/posture-register.md) | Every security-relevant setting, its state, and whether it needs revisiting — generated from `posture.yml` |
+| `labs/` | One folder per capability: objective, design decisions, build, validation, evidence, analysis |
+| `docs/` | Concept references, navigation index, and the generated posture/coverage/open-items reports |
+| `kql/` | Hunting and investigation queries, organized by data source — portable across Defender Advanced Hunting and Sentinel |
+| `detections/` | Observed detections as tracked specs with ATT&CK frontmatter |
+| `scripts/` | Sanitization tooling and the generators for the coverage matrix, posture register, lab-coverage, and open-items reports |
+| `posture.yml` | Source of truth for every security-relevant setting and its state |
+| [`SANITIZATION.md`](SANITIZATION.md) | Redaction policy, placeholder convention, and public-constant allowlist |
+| [`docs/navigation.md`](docs/navigation.md) | Portal path index for every setting configured or verified, with confirmed dates |
+| [`docs/posture-register.md`](docs/posture-register.md) | Every security-relevant setting, its state, and whether it needs revisiting — generated |
+| [`docs/attack-coverage.md`](docs/attack-coverage.md) | Observed ATT&CK coverage — generated from detection specs |
 | [`docs/lab-coverage.md`](docs/lab-coverage.md) | Whether each posture entry is cited in the lab that owns it — generated |
+| [`docs/open-items.md`](docs/open-items.md) | Tracked documentation debt — generated |
 
 ---
 
@@ -39,29 +54,27 @@ This is a working lab, not a course notebook. Every capability here was built, b
                  │                                     │
         ┌────────▼─────────┐                ┌──────────▼──────────┐
         │  Defender XDR    │                │  Microsoft Sentinel │
-        │  (detect/respond)│───incidents───▶│  (data platform)    │
-        └────────┬─────────┘                └──────────┬──────────┘
+        │  (detect/respond)│───incidents───▶│  (SIEM / data lake) │
+        └────────┬─────────┘   ~2 min sync  └──────────┬──────────┘
                  │                                     │
         ┌────────▼─────────┐                ┌──────────▼──────────┐
-        │ First-party      │                │ Log Analytics       │
-        │ sensors          │                │ Workspace           │
-        │ • Endpoint       │                │ • Analytics tier    │
-        │ • Identity       │                │ • Data lake tier    │
-        │ • Office 365     │                │ • Custom tables     │
-        │ • Cloud Apps     │                └─────────────────────┘
-        └──────────────────┘                           ▲
-                                                       │
-                                          ┌────────────┴────────────┐
-                                          │ AMA + DCR │ Syslog/CEF  │
-                                          │ Azure Activity │ Entra  │
-                                          └─────────────────────────┘
+        │ Endpoint sensor  │                │ Log Analytics       │
+        │ (Defender for    │                │ Workspace           │
+        │  Endpoint)       │                │ • alerts/incidents  │
+        │ • telemetry      │                │   (free ingest)     │
+        │ • ASR events     │                │ • raw Device* OFF   │
+        │ • detections     │                │   (cost-safe)       │
+        └──────────────────┘                └─────────────────────┘
 ```
 
-Microsoft Sentinel and Microsoft Defender XDR are peer products sharing a console: separate licensing, separate billing, separate data stores. The operating experience converges in the Microsoft Defender portal while the products retain distinct responsibilities — the seam between them is where much of this lab's interesting work happens.
+Microsoft Sentinel and Microsoft Defender XDR are peer products sharing a console: separate licensing, separate billing, separate data stores. The operating experience converges in the Microsoft Defender portal while the products retain distinct responsibilities. Two architecture distinctions this lab documents explicitly:
+
+- **Sensor vs connector** — a sensor *produces* telemetry (on-device, the source); a connector *moves* it (cloud-to-cloud, no software). Missing data from a device is a sensor problem; data in Defender but not Sentinel is a connector problem.
+- **Defender Advanced Hunting vs Sentinel Logs** — same KQL, different stores. Defender's free raw lake (`Device*` tables, column `Timestamp`) versus the billed Log Analytics workspace (only forwarded data, column `TimeGenerated`). This is the whole ingestion cost model, and the reason `kql/` queries are portable across both.
 
 ### Terminology
 
-Product names are used precisely throughout this repository. "Defender" alone is avoided wherever the specific product matters.
+Product names are used precisely throughout. "Defender" alone is avoided wherever the specific product matters.
 
 | Term | Scope |
 |---|---|
@@ -76,70 +89,61 @@ Product names are used precisely throughout this repository. "Defender" alone is
 
 | Component | State |
 |---|---|
-| Tenant | Single Entra tenant, lab-only |
-| Licensing | M365 E5 trial + Defender for Endpoint / Vulnerability Management |
-| Sentinel workspace | *(Lab 04 — not yet created)* |
-| Device management | Entra device join configured; **Intune auto-enrolment never fires** — every precondition verified, enrolment never attempted (Lab 01, `POS-022`) |
-| Endpoint security | Defender for Endpoint ↔ Intune connection **Available**; device risk does **not** reach compliance (Lab 02, `POS-011`) |
-| Endpoints | *(Lab 03 — 🔜 next)* |
-| Data connectors | *(in progress)* |
+| Tenant | Single Entra tenant, lab-only, created 2026-07-14 |
+| Licensing | M365 E5 trial + Defender for Endpoint Plan 2 / Vulnerability Management |
+| Identity | Global Administrator + subscription Owner; scoped read-only analyst identity created (Unified RBAC) |
+| Endpoint | One Windows 11 VM onboarded via local script — sensor Active, streaming, Streamlined connectivity |
+| Device management | Entra device join configured; **Intune auto-enrolment never fires** — every precondition verified (`POS-022`). Forecloses all Intune-managed paths |
+| Device groups | Rule-based group, Semi remediation, scoped to the analyst via an Entra group |
+| ASR | Two rules enforcing via local PowerShell (the only available path here) |
+| Sentinel | Workspace `law-soc-lab` (West US, PAYG); Sentinel enabled; Defender XDR connector Connected/Primary, **alerts/incidents only — raw `Device*` streaming OFF** (cost-safe, verified) |
 
-**The environment is ephemeral, and the two halves expire in opposite directions.**
+**The environment is ephemeral, and three clocks bound its life:**
 
-| Component | Term | At expiry |
-|---|---|---|
-| Microsoft 365 E5 trial | 30 days | Auto-converts to a **paid** subscription unless cancelled |
-| Azure pay-as-you-go | None | Does not expire, does not stop — **bills continuously** for whatever is running |
-
-The free-account safety net (services disabled, no charge without an explicit upgrade) does not apply: the free credit offer was unavailable, so Azure runs pay-as-you-go and consumption is uncapped. Ingestion volume, running compute, and an internet-exposed endpoint are all meters. Budget alerts and VM auto-shutdown are prerequisites, not hygiene.
+| Clock | Behavior at expiry |
+|---|---|
+| **M365 Defender trial** | Fixed calendar end — **the binding constraint**; ends the telemetry source |
+| **Azure pay-as-you-go** | Never expires, never stops — bills continuously for whatever runs (no free-credit safety net; the offer was unavailable) |
+| **Sentinel 31-day trial** | 2026-07-19 → 2026-08-19, 10 GB/day free on both Sentinel and Log Analytics |
 
 Two consequences shape how this repository is written:
 
-1. **Evidence is captured as it is produced, not afterwards.** When the trial lapses, every incident, timeline, and query result not already committed here is gone. The repository is designed to outlive the tenant that produced it.
-2. **Queries, rules, and IaC are the durable artifacts.** Portal state is not. Anything that cannot be redeployed from this repository is treated as lost by default.
+1. **Evidence is captured as it is produced.** When the trials lapse, every incident, timeline, and query result not already committed here is gone. The repository is designed to outlive the tenant that produced it.
+2. **Queries, specs, and measured findings are the durable artifacts.** Portal state is not. Anything that cannot be redeployed or re-derived from this repository is treated as lost by default.
 
-Full build details in `labs/`.
+Teardown is a single action: everything lives in one resource group, so `az group delete` on it stops all Azure spend at once.
 
 ---
 
 ## Lab Index
 
-Labs are numbered in build order. The domain and objective columns map each one to the current exam blueprint.
+Labs are numbered in build order. Where build order and the exam blueprint disagree, the build wins — the dependencies are real.
 
 | # | Lab | Domain | Status |
 |---|---|---|---|
-| [00](labs/00-tenant-licensing-identity/) | Tenant, licensing, and identity foundation | Environment | 🔨 Built, documenting |
-| [01](labs/01-device-registration-intune-enrollment/) | Device registration and Intune auto-enrollment | Environment | 🔨 Built, documenting |
+| [00](labs/00-tenant-licensing-identity/) | Tenant, licensing, identity, and Unified RBAC | Environment | 🔨 Built, documenting |
+| [01](labs/01-device-registration-intune-enrollment/) | Device registration and Intune enrolment | Environment | 🔨 Built, documenting |
 | [02](labs/02-mde-intune-integration/) | Defender for Endpoint ↔ Intune integration | Environment | 🔨 Built, documenting |
-| [03](labs/03-endpoint-onboarding/) | Endpoint onboarding and first alerts | Environment | 🔜 Next |
-| [04](labs/04-sentinel-workspace/) | Sentinel workspace design and deployment | Environment | 🔜 |
-| 05 | RBAC and role scoping (URBAC) | Environment | 🔜 |
-| 06 | Data connectors and ingestion (AMA/DCR) | Environment | 🔜 |
-| 07 | Retention tiering — Analytics / Data lake / XDR | Environment | 🔜 |
-| 08 | Attack simulation and alert generation | Response | 🔜 |
-| 09 | Detection engineering — analytics rules | Response | 🔜 |
-| 10 | Incident investigation and response actions | Response | 🔜 |
-| 11 | Automation rules and playbooks (SOAR) | Response | 🔜 |
-| 12 | Threat hunting — Advanced Hunting + Sentinel | Hunting | 🔜 |
-| 13 | ATT&CK coverage analysis | Hunting | 🔜 |
+| [03](labs/03-endpoint-onboarding/) | Endpoint onboarding, first detection, and investigation | Response | 🔨 Built, documenting |
+| [04](labs/04-sentinel-workspace/) | Sentinel workspace and the endpoint-to-SIEM pipeline | Environment | 🔨 Built, documenting |
+| [05](labs/05-device-groups-scoped-access/) | Device groups, automation levels, and scoped access | Environment | 🔨 Built, documenting |
+| [06](labs/06-attack-surface-reduction/) | Attack surface reduction rules | Response | 🔨 Built, documenting |
 
-Numbering follows actual build order, not the exam blueprint's order. Where the two disagree, the build wins — the dependencies are real and the domains are a filing system.
+Lab numbers are opaque, append-only handles — `04` is Sentinel because that folder existed as a stub before device groups were built, and renumbering corrupts cross-references. Course-module order and repo lab order diverge by design; the number is a filing handle, not a sequence claim.
 
 ---
 
-## Detection Catalog
+## Observed ATT&CK Coverage
 
-Each detection is specified before it is built, using [`detections/_TEMPLATE.md`](detections/_TEMPLATE.md). No rule ships without a hypothesis, a validation method, a documented tuning decision, and a named blind spot.
+[`docs/attack-coverage.md`](docs/attack-coverage.md) — generated from detection frontmatter and CI-enforced to stay in sync.
 
-A rule that has never fired on a known-true event is recorded as **unvalidated** and does not count as coverage.
+**COVERED** means every rule mapped to that tactic has been *proven to fire on a known-true event*. A rule that has never fired is **unvalidated** and does not count as coverage — the distinction is the point.
 
----
+| Tactic | Techniques | Detections | State |
+|---|---|---|---|
+| Execution (`TA0002`) | T1059.001 (PowerShell), T1047 (WMI) | `DET-001`, `DET-002` | **COVERED (2/2)** |
 
-## ATT&CK Coverage
-
-[`docs/attack-coverage.md`](docs/attack-coverage.md) — generated from detection frontmatter by `scripts/build-attack-matrix.py`, and CI-enforced to stay in sync with the specs it describes.
-
-The table separates **COVERED** (every mapped rule proven to fire) from **PARTIAL** and **CLAIMED** (rules written but unproven). The gap between what the lab ingests data for and what it can actually detect is the interesting part, so the matrix is built to expose it rather than average it away.
+Both were observed firing live — `DET-001` from the endpoint detection test (Lab 03), `DET-002` from an ASR rule demonstrated in both audit and block states (Lab 06).
 
 ```bash
 python3 scripts/build-attack-matrix.py          # regenerate
@@ -148,71 +152,37 @@ python3 scripts/build-attack-matrix.py --check  # CI staleness check
 
 ---
 
-## Local Setup
-
-This repository enforces sanitization at commit time. The hooks fail closed — install the dependencies before the first commit.
-
-```bash
-# Dependencies
-brew install gitleaks exiftool tesseract        # macOS
-# apt-get install -y exiftool tesseract-ocr     # Debian/Ubuntu; gitleaks: see upstream releases
-
-pip install pre-commit
-```
-
-Verify:
-
-```bash
-gitleaks version
-exiftool -ver
-tesseract --version
-pre-commit --version
-```
-
-Install and run:
-
-```bash
-pre-commit install
-pre-commit run --all-files
-```
-
-**Operational note:** the image hooks modify files in place — `strip-image-metadata` rewrites the image and re-stages it, so the first commit attempt after adding a screenshot will stop and report a modification. Review the modified image, then commit again. That is deliberate: a hook that silently rewrites and proceeds gives you no opportunity to check what it did.
-
----
-
 ## Security Posture
 
 A lab accumulates weakenings. Each is defensible when made and invisible three weeks later.
 
-[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting observed in the environment: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. Generated from [`posture.yml`](posture.yml) and CI-enforced to stay in sync.
+[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **32 entries** (30 verified) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
 
-The register separates **verified** (observed in a portal view) from **asserted** (recorded on the operator's word), because the difference matters and blurring it is how a register becomes decoration.
+The register separates **verified** (observed in a portal view) from **asserted** (recorded on the operator's word), because blurring that is how a register becomes decoration.
 
-```bash
-python3 scripts/build-posture-register.py          # regenerate
-python3 scripts/build-posture-register.py --check  # CI staleness check
-```
-
-**The register is not the writeup.** Every entry names the lab it belongs to, and
-[`docs/lab-coverage.md`](docs/lab-coverage.md) checks that the lab cites it back.
-A finding can land in the register, pass every gate, and never reach the document
-it belongs to — `POS-022` did exactly that for three days while `labs/01` went on
-printing the vendor claim it disproves. The generators were all in sync the entire
-time, because they check generated docs against their sources and prose is neither.
+**The register is not the writeup.** Every entry names the lab it belongs to, and [`docs/lab-coverage.md`](docs/lab-coverage.md) checks the lab cites it back — because a finding can pass every gate and still never reach the document it belongs to. `POS-022` did exactly that for three days while `labs/01` went on printing the vendor claim it disproves.
 
 ```bash
-python3 scripts/check-lab-coverage.py          # regenerate
-python3 scripts/check-lab-coverage.py --check  # CI: fails for labs marked ✅
-python3 scripts/check-lab-coverage.py --strict # fails on any uncited entry
+python3 scripts/build-posture-register.py --check   # posture register staleness
+python3 scripts/check-lab-coverage.py --check       # every published lab cites its entries
+python3 scripts/open-items.py --check               # documentation debt
 ```
 
 ---
 
-## Notes on Sanitization
+## Sanitization
 
-This repository is public and describes a live cloud environment. Every commit is audited before push against the policy in [`SANITIZATION.md`](SANITIZATION.md). No tenant identifiers, no live endpoint addresses, no unredacted query output, no offensive tooling artifacts.
+This repository is public and describes a live cloud environment. Every commit is audited before push against the policy in [`SANITIZATION.md`](SANITIZATION.md): no tenant identifiers, no live endpoint addresses, no unredacted query output, no offensive tooling artifacts, no committed images.
 
-Automated enforcement: `gitleaks` pre-commit hook with Azure-specific rules, plus GitHub push protection.
+Enforcement is layered and fails closed — a `gitleaks` pre-commit hook with Azure/Sentinel rules, an auditing script that flags GUIDs, routable IPs, and personal terms for human decision, and CI that re-scans full history. Public constants that share the shape of the things the gate guards (Microsoft's own ASR rule GUIDs, the Azure WireServer IP) are cleared by documented exact-value allowlist, verified by a negative control that confirms real identifiers are still caught.
+
+```bash
+# macOS
+brew install gitleaks
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
 
 ---
 

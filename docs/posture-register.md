@@ -32,8 +32,8 @@ testimony rather than something a reader can check.
 | Metric | Count |
 |---|---|
 | Settings tracked | 32 |
-| Verified by direct observation | 30 |
-| Asserted but unverified | 2 |
+| Verified by direct observation | 31 |
+| Asserted but unverified | 1 |
 | Flagged to revisit | 24 |
 
 | Kind | Count |
@@ -58,7 +58,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-015` | 00 | Cost budgets - two, at different scopes | Resource group $15/mo (actual 50/80/100); subscription $25/mo (actual 50/80/100 + forecasted 100) | hardened | Same, plus an action group driving automated shutdown | 2026-07-16 |
 | `POS-016` | 00 | Lab VM power state discipline | Stopped (deallocated) - verified in portal | hardened | Stopped (deallocated) + auto-shutdown schedule | 2026-07-16 |
 | `POS-017` | 00 | M365 trial recurring billing | O365 E5 recurring OFF (expires 2026-08-14); M365 E5 recurring ON, converts 2026-08-13 | hardened | n/a | 2026-07-16 |
-| `POS-006` | 01 | Users may join devices to Microsoft Entra ID | All | **weakening** | Selected, scoped to a security group | **no** |
+| `POS-006` | 01 | Users may join devices to Microsoft Entra ID | All | **weakening** | Selected, scoped to a security group | 2026-07-19 |
 | `POS-018` | 01 | VM Security Type | Standard - no securityProfile block present; vTPM and Secure Boot absent | **weakening** | Trusted Launch (vTPM + Secure Boot), which is the portal default | 2026-07-17 |
 | `POS-019` | 01 | RDP inbound exposure (NSG) | TCP 3389 allow, source restricted to operator public IP (was Any) | hardened | No public RDP - Bastion, or JIT VM access via Defender for Cloud | 2026-07-17 |
 | `POS-020` | 01 | Network Level Authentication | Disabled on both server and client side | **weakening** | NLA enabled; Entra login reached via Bastion rather than by disabling NLA | 2026-07-17 |
@@ -117,7 +117,7 @@ it is an oversight. Closing an item means recording which one it was.
 
 | ID | Setting | Location | State | Kind | Revisit | Verified |
 |---|---|---|---|---|---|---|
-| `POS-006` | Users may join devices to Microsoft Entra ID | `Entra ID > Devices > Device settings` | All | **weakening** | yes | **no** |
+| `POS-006` | Users may join devices to Microsoft Entra ID | `Entra ID > Devices > Device settings` | All | **weakening** | yes | 2026-07-19 |
 | `POS-007` | MDM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` | All | default | no | 2026-07-17 |
 | `POS-008` | WIP / MAM user scope | `Entra ID > Mobility (MDM and WIP) > Microsoft Intune` | All | default | no | 2026-07-17 |
 | `POS-018` | VM Security Type | `Azure > Virtual machines > (VM) > JSON view > securityProfile` | Standard - no securityProfile block present; vTPM and Secure Boot absent | **weakening** | yes | 2026-07-17 |
@@ -129,7 +129,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-024` | Global Administrator interactive login rights on the lab endpoint | `Azure > (VM) > Access control (IAM) > Role assignments` | Tenant Global Administrator holds Virtual Machine Administrator Login, scope "This resource" | **weakening** | yes | 2026-07-17 |
 | `POS-025` | VM local administrator account | `Azure > (VM) > Run command; Get-LocalUser, net accounts, secedit` | labadmin, enabled, is the built-in Administrator renamed (RID 500), password does not expire | default | yes | 2026-07-17 |
 
-**`POS-006` — Users may join devices to Microsoft Entra ID.** Device identity is an authentication surface. Set to All, any credential — including a compromised one — can register an attacker-controlled device into the directory.
+**`POS-006` — Users may join devices to Microsoft Entra ID.** Observed in the portal 2026-07-19: Entra join and registration settings show "Users may join devices to Microsoft Entra = All", Selected empty — the asserted value confirmed, not merely recorded on the operator's word. Device identity is an authentication surface. Set to All, any credential — including a compromised one — can register an attacker-controlled device into the directory.
 
 **`POS-018` — VM Security Type.** Instructed by G5, which says to change Security Type to Standard without stating what that costs. Observed at four independent layers rather than inferred from one: the VM JSON has no securityProfile block; Get-Tpm reports TpmPresent False and TpmReady False; Confirm-SecureBootUEFI returns False; and dsregcmd reports TpmProtected NO with KeyProvider "Microsoft Software Key Storage Provider". Two consequences the guide does not mention. First, the device's Entra identity key is software-protected on disk rather than sealed in hardware. The Entra sign-in log independently records "Token protection - Sign In Session: Unbound (Status code: 1003)": with no vTPM the Primary Refresh Token cannot be bound to the device, so a stolen token is replayable elsewhere. That is the same fact surfacing in the identity plane. Second, Intune compliance policies commonly evaluate Secure Boot and TPM. This device cannot satisfy either. So the risk-to-compliance chain is broken in two independent places — POS-011 blocks the signal, and this entry means the device would fail the checks even if the signal arrived. Fixing POS-011 alone would not produce a working control.
 
@@ -209,4 +209,3 @@ They are the register's weakest entries and the cheapest to fix.
 | ID | Lab | Setting | How to verify |
 |---|---|---|---|
 | `POS-002` | 00 | Admin identity model | `Tenant-wide` |
-| `POS-006` | 01 | Users may join devices to Microsoft Entra ID | `Entra ID > Devices > Device settings` |

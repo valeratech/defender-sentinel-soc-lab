@@ -225,8 +225,11 @@ entries:
     kind: weakening
     production: Selected, scoped to a security group
     revisit: true
-    verified: null
+    verified: 2026-07-19
     note: >-
+      Observed in the portal 2026-07-19: Entra join and registration settings show
+      "Users may join devices to Microsoft Entra = All", Selected empty — the
+      asserted value confirmed, not merely recorded on the operator's word.
       Device identity is an authentication surface. Set to All, any credential
       — including a compromised one — can register an attacker-controlled
       device into the directory.

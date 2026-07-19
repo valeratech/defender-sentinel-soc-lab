@@ -1,0 +1,36 @@
+// ASR rule activity — audit vs block — Lab 06
+//
+// The state of an ASR rule is encoded in the ActionType SUFFIX, not a separate
+// field: "...Audited" = the rule fired and ALLOWED the action; "...Blocked" = the
+// rule fired and STOPPED it. A hunt that filters `ActionType startswith "Asr"`
+// without splitting on the suffix cannot distinguish a blocked attack from a
+// merely watched one. Always separate them.
+//
+// Also (Lab 06 §7): locally-set ASR rules (Add-MpPreference) do NOT appear in the
+// Defender ASR report — that dashboard is scoped to policy-managed rules. This
+// query is the reliable source of truth for whether ASR is firing.
+//
+// TIMEZONE: DeviceEvents Timestamp renders in the portal's configured timezone.
+// Reconcile to one zone before comparing to a local trigger time (see traps in
+// configuration-inventory.md).
+
+// --- All ASR activity, split by state ---
+DeviceEvents
+| where DeviceName startswith "lab-win11"          // adjust to your device
+| where ActionType startswith "Asr"
+| where Timestamp > ago(24h)
+| extend State = case(
+    ActionType endswith "Blocked", "BLOCKED",
+    ActionType endswith "Audited", "audited",
+    "other")
+| project Timestamp, State, ActionType, FolderPath, InitiatingProcessCommandLine
+| order by Timestamp desc
+
+// --- Count blocked vs audited over time (the report's blind spot, done right) ---
+DeviceEvents
+| where DeviceName startswith "lab-win11"
+| where ActionType startswith "Asr"
+| where Timestamp > ago(30d)
+| extend State = iff(ActionType endswith "Blocked", "BLOCKED", "audited")
+| summarize Count = count() by State, bin(Timestamp, 1d)
+| order by Timestamp asc

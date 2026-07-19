@@ -832,3 +832,50 @@ entries:
       group - is un-runnable with one device and is the reason this entry stays
       revisit:true. A scope that has never excluded anything has not been shown to
       scope. Needs a second, deliberately out-of-group device to close.
+
+  - id: POS-031
+    lab: "06"
+    setting: Attack Surface Reduction rules
+    location: Set via PowerShell Add-MpPreference on the device; viewed at security.microsoft.com > Reports > Attack surface reduction rules
+    state: Two rules set to Block - WMI event-subscription persistence, and process creation via PSExec/WMI. Both enforcing and confirmed firing.
+    baseline: No ASR rules configured
+    kind: hardened
+    production: ASR deployed by Intune policy across the fleet with a staged audit-then-block rollout, visible in the ASR report; not per-device local PowerShell
+    revisit: true
+    verified: 2026-07-19
+    note: >-
+      Two rules configured, both Block, and demonstrated firing in both audit and
+      block states on one rule with an identical benign trigger (a WMI process
+      create). Audit: action allowed, silent, local event 1122, cloud ActionType
+      ...Audited. Block: action refused, user notification, event 1121, ...Blocked.
+      Both events coexist in one query, distinguishable only by the ID / suffix -
+      the trap the tooling invites.
+
+      The headline finding: the Defender ASR report shows this device as "Rules
+      off" - 0 in block, 0 in audit, 18 turned off - while both rules were actively
+      blocking. The Detections view showed 0 with all filters set to Any. Advanced
+      hunting, the device timeline, and the local event log all carried the events.
+      Cause is scope, not lag: the ASR report is built around policy-managed
+      (Intune/MDM) rules; rules set locally via Add-MpPreference enforce on the
+      endpoint but are invisible to the console. An analyst trusting the dashboard
+      would read the box as unprotected and re-deploy while protection runs.
+
+      This is a direct downstream consequence of POS-022. Because Intune enrolment
+      never fires, local PowerShell is the only available way to set ASR here - and
+      that is precisely the path the reporting UI cannot see. A Lab 01 defect
+      silently governs the visibility of every ASR rule set in Lab 06.
+
+      Secondary: ASR blocks are recorded as telemetry, not raised as alerts.
+      Neither event reached Incidents & Alerts. A successful block is treated as
+      resolved, so ASR visibility requires hunting or the ASR report - never the
+      alert queue.
+
+      Two PowerShell literacy traps recorded in configuration-inventory.md:
+      Get-MpPreference does not return ASR rules in entry order (positional pairing
+      required, or Block reads as Audit); and Add-MpPreference appends while
+      Set-MpPreference replaces.
+
+      End state both Block; either rule can be set to AuditMode later - noted so the
+      register and the device stay in sync. Preconditions from earlier labs: AV
+      Normal mode (POS-029/Lab 03) makes rules enforce; Semi remediation (POS-030)
+      kept the block from being auto-quarantined mid-test.

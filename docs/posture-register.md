@@ -31,14 +31,14 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 30 |
-| Verified by direct observation | 28 |
+| Settings tracked | 31 |
+| Verified by direct observation | 29 |
 | Asserted but unverified | 2 |
-| Flagged to revisit | 22 |
+| Flagged to revisit | 23 |
 
 | Kind | Count |
 |---|---|
-| hardened | 11 |
+| hardened | 12 |
 | default | 8 |
 | **weakening** | 6 |
 | **gap** | 5 |
@@ -73,6 +73,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-028` | 03 | VM guest-agent extension channel | Guest agent reports Ready (2.7.41491.1216); Run Command and VMAccess extension operations accept and then hang without completing | **gap** | Monitored agent health that distinguishes "Ready" from "servicing extensions", so a wedged extension channel is detected rather than discovered mid-task | 2026-07-18 |
 | `POS-029` | 03 | Endpoint sensor (Defender for Endpoint onboarding) | LAB-WIN11-01 onboarded, sensor Active, streaming; ConnectivityType Streamlined; onboarded via local script | hardened | Onboarding delivered by an assigned Intune EDR policy across a fleet, not a per-device local script; the local script is capped at 10 devices and carries no ongoing management | 2026-07-18 |
 | `POS-030` | 05 | Device group, automation level, and scoped delegation | Group "Lab Client Machines", rule Name starts-with the lab prefix, remediation Semi (approval required for non-temporary folders), user access scoped to an Entra group holding the analyst identity | hardened | Groups scoped by security-group-driven membership and rank, remediation level matched to each device's role, and access delegated to teams rather than a single identity | 2026-07-19 |
+| `POS-031` | 06 | Attack Surface Reduction rules | Two rules set to Block - WMI event-subscription persistence, and process creation via PSExec/WMI. Both enforcing and confirmed firing. | hardened | ASR deployed by Intune policy across the fleet with a staged audit-then-block rollout, visible in the ASR report; not per-device local PowerShell | 2026-07-19 |
 
 ## All tracked settings
 
@@ -182,6 +183,14 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-030` | Device group, automation level, and scoped delegation | `security.microsoft.com > Settings > Endpoints > Permissions > Device groups` | Group "Lab Client Machines", rule Name starts-with the lab prefix, remediation Semi (approval required for non-temporary folders), user access scoped to an Entra group holding the analyst identity | hardened | yes | 2026-07-19 |
 
 **`POS-030` — Device group, automation level, and scoped delegation.** Two boundaries in one object: a policy boundary (the remediation level governs every member) and an access boundary (only assigned identities manage members). Semi remediation was chosen because this tenant's only endpoint is also its detection-test rig - Full could quarantine a test artifact before it is observed; No-automated-response would also drop the device from automatic attack disruption. Semi keeps response capability and preserves evidence. Membership propagation measured: Apply at 06:11, committed by 06:39 - under 28 minutes, at or under the vendor's 30-60 minute window. The finding with consequences: for the whole propagation window the device was NOT in this group. It sat in "Ungrouped devices (default)", which runs FULL remediation - the opposite of the Semi chosen here. The rule previewed as matching instantly while committed membership lagged, so every visible signal said "configured" while the effect (and the intended remediation level) was not yet in force. POS-011's family, sharpest instance: the fallback does not do nothing, it does the specific thing the design chose to avoid. Do not test against a device until membership commits, not merely until the rule previews. Scoped delegation composed across models: the analyst identity (POS-027, Unified RBAC per POS-026, unlicensed) gained scoped visibility of the device as a member of this group, via an Entra security group bound to the legacy device group. That composition was the lab's open prediction and it resolved yes. The exclusive half of scoped access - analyst DENIED a device outside the group - is un-runnable with one device and is the reason this entry stays revisit:true. A scope that has never excluded anything has not been shown to scope. Needs a second, deliberately out-of-group device to close.
+
+### Lab 06
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-031` | Attack Surface Reduction rules | `Set via PowerShell Add-MpPreference on the device; viewed at security.microsoft.com > Reports > Attack surface reduction rules` | Two rules set to Block - WMI event-subscription persistence, and process creation via PSExec/WMI. Both enforcing and confirmed firing. | hardened | yes | 2026-07-19 |
+
+**`POS-031` — Attack Surface Reduction rules.** Two rules configured, both Block, and demonstrated firing in both audit and block states on one rule with an identical benign trigger (a WMI process create). Audit: action allowed, silent, local event 1122, cloud ActionType ...Audited. Block: action refused, user notification, event 1121, ...Blocked. Both events coexist in one query, distinguishable only by the ID / suffix - the trap the tooling invites. The headline finding: the Defender ASR report shows this device as "Rules off" - 0 in block, 0 in audit, 18 turned off - while both rules were actively blocking. The Detections view showed 0 with all filters set to Any. Advanced hunting, the device timeline, and the local event log all carried the events. Cause is scope, not lag: the ASR report is built around policy-managed (Intune/MDM) rules; rules set locally via Add-MpPreference enforce on the endpoint but are invisible to the console. An analyst trusting the dashboard would read the box as unprotected and re-deploy while protection runs. This is a direct downstream consequence of POS-022. Because Intune enrolment never fires, local PowerShell is the only available way to set ASR here - and that is precisely the path the reporting UI cannot see. A Lab 01 defect silently governs the visibility of every ASR rule set in Lab 06. Secondary: ASR blocks are recorded as telemetry, not raised as alerts. Neither event reached Incidents & Alerts. A successful block is treated as resolved, so ASR visibility requires hunting or the ASR report - never the alert queue. Two PowerShell literacy traps recorded in configuration-inventory.md: Get-MpPreference does not return ASR rules in entry order (positional pairing required, or Block reads as Audit); and Add-MpPreference appends while Set-MpPreference replaces. End state both Block; either rule can be set to AuditMode later - noted so the register and the device stay in sync. Preconditions from earlier labs: AV Normal mode (POS-029/Lab 03) makes rules enforce; Semi remediation (POS-030) kept the block from being auto-quarantined mid-test.
 
 ## Asserted but not observed
 

@@ -347,6 +347,25 @@ timezone before computing any latency, and use `ingestion_time()` when the quest
 is "when did MDE **receive** this" — `Timestamp` answers "when did it **happen** on
 the device", an adjacent question the column name does not warn you about.
 
+**`Get-MpPreference` does not return ASR rules in entry order (Lab 06).**
+The `AttackSurfaceReductionRules_Ids` and `_Actions` arrays are index-aligned to each
+other but not to the order rules were added. Reading the actions in the order you typed
+the `Add-MpPreference` commands inverts every rule's state — a rule you set to Block
+reads as Audit. Confirm state by pairing Id[i] with Action[i] within the returned
+arrays (`0` off · `1` block · `2` audit · `6` warn), never by input order.
+
+**`Add-MpPreference` appends; `Set-MpPreference` replaces (Lab 06).**
+Building a multi-rule ASR set with `Set` twice silently discards the first rule. Use
+`Add` to accumulate.
+
+**ASR report omits locally-set rules (Lab 06, `POS-031`).**
+The Defender ASR report (Reports → Attack surface reduction rules) is scoped to
+policy-managed rules. Rules set locally with `Add-MpPreference` enforce on the endpoint
+but show as "Rules off" / not configured in the report, and produce zero rows in the
+Detections view even with all filters set to Any. Verify ASR activity in Advanced
+hunting, not the report. On this tenant the only available ASR path *is* local
+PowerShell (Intune foreclosed, `POS-022`), so all ASR here is invisible to that report.
+
 **Assets CSV `Last device update` is check-in time, not config time (Lab 05).**
 The device-inventory export column `Last device update` records the device's last
 telemetry check-in, not when a configuration was applied to it. Computing a
@@ -929,3 +948,17 @@ Then, without looking:
 - Which two independent faults each break device-risk compliance on their own? →
   `POS-011` (connector off) and `POS-018` (no TPM/Secure Boot to evaluate)
 - Which finding has every precondition satisfied and still never happens? → `POS-022`
+
+## Device discovery — environment note (Lab, module 32)
+
+Device discovery verified **On**, **Standard** mode (active probing), scoped to all
+onboarded devices, 2026-07-19. The **Log4j2 unauthenticated-probing** sub-toggle is
+**off** (default; the more aggressive option, correctly disabled).
+
+**Zero discovered devices.** The single-VM isolated Azure subnet presents no unmanaged
+neighbours, so the capability is active with nothing to act on — configured, effective,
+empty by environment. It will stay empty until a second device shares the segment. The
+Azure fabric (e.g. the WireServer at `168.63.129.16`) is visible in device *telemetry*
+but is not surfaced as a discoverable device. Active-probing rules-of-engagement matter
+in production; moot at n=1. No onboarded second device is produced, so Lab 05's T4
+exclusion test remains blocked.

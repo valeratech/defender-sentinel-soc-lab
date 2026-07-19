@@ -11,13 +11,24 @@ useDefault = true
 # ──────────────────────────────────────────────────────────────
 # Global allowlist — approved placeholders from SANITIZATION.md
 # ──────────────────────────────────────────────────────────────
+# These are exact-value exceptions, not category exemptions. Each entry is a
+# public constant identical for every tenant/subscription, carrying zero
+# information about this environment. A real tenant/subscription/object ID or a
+# real public IP is still caught — only these specific published values pass.
 [allowlist]
-description = "Approved synthetic placeholders and reserved documentation ranges"
+description = "Approved synthetic placeholders, reserved ranges, and public Microsoft/Azure constants"
 regexTarget = "match"
 regexes = [
   '''00000000-0000-0000-0000-000000000000''',
   '''contoso\.(com|onmicrosoft\.com)''',
   '''2001:0?db8:''',
+  # Public Microsoft ASR rule GUIDs — documented, identical for every tenant,
+  # not environment identifiers. (Lab 06 / POS-031.)
+  '''d1e49aac-8f56-4280-b9ba-993a6d77406c''',   # Block process creations from PSExec/WMI
+  '''e6db77e5-3df2-4cf1-b95a-636979351e5b''',   # Block WMI event-subscription persistence
+  # Azure WireServer — fixed virtual platform IP, identical in every Azure VNet,
+  # not a routable lab or attacker address. (Lab 06 / device-discovery note.)
+  '''168\.63\.129\.16''',
 ]
 # No global path exemptions.
 #

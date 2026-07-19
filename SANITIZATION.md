@@ -35,6 +35,25 @@ Replacements are visibly synthetic and internally consistent. Values are drawn f
 
 Distinct real values map to distinct placeholders (`analyst@`, `admin@`, `svc-ama@`) so relationships in the data survive redaction and queries remain readable.
 
+### Public constants — allowlisted by exact value, not redacted
+
+A few GUID- and IP-shaped values are published Microsoft/Azure constants,
+identical for every tenant, carrying zero information about this environment.
+They are documentation, not identifiers, and are allowlisted by **exact value**
+in `.gitleaks.toml` and `audit-pii.sh` — a real tenant/subscription/object ID or
+a real public IP is still caught; only these specific published values pass.
+
+| Value | What it is |
+|---|---|
+| `d1e49aac-8f56-4280-b9ba-993a6d77406c` | Public ASR rule GUID — block process creations from PSExec/WMI |
+| `e6db77e5-3df2-4cf1-b95a-636979351e5b` | Public ASR rule GUID — block WMI event-subscription persistence |
+| `168.63.129.16` | Azure WireServer — fixed virtual platform IP, same in every Azure VNet |
+
+The gate flagged all three on first commit (Lab 06) as REVIEW items — correctly,
+since they share the shape of the private values it guards. Clearing them was a
+decision recorded here, not a suppression: each is safe *because* it is a public
+constant, and the allowlist entry names why.
+
 ### Not redacted
 
 Threat intelligence, attacker-controlled IPs observed in the wild, public IOCs, and Microsoft-published sample data. These are already public and their removal would gut the analysis.

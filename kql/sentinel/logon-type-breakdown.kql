@@ -1,0 +1,9 @@
+// The signal is in the LogonType, not the raw 4624 count.
+// A machine nobody logged into still emits 4624s - as LogonType 5 (service, SYSTEM).
+// Human-relevant types: 2 (interactive), 3 (network), 10 (RemoteInteractive/RDP-Bastion).
+// Type 5 is service noise; counting 4624 without splitting on LogonType misleads.
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| where EventID == 4624
+| summarize count() by LogonType
+| order by LogonType asc

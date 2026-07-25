@@ -1,0 +1,8 @@
+// Windows Security events arriving via the direct-AMA DCR path.
+// Lands in SecurityEvent (rich rule coverage), NOT WindowsEvent (the WEF path).
+// Note: Computer holds the 15-char NetBIOS name (truncated from a longer Azure VM name) -
+// filter with startswith, not an exact match on the full Azure resource name.
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| project TimeGenerated, Computer, Account, AccountType, EventID, Activity
+| order by TimeGenerated desc

@@ -1,0 +1,7 @@
+// AMA liveness check - is the agent alive and reporting to the workspace?
+// Empty / "table not found" shortly after DCR association = propagation, not failure.
+// SCAgentChannel "Direct" confirms the per-machine AMA path (not WEF/WEC).
+Heartbeat
+| where TimeGenerated > ago(30m)
+| project TimeGenerated, Computer, Category, Version, SCAgentChannel
+| order by TimeGenerated desc

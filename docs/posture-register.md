@@ -31,14 +31,14 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 32 |
-| Verified by direct observation | 31 |
+| Settings tracked | 33 |
+| Verified by direct observation | 32 |
 | Asserted but unverified | 1 |
-| Flagged to revisit | 24 |
+| Flagged to revisit | 25 |
 
 | Kind | Count |
 |---|---|
-| hardened | 13 |
+| hardened | 14 |
 | default | 8 |
 | **weakening** | 6 |
 | **gap** | 5 |
@@ -75,6 +75,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-030` | 05 | Device group, automation level, and scoped delegation | Group "Lab Client Machines", rule Name starts-with the lab prefix, remediation Semi (approval required for non-temporary folders), user access scoped to an Entra group holding the analyst identity | hardened | Groups scoped by security-group-driven membership and rank, remediation level matched to each device's role, and access delegated to teams rather than a single identity | 2026-07-19 |
 | `POS-031` | 06 | Attack Surface Reduction rules | Two rules set to Block - WMI event-subscription persistence, and process creation via PSExec/WMI. Both enforcing and confirmed firing. | hardened | ASR deployed by Intune policy across the fleet with a staged audit-then-block rollout, visible in the ASR report; not per-device local PowerShell | 2026-07-19 |
 | `POS-032` | 04 | Microsoft Sentinel workspace and Defender XDR ingestion | Sentinel enabled on law-soc-lab (West US, PAYG). Defender XDR connector Connected/Primary, forwarding incidents and alerts only. Raw Device* event streaming OFF. | hardened | SIEM with sources beyond Defender, ingestion budgeted against a commitment tier once volume is known, and retention set to policy | 2026-07-19 |
+| `POS-033` | 07 | Windows Security Events ingestion via Azure Monitor Agent | DCR dcr-winsec-labsrv collecting Common-tier Windows Security events from WIN-SRV-DEFENDER-01 into the SecurityEvent table. AMA auto-installed via the DCR association. Pipeline verified with live telemetry. | hardened | DCR scoped by XPath to the exact event IDs detected on, across the managed fleet; Defender for Servers P2 enabled so SecurityEvent draws its 500 MB/day/server allowance; WEF/WEC for machines where per-machine AMA is impractical | 2026-07-25 |
 
 ## All tracked settings
 
@@ -200,6 +201,14 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-031` | Attack Surface Reduction rules | `Set via PowerShell Add-MpPreference on the device; viewed at security.microsoft.com > Reports > Attack surface reduction rules` | Two rules set to Block - WMI event-subscription persistence, and process creation via PSExec/WMI. Both enforcing and confirmed firing. | hardened | yes | 2026-07-19 |
 
 **`POS-031` — Attack Surface Reduction rules.** Two rules configured, both Block, and demonstrated firing in both audit and block states on one rule with an identical benign trigger (a WMI process create). Audit: action allowed, silent, local event 1122, cloud ActionType ...Audited. Block: action refused, user notification, event 1121, ...Blocked. Both events coexist in one query, distinguishable only by the ID / suffix - the trap the tooling invites. The headline finding: the Defender ASR report shows this device as "Rules off" - 0 in block, 0 in audit, 18 turned off - while both rules were actively blocking. The Detections view showed 0 with all filters set to Any. Advanced hunting, the device timeline, and the local event log all carried the events. Cause is scope, not lag: the ASR report is built around policy-managed (Intune/MDM) rules; rules set locally via Add-MpPreference enforce on the endpoint but are invisible to the console. An analyst trusting the dashboard would read the box as unprotected and re-deploy while protection runs. This is a direct downstream consequence of POS-022. Because Intune enrolment never fires, local PowerShell is the only available way to set ASR here - and that is precisely the path the reporting UI cannot see. A Lab 01 defect silently governs the visibility of every ASR rule set in Lab 06. Secondary: ASR blocks are recorded as telemetry, not raised as alerts. Neither event reached Incidents & Alerts. A successful block is treated as resolved, so ASR visibility requires hunting or the ASR report - never the alert queue. Two PowerShell literacy traps recorded in configuration-inventory.md: Get-MpPreference does not return ASR rules in entry order (positional pairing required, or Block reads as Audit); and Add-MpPreference appends while Set-MpPreference replaces. End state both Block; either rule can be set to AuditMode later - noted so the register and the device stay in sync. Preconditions from earlier labs: AV Normal mode (POS-029/Lab 03) makes rules enforce; Semi remediation (POS-030) kept the block from being auto-quarantined mid-test.
+
+### Lab 07
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-033` | Windows Security Events ingestion via Azure Monitor Agent | `Azure > Monitor > Data Collection Rules (dcr-winsec-labsrv); VM WIN-SRV-DEFENDER-01 > Extensions (AzureMonitorWindowsAgent)` | DCR dcr-winsec-labsrv collecting Common-tier Windows Security events from WIN-SRV-DEFENDER-01 into the SecurityEvent table. AMA auto-installed via the DCR association. Pipeline verified with live telemetry. | hardened | yes | 2026-07-25 |
+
+**`POS-033` — Windows Security Events ingestion via Azure Monitor Agent.** The first agent-based ingestion in the project. Distinct from POS-032's connector path: this is the Azure Monitor Agent collecting a machine's own Windows Security log via a Data Collection Rule, landing in the billed SecurityEvent table. AMA auto-installs when the DCR is associated to the VM (installed in under 5 minutes). SCAgentChannel reads Direct - the per-machine path, not WEF/WEC. Data lands in SecurityEvent, not WindowsEvent. Cost decision - Common tier, not All. The Windows Security log is high-volume and SecurityEvent bills fully here: the 500 MB/day/server free allowance exists only under Defender for Servers Plan 2, which this environment does not have (Defender for Cloud declined at Lab 04). So the DCR tier is the only cost control, and Common (curated security IDs) was chosen over All (the firehose). This is the DCR-as-cost-lever principle in its most consequential form. Four findings recorded in Lab 07. (1) Direct-AMA path confirmed via SCAgentChannel Direct, landing in SecurityEvent; the WindowsEvent/WEF half is documented but not observed (no collector topology). (2) Hostname truncation: the Azure name WIN-SRV-DEFENDER-01 (19 chars) exceeds the 15-char Windows NetBIOS limit, so the Computer field reads WIN-SRV-DEFENDE - an exact-match filter on the full name returns nothing. (3) Machine-context events: WORKGROUP\ account, AccountType Machine, confirming the VM is WORKGROUP-joined (no AD, consistent with the Entra-only environment). (4) 4624 does not mean a human logged in: on a VM started but never signed into, the only successful logons were 2x LogonType 5 (service, SYSTEM), zero interactive (the Type 2 query returned empty) - the meaning is in LogonType, not the raw 4624 count. VM deployed cost-safe: Standard_D2s_v3 (smallest available), smalldisk image, Standard HDD, Security type Standard (POS-018 parity), inbound None, no public IP (dissociated and deleted), Bastion-as-labadmin access, auto-shutdown 23:00 Pacific, Manual patching, boot diagnostics off. Access posture is deliberately BETTER than VM 1: inbound None and no public IP, versus VM 1's internet-facing RDP (POS-019). Standing cost note: Bastion bills more than the VM while running - a per-session teardown decision. Deferred: Endpoint Threat Protection Essentials (the SecurityEvent analytics rules) did not auto-install with the Windows Security Events solution, contrary to source guidance - ingestion does not need it; detection on this data is deferred to the alerts/incidents work later in the course.
 
 ## Asserted but not observed
 

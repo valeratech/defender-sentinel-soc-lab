@@ -59,6 +59,22 @@ being reached is stable even when its location is not.
 | SIEM workspace status (unified) | security.microsoft.com → Settings → Microsoft Sentinel → SIEM workspaces | 2026-07-19 |
 | Content hub (solutions) | Azure → Microsoft Sentinel → *(workspace)* → Content hub | 2026-07-19 |
 
+### Windows Security Events ingestion (agent path)
+
+| Setting / view | Path | Confirmed |
+|---|---|---|
+| Install the solution | Content hub → search "Windows Security Events" → Install | 2026-07-25 |
+| Create the DCR | Data connectors → Windows Security Events via AMA → Create data collection rule | 2026-07-25 |
+| Verify DCR association | Monitor → Data Collection Rules → *(rule)* → Resources | 2026-07-25 |
+| Confirm AMA installed | VM → Extensions → AzureMonitorWindowsAgent | 2026-07-25 |
+
+Selecting the VM in the DCR's Resources tab auto-installs the Azure Monitor Agent —
+no separate agent step. Windows Security events via **direct AMA** land in
+**`SecurityEvent`**; via a **WEF/WEC collector** they land in **`WindowsEvent`** —
+same source log, different tables, different rule coverage. Collection tier
+(All/Common/Minimal/Custom) is the ingestion cost lever; `SecurityEvent` bills fully
+without Defender for Servers P2.
+
 **Defender Advanced Hunting is NOT Sentinel Logs.** Same KQL, different data
 stores. Defender hunting (`security.microsoft.com` → Advanced hunting) queries
 Defender XDR's free raw lake — the `Device*` tables, column `Timestamp`. Sentinel

@@ -11,7 +11,7 @@ finding that landed in the filing system and never reached the document it
 belongs to. It fails no gate: the generators verify generated docs against
 their sources, and prose is neither.
 
-**16 of 32 entries cited in their own lab.**
+**17 of 33 entries cited in their own lab.**
 
 | Lab | Status | Cited | Uncited |
 |---|---|---|---|
@@ -22,6 +22,7 @@ their sources, and prose is neither.
 | 04 | 🔨 | 1/1 | — |
 | 05 | 🔨 | 1/1 | — |
 | 06 | 🔨 | 1/1 | — |
+| 07 | 🔨 | 1/1 | — |
 
 ## Enforcement
 

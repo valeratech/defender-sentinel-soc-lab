@@ -934,3 +934,54 @@ entries:
       SecurityAlert alone. Permissions note: subscription Owner was required for
       auto-onboard - Global Administrator (a directory role) is not Azure RBAC
       (POS-024).
+
+  - id: POS-033
+    lab: "07"
+    setting: Windows Security Events ingestion via Azure Monitor Agent
+    location: Azure > Monitor > Data Collection Rules (dcr-winsec-labsrv); VM WIN-SRV-DEFENDER-01 > Extensions (AzureMonitorWindowsAgent)
+    state: DCR dcr-winsec-labsrv collecting Common-tier Windows Security events from WIN-SRV-DEFENDER-01 into the SecurityEvent table. AMA auto-installed via the DCR association. Pipeline verified with live telemetry.
+    baseline: No agent-based ingestion - only the Defender XDR connector (POS-032, alerts/incidents)
+    kind: hardened
+    production: DCR scoped by XPath to the exact event IDs detected on, across the managed fleet; Defender for Servers P2 enabled so SecurityEvent draws its 500 MB/day/server allowance; WEF/WEC for machines where per-machine AMA is impractical
+    revisit: true
+    verified: 2026-07-25
+    note: >-
+      The first agent-based ingestion in the project. Distinct from POS-032's
+      connector path: this is the Azure Monitor Agent collecting a machine's own
+      Windows Security log via a Data Collection Rule, landing in the billed
+      SecurityEvent table. AMA auto-installs when the DCR is associated to the VM
+      (installed in under 5 minutes). SCAgentChannel reads Direct - the per-machine
+      path, not WEF/WEC. Data lands in SecurityEvent, not WindowsEvent.
+
+      Cost decision - Common tier, not All. The Windows Security log is high-volume
+      and SecurityEvent bills fully here: the 500 MB/day/server free allowance
+      exists only under Defender for Servers Plan 2, which this environment does
+      not have (Defender for Cloud declined at Lab 04). So the DCR tier is the only
+      cost control, and Common (curated security IDs) was chosen over All (the
+      firehose). This is the DCR-as-cost-lever principle in its most consequential
+      form.
+
+      Four findings recorded in Lab 07. (1) Direct-AMA path confirmed via
+      SCAgentChannel Direct, landing in SecurityEvent; the WindowsEvent/WEF half is
+      documented but not observed (no collector topology). (2) Hostname truncation:
+      the Azure name WIN-SRV-DEFENDER-01 (19 chars) exceeds the 15-char Windows
+      NetBIOS limit, so the Computer field reads WIN-SRV-DEFENDE - an exact-match
+      filter on the full name returns nothing. (3) Machine-context events:
+      WORKGROUP\ account, AccountType Machine, confirming the VM is WORKGROUP-joined
+      (no AD, consistent with the Entra-only environment). (4) 4624 does not mean a
+      human logged in: on a VM started but never signed into, the only successful
+      logons were 2x LogonType 5 (service, SYSTEM), zero interactive (the Type 2
+      query returned empty) - the meaning is in LogonType, not the raw 4624 count.
+
+      VM deployed cost-safe: Standard_D2s_v3 (smallest available), smalldisk image,
+      Standard HDD, Security type Standard (POS-018 parity), inbound None, no public
+      IP (dissociated and deleted), Bastion-as-labadmin access, auto-shutdown 23:00
+      Pacific, Manual patching, boot diagnostics off. Access posture is deliberately
+      BETTER than VM 1: inbound None and no public IP, versus VM 1's internet-facing
+      RDP (POS-019). Standing cost note: Bastion bills more than the VM while running
+      - a per-session teardown decision.
+
+      Deferred: Endpoint Threat Protection Essentials (the SecurityEvent analytics
+      rules) did not auto-install with the Windows Security Events solution, contrary
+      to source guidance - ingestion does not need it; detection on this data is
+      deferred to the alerts/incidents work later in the course.

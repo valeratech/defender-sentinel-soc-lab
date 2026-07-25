@@ -982,6 +982,23 @@ appears only when genuinely observed and attributed.
 
 ---
 
+### 3.5 Second VM (WIN-SRV-DEFENDER-01) and its access posture - POS-033 ✅ hardened
+
+- [ ] **Path (create):** Virtual machines > Create > Azure virtual machine
+- [ ] **Path (access):** via Azure Bastion as labadmin (no public inbound)
+- **What it is:** A Windows Server 2022 VM built to be the source for agent-based Windows Security Event ingestion.
+- **Why:** Lab 07 needs a Windows host whose own Security log can be collected by the Azure Monitor Agent.
+- **What we verified (2026-07-25):** Standard_D2s_v3 (smallest generally-available size in West US - B-series and DS1_v2 were unavailable for this subscription), smalldisk WS2022 Datacenter Gen2, **Standard HDD** (changed from the Premium default), Security type **Standard** (POS-018 parity, no vTPM), **inbound None**, **no public IP** (the deployment attached one despite inbound None; dissociated and deleted), auto-shutdown 23:00 Pacific + email, **Manual** patch orchestration, boot diagnostics off. Access is **Azure Bastion as labadmin**.
+- **Access reasoning (Bastion vs RDP):** VM 1 exposes RDP to the internet (POS-019, a weakening). This VM deliberately does not - inbound None + no public IP means it cannot be reached from the internet at all, a **better** posture than VM 1. The tradeoff: Bastion bills per hour (~$0.19/hr Basic, more than the VM while running), so it is a per-session teardown decision; RDP would be free but internet-exposed. Bastion also gives built-in clipboard sharing and, on some SKUs, requires a bare username.
+
+### 3.6 Data Collection Rule (dcr-winsec-labsrv) - POS-033 ✅ hardened
+
+- [ ] **Path:** Content hub > install "Windows Security Events" > Data connectors > Windows Security Events via AMA > Create data collection rule
+- [ ] **Path (verify association):** Monitor > Data Collection Rules > dcr-winsec-labsrv > Resources
+- **What it is:** The DCR that installs the Azure Monitor Agent on the VM and collects its Windows Security log into the SecurityEvent table.
+- **Why:** The first agent-based ingestion path in the project - distinct from POS-032's connector path.
+- **What we verified (2026-07-25):** DCR `dcr-winsec-labsrv` in rg-defender-lab, associated to WIN-SRV-DEFENDER-01. Selecting the VM in the DCR's Resources tab **auto-installed the AMA extension** (under 5 min). Collection tier **Common** (not All) - the cost decision, because SecurityEvent has NO free allowance here (that allowance needs Defender for Servers P2, which this environment lacks). Verified: Heartbeat (SCAgentChannel Direct, AMA v1.43), SecurityEvent populated with 4688/4673 events. Data lands in **SecurityEvent**, not WindowsEvent.
+
 ## The divergences
 
 Where the source guides and this environment disagree. Every one was found by checking
@@ -1007,6 +1024,8 @@ this environment's).
 | 9 | **Module 31 guide**: the membership rule places the device in the group | Rule matches instantly in **preview**; committed membership lags 30–60 min, during which the device sits in **Ungrouped / Full remediation** — the opposite of the chosen Semi (`POS-030`) | Every visible signal reads "configured" while the intended policy is not in force and the default one is. Do not test until membership *commits*, not merely until the rule previews | **live, 2026-07-19** — Apply 06:11 → committed ≤06:39 |
 | 10 | **Module 33 guide**: the ASR **report** shows which rules are firing | Report shows the device **"Rules off"** — 0 detections at filter=Any — while both locally-set rules actively block (`POS-031`) | The report is scoped to policy-managed rules; locally-set (PowerShell) rules are invisible to it. A downstream consequence of `POS-022` — local PowerShell is the only path here, and the report cannot see it. Verify in Advanced hunting | **live, 2026-07-19** — confirmed with filters at Any and via event log/hunting |
 | 11 | **Module 35 guide**: connect the Defender XDR connector manually; incident sync is a configured step | Connector **auto-connected** on Sentinel enablement (unified portal + Unified RBAC); and it is **forward-only** — history does not backfill (`POS-032`) | No manual connect was needed. Proving flow requires a *fresh* event, not a query for existing incidents; and the incident wrapper syncs ahead of the discrete alert, so `SecurityAlert` alone reads empty while the incident is present | **live, 2026-07-19** — pipeline proven with a fresh detection test |
+| 12 | **Windows events guide**: installing the Windows Security Events solution pulls in its dependency, Endpoint Threat Protection Essentials | The dependency did **NOT** auto-install — it showed "not installed" after the solution went in (`POS-033`) | Ingestion does not need it (it is the detection layer, not the ingestion layer), so it did not block the lab — but the "installs with dependencies" claim did not hold here. Detection on SecurityEvent is deferred to the later alerts/incidents work | **live, 2026-07-25** — observed at Content hub install |
+| 13 | (implicit) an Azure VM's name is its hostname | The Azure resource name **WIN-SRV-DEFENDER-01** (19 chars) exceeds the 15-char Windows NetBIOS limit, so the OS hostname and the `Computer` field truncate to **WIN-SRV-DEFENDE** (`POS-033`) | A KQL filter of `Computer == "WIN-SRV-DEFENDER-01"` returns nothing. Match the truncated name or use `startswith`. Silent — the query just returns empty | **live, 2026-07-25** — confirmed in Heartbeat and SecurityEvent data |
 
 ---
 
@@ -1025,6 +1044,8 @@ Cover the path column. From each portal's home page, find:
 9. Where a device group's automation (remediation) level is set *(5.6)*
 10. Where you confirm raw endpoint events are NOT streaming to Sentinel *(5.8 — DeviceEvents fails to resolve in Sentinel Logs)*
 11. Where device-discovery mode (Basic/Standard) is chosen *(5.7)*
+12. Where a Data Collection Rule's event tier (All/Common/Minimal/Custom) is set *(3.6 — and why Common, not All)*
+13. Where you confirm the Azure Monitor Agent installed on a VM *(VM > Extensions > AzureMonitorWindowsAgent)*
 
 Then, without looking:
 
@@ -1041,6 +1062,9 @@ Then, without looking:
 - Which control blocks live while the console reports the device unprotected? → `POS-031`, locally-set ASR vs the policy-scoped report
 - Which query works in Defender hunting and fails in Sentinel Logs — and why that failure is good news? → `DeviceEvents`; it confirms raw streaming is off (cost-safe), `POS-032`
 - Which two SOC surfaces speak the same KQL over different data stores? → Defender Advanced Hunting (free raw lake, `Timestamp`) and Sentinel Logs (billed workspace, `TimeGenerated`)
+- Which collection tier turns a Windows Security Events DCR into a firehose, and why does it bill fully here? → "All"; SecurityEvent's free allowance needs Defender for Servers P2, which this environment lacks (`POS-033`)
+- Why does `Computer == "WIN-SRV-DEFENDER-01"` return nothing? → the OS hostname truncates to 15 chars (`WIN-SRV-DEFENDE`); use `startswith` (`POS-033`)
+- On a VM nobody logged into, why are there 4624 "successful logon" events? → LogonType 5 service logons (SYSTEM); the meaning is in LogonType, not the count (`POS-033`)
 
 ## Device discovery — environment note (Lab, module 32)
 

@@ -105,17 +105,21 @@ entries:
     lab: "00"
     setting: Cost budgets - two, at different scopes
     location: Cost Management + Billing > Budgets
-    state: Resource group $15/mo (actual 50/80/100); subscription $25/mo (actual 50/80/100 + forecasted 100)
+    state: Resource group "Defender-Lab-Budget" $40/mo (actual 50/80/100 + forecasted 100); subscription "Subscription-Lab-Budget" $50/mo (actual 50/80/100 + forecasted 100). Raised from $15/$25 on 2026-07-19 for the AMA lab's second VM + ingestion.
     baseline: none
     kind: hardened
     production: Same, plus an action group driving automated shutdown
     revisit: true
-    verified: 2026-07-16
+    verified: 2026-07-19
     note: >-
       Two budgets exist deliberately rather than one. The resource-group budget
-      ($15) is the tighter tripwire on the lab's own resources; the
-      subscription budget ($25) is the backstop that catches spend the first
-      one structurally cannot see. Consolidating to one was rejected in both
+      (Defender-Lab-Budget, $40) is the tighter tripwire on the lab's own
+      resources; the subscription budget (Subscription-Lab-Budget, $50) is the
+      backstop that catches spend the first one structurally cannot see. The
+      subscription amount is kept ABOVE the resource-group amount on purpose, so
+      the RG tripwire alerts before the subscription backstop — inverting them
+      (backstop below tripwire) would make the wider budget fire first and
+      defeat the tiering. Consolidating to one was rejected in both
       directions: a resource-group budget cannot see spend outside its group —
       which matters once Lab 04 creates the Log Analytics workspace, since
       ingestion is the largest projected cost and may not land there — and a
@@ -136,12 +140,18 @@ entries:
       conversion (POS-017) bills through a separate system and is invisible to
       Azure Cost Management at any scope. The most certain charge on this
       tenant has no alert attached to it — only a calendar date.
-      (4) Forecasted alerting was added to the subscription budget but the
-      resource-group budget remains actual-only, so its warnings still arrive
-      after the spend.
-      (5) Neither alert has ever fired. Recipients are configured but the
-      notification path is unvalidated, which by this repo's own standard makes
-      it a hypothesis rather than a control.
+      (4) Both budgets now carry forecasted alerting (actual 50/80/100 +
+      forecasted 100). An earlier state had the resource-group budget as
+      actual-only; on the 2026-07-19 raise it was confirmed to include a
+      forecasted-100 alert, so both give forward warning rather than only
+      after-the-fact.
+      (5) Notification path VALIDATED 2026-07-19: the resource-group budget's
+      50-percent and forecasted alerts fired at ~50 percent of the old $15
+      amount and the configured recipients received the mail. This upgrades the
+      earlier state, where no alert had ever fired and the path was recorded as
+      an unvalidated hypothesis. The alerting is now a confirmed control, not an
+      assumption. (Recipient addresses are held in the portal only and are not
+      recorded here.)
 
   - id: POS-016
     lab: "00"

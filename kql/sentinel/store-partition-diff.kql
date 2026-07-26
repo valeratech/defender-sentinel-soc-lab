@@ -1,0 +1,38 @@
+// STORE-PARTITION CENSUS - which tables are billable and which are free.
+//
+// Run this IDENTICAL query on BOTH portals, then diff the two table lists:
+//
+//   Defender  (security.microsoft.com > Hunting > Advanced hunting)
+//       -> returns Defender XDR lake tables AND, once the workspace is onboarded to
+//          the unified platform, Log Analytics workspace tables. One pane, two stores.
+//   Azure     (Microsoft Sentinel > law-soc-lab > Logs, KQL mode)
+//       -> returns ONLY the Log Analytics workspace.
+//
+//   In the Azure list  = workspace-resident = METERED, counts against the daily cap.
+//   Dropped from it    = Defender XDR-native = FREE, no matter how large.
+//
+// This answers a cost question by measurement instead of inference, costs nothing,
+// and repeats on demand. Volume in the Defender run is NOT evidence of spend - the
+// largest table in the 2026-07-26 census (GraphAPIAuditEvents, 3578 events in 24h)
+// bills nothing at all.
+//
+// Measured 2026-07-26:
+//   workspace : SecurityEvent, Heartbeat, Usage, AzureActivity, SigninLogs
+//   XDR only  : GraphAPIAuditEvents, EntraIdSignInEvents, EntraIdSpnSignInEvents,
+//               EmailEvents, EmailUrlInfo, IdentityInfo
+//
+// TIMEZONE: the two portals rendered the same rows 7 hours apart - Defender in local
+// time, Azure in UTC with the column labelled "Latest [UTC]". Compare offsets, not
+// wall clocks. The unlabelled column is the local one.
+search *
+| where TimeGenerated > ago(24h)
+| summarize Events = count(), Latest = max(TimeGenerated) by $table
+| order by Events desc
+
+// Then, in the AZURE run only, put numbers on the billable half. Usage lags several
+// hours, so treat the most recent window as not-yet-reported rather than as zero.
+// Usage
+// | where TimeGenerated > ago(24h)
+// | where IsBillable == true
+// | summarize BillableMB = sum(Quantity) by DataType
+// | order by BillableMB desc

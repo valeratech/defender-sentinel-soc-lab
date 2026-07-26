@@ -55,6 +55,7 @@ being reached is stable even when its location is not.
 | Create Log Analytics workspace | Azure → Log Analytics workspaces → Create | 2026-07-19 |
 | Enable Sentinel | Azure → Microsoft Sentinel → Create → select workspace | 2026-07-19 |
 | Data connectors | Azure → Microsoft Sentinel → *(workspace)* → Data connectors | 2026-07-19 |
+| Store-partition census (run on BOTH portals, then diff) | Defender → Advanced hunting *and* Azure → Sentinel → Logs — same query, compare table lists | 2026-07-26 |
 | Sentinel Logs (KQL) | Azure → Microsoft Sentinel → *(workspace)* → Logs — **switch Simple mode → KQL mode to write queries** | 2026-07-19 |
 | SIEM workspace status (unified) | security.microsoft.com → Settings → Microsoft Sentinel → SIEM workspaces | 2026-07-19 |
 | Content hub (solutions) | Azure → Microsoft Sentinel → *(workspace)* → Content hub | 2026-07-19 |
@@ -72,10 +73,12 @@ being reached is stable even when its location is not.
 simpler and correct; the policy wizard (A) only earns its complexity across many
 subscriptions and failed here on managed-identity/session. **Count subscriptions.**
 
-**Table name by surface:** Entra sign-in data is `SigninLogs` in **Sentinel → Logs**
-(Log Analytics) but `EntraIdSignInEvents` in **Defender Advanced Hunting** — same
-data, two schema names. The `search * | summarize count() by $table` query is the
-fastest way to see what's actually arriving and under which name.
+**Table name by surface — corrected 2026-07-26.** These are **not** two names for one
+dataset, which is what this note previously said. `SigninLogs` is a Log Analytics
+workspace table written by the Entra diagnostic setting and scoped by the log types
+you selected; `EntraIdSignInEvents` is a Defender XDR lake table written by XDR
+regardless of your connector. On the unified Defender surface **both resolve at once**
+with very different counts. See Lab 08 §5 and the store-partition method below.
 
 ### Windows Security Events ingestion (agent path)
 
@@ -93,8 +96,12 @@ same source log, different tables, different rule coverage. Collection tier
 (All/Common/Minimal/Custom) is the ingestion cost lever; `SecurityEvent` bills fully
 without Defender for Servers P2.
 
-**Defender Advanced Hunting is NOT Sentinel Logs.** Same KQL, different data
-stores. Defender hunting (`security.microsoft.com` → Advanced hunting) queries
+**Defender Advanced Hunting is NOT Sentinel Logs — but the unified portal reaches
+both.** Same KQL, different data stores; from `security.microsoft.com` a single
+query can return tables from each, which is why a census there is not a statement
+about what your workspace holds. Run it on **both** portals and diff the table lists:
+what survives into the Azure run is workspace-resident and billable, what drops out
+is XDR-native and free (`kql/sentinel/store-partition-diff.kql`, measured 2026-07-26). Defender hunting (`security.microsoft.com` → Advanced hunting) queries
 Defender XDR's free raw lake — the `Device*` tables, column `Timestamp`. Sentinel
 Logs queries the Log Analytics workspace — only connector-forwarded data
 (`SecurityIncident`, `SecurityAlert`), billed, column `TimeGenerated`. A `Device*`

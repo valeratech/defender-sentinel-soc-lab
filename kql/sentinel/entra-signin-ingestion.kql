@@ -1,9 +1,18 @@
-// Entra ID sign-in ingestion. NOTE THE TABLE NAME BY SURFACE:
-//   Sentinel > Logs (Log Analytics):        SigninLogs
-//   Defender Advanced Hunting (unified):    EntraIdSignInEvents
-// Same sign-in data, two schema names. Querying the wrong one for your surface
-// returns "no data" and can read as a licensing failure when the data is present.
-// Sign-in ingestion requires Entra P1/P2 (confirmed live via the E5 trial).
+// Entra ID sign-in ingestion into the WORKSPACE.
+//
+// CORRECTED 2026-07-26. This file previously said SigninLogs and EntraIdSignInEvents
+// were the same data under two surface-specific names. They are not. They have
+// different PRODUCERS:
+//   SigninLogs           - Log Analytics workspace; written by the Entra diagnostic
+//                          setting; scoped by the log types you selected; BILLABLE.
+//   EntraIdSignInEvents  - Defender XDR lake; written by XDR regardless of your
+//                          connector; every sign-in class; FREE.
+// On the unified Defender surface both resolve in one query with very different
+// counts (6 vs 972 on 2026-07-26). Only the first tells you your connector works.
+//
+// An empty SigninLogs shortly after Apply is propagation lag (~10-15 min), not a
+// naming mismatch and not a licensing failure. Sign-in ingestion requires Entra
+// P1/P2 (confirmed live via the E5 trial).
 SigninLogs
 | where TimeGenerated > ago(1h)
 | project TimeGenerated, UserPrincipalName, ResultType, AppDisplayName, IPAddress, Location

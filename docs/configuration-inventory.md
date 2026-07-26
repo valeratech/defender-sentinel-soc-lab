@@ -999,6 +999,24 @@ appears only when genuinely observed and attributed.
 - **Why:** The first agent-based ingestion path in the project - distinct from POS-032's connector path.
 - **What we verified (2026-07-25):** DCR `dcr-winsec-labsrv` in rg-defender-lab, associated to WIN-SRV-DEFENDER-01. Selecting the VM in the DCR's Resources tab **auto-installed the AMA extension** (under 5 min). Collection tier **Common** (not All) - the cost decision, because SecurityEvent has NO free allowance here (that allowance needs Defender for Servers P2, which this environment lacks). Verified: Heartbeat (SCAgentChannel Direct, AMA v1.43), SecurityEvent populated with 4688/4673 events. Data lands in **SecurityEvent**, not WindowsEvent.
 
+### 3.7 Azure Activity connector (diagnostic setting) - POS-034 ✅ hardened
+
+- [ ] **Path (Method B, used):** Subscriptions > Azure subscription 1 > Activity log > Export Activity Logs > + Add diagnostic setting > law-soc-lab
+- [ ] **Path (Method A, failed):** Data connectors > Azure Activity > Launch Azure Policy Assignment wizard
+- [ ] **Path (verify):** Subscription > Activity log > Export Activity Logs (setting activity-to-law-soc-lab exists)
+- **What it is:** Subscription control-plane operations (resource create/modify/delete, role assignments, policy changes) streamed to law-soc-lab, landing in AzureActivity.
+- **Why:** Control-plane monitoring - the record of who did what to the subscription.
+- **What we verified (2026-07-25):** Configured via **Method B (manual diagnostic setting)** after **Method A (Azure Policy) failed twice** - "you need to log in" at submission, 0 policy assignments confirmed both times (managed-identity/session token). Method B (categories Administrative + Security -> law-soc-lab) succeeded first try. AzureActivity populated (verified). For one subscription, Method B is the appropriate choice, not a fallback - Method A's policy+identity+remediation machinery only earns itself across many subscriptions.
+
+### 3.8 Microsoft Entra ID connector - POS-034 ✅ hardened
+
+- [ ] **Path:** Data connectors > Microsoft Entra ID > Open connector page > select log types > Apply
+- [ ] **Path (verify):** Entra ID > Monitoring & health > Diagnostic settings (AzureSentinel_law-soc-lab exists)
+- **What it is:** Identity logs - sign-ins, directory audits, and Entra ID Protection risk - streamed to law-soc-lab.
+- **Why:** The foundation of identity-based detection and hunting.
+- **What we verified (2026-07-25):** Enabled Sign-In Logs, Audit Logs, Risky Users, User Risk Events (high-volume types left off - the connector-level cost lever). Apply wrote the diagnostic setting AzureSentinel_law-soc-lab. Sign-in ingestion needs P1/P2; the E5 trial's P2 is live - **licensing test passed**, 489 sign-in events captured.
+- **The surface-schema trap:** the sign-in data appears as **SigninLogs** in Sentinel > Logs (Log Analytics) but as **EntraIdSignInEvents** in Defender Advanced Hunting - same data, two schema names. Querying SigninLogs while in Advanced Hunting returns nothing and can read as a licensing failure when 489 events are present under the other name.
+
 ## The divergences
 
 Where the source guides and this environment disagree. Every one was found by checking
@@ -1026,6 +1044,8 @@ this environment's).
 | 11 | **Module 35 guide**: connect the Defender XDR connector manually; incident sync is a configured step | Connector **auto-connected** on Sentinel enablement (unified portal + Unified RBAC); and it is **forward-only** — history does not backfill (`POS-032`) | No manual connect was needed. Proving flow requires a *fresh* event, not a query for existing incidents; and the incident wrapper syncs ahead of the discrete alert, so `SecurityAlert` alone reads empty while the incident is present | **live, 2026-07-19** — pipeline proven with a fresh detection test |
 | 12 | **Windows events guide**: installing the Windows Security Events solution pulls in its dependency, Endpoint Threat Protection Essentials | The dependency did **NOT** auto-install — it showed "not installed" after the solution went in (`POS-033`) | Ingestion does not need it (it is the detection layer, not the ingestion layer), so it did not block the lab — but the "installs with dependencies" claim did not hold here. Detection on SecurityEvent is deferred to the later alerts/incidents work | **live, 2026-07-25** — observed at Content hub install |
 | 13 | (implicit) an Azure VM's name is its hostname | The Azure resource name **WIN-SRV-DEFENDER-01** (19 chars) exceeds the 15-char Windows NetBIOS limit, so the OS hostname and the `Computer` field truncate to **WIN-SRV-DEFENDE** (`POS-033`) | A KQL filter of `Computer == "WIN-SRV-DEFENDER-01"` returns nothing. Match the truncated name or use `startswith`. Silent — the query just returns empty | **live, 2026-07-25** — confirmed in Heartbeat and SecurityEvent data |
+| 14 | **Azure Activity guide**: Method A (Azure Policy) is the recommended path to stream Activity logs | The policy wizard **failed twice** — "you need to log in" at submission, 0 policy assignments confirmed; **Method B (manual diagnostic setting) worked first try** (`POS-034`) | Not user error — the wizard's managed-identity creation needs a privileged token and the session kept expiring. For a single subscription Method B is architecturally appropriate anyway; Method A's complexity only earns itself at multi-subscription scale. Decision rule: count subscriptions | **live, 2026-07-25** — 0 policy assignments confirmed both attempts |
+| 15 | **Entra guide**: verify sign-in ingestion by querying `SigninLogs` | In the Defender Advanced Hunting surface the table is **`EntraIdSignInEvents`**, not `SigninLogs` — same data, different schema name; `SigninLogs` there returns nothing while `EntraIdSignInEvents` held 489 rows (`POS-034`) | Querying the guide's `SigninLogs` name while in Advanced Hunting reads as "no data / licensing failed" when the data is present under the other name. `SigninLogs` is the Log Analytics (Sentinel > Logs) name; `EntraIdSignInEvents` the Advanced Hunting name | **live, 2026-07-25** — 489 events under EntraIdSignInEvents |
 
 ---
 

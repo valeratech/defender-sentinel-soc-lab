@@ -1,0 +1,9 @@
+// What is actually arriving in the workspace right now, by table.
+// The fastest "is this connector flowing" check - shows every table receiving data,
+// so an empty single-table query can be distinguished from "nothing is flowing" and
+// from "querying the wrong table name for this surface" (see SigninLogs vs
+// EntraIdSignInEvents).
+search *
+| where TimeGenerated > ago(1h)
+| summarize count() by $table
+| order by count_ desc

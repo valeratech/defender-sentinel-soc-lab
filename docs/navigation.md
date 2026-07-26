@@ -59,6 +59,24 @@ being reached is stable even when its location is not.
 | SIEM workspace status (unified) | security.microsoft.com → Settings → Microsoft Sentinel → SIEM workspaces | 2026-07-19 |
 | Content hub (solutions) | Azure → Microsoft Sentinel → *(workspace)* → Content hub | 2026-07-19 |
 
+### First-party connectors — Azure Activity & Entra ID (Lab 08)
+
+| Setting / view | Path | Confirmed |
+|---|---|---|
+| Azure Activity (Method B — worked) | Subscriptions → *(sub)* → Activity log → Export Activity Logs → + Add diagnostic setting → law-soc-lab | 2026-07-25 |
+| Azure Activity (Method A — failed) | Data connectors → Azure Activity → Launch Azure Policy Assignment wizard | failed x2 |
+| Entra ID connector | Data connectors → Microsoft Entra ID → Open connector page → select log types → Apply | 2026-07-25 |
+| Verify Entra diagnostic setting | Entra ID → Monitoring & health → Diagnostic settings (AzureSentinel_law-soc-lab) | 2026-07-25 |
+
+**Method A vs B:** for a single subscription the manual diagnostic setting (B) is
+simpler and correct; the policy wizard (A) only earns its complexity across many
+subscriptions and failed here on managed-identity/session. **Count subscriptions.**
+
+**Table name by surface:** Entra sign-in data is `SigninLogs` in **Sentinel → Logs**
+(Log Analytics) but `EntraIdSignInEvents` in **Defender Advanced Hunting** — same
+data, two schema names. The `search * | summarize count() by $table` query is the
+fastest way to see what's actually arriving and under which name.
+
 ### Windows Security Events ingestion (agent path)
 
 | Setting / view | Path | Confirmed |

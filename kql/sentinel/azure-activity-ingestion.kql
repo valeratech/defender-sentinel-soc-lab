@@ -1,0 +1,8 @@
+// Azure Activity control-plane operations, ingested via a subscription diagnostic
+// setting (Method B). Method A - the Azure Policy path - failed twice here on
+// managed-identity/session; for a single subscription the diagnostic setting is
+// both simpler and architecturally appropriate.
+AzureActivity
+| where TimeGenerated > ago(1h)
+| project TimeGenerated, OperationNameValue, ActivityStatusValue, Caller, ResourceGroup
+| order by TimeGenerated desc

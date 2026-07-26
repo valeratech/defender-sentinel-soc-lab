@@ -1,0 +1,10 @@
+// Entra ID sign-in ingestion. NOTE THE TABLE NAME BY SURFACE:
+//   Sentinel > Logs (Log Analytics):        SigninLogs
+//   Defender Advanced Hunting (unified):    EntraIdSignInEvents
+// Same sign-in data, two schema names. Querying the wrong one for your surface
+// returns "no data" and can read as a licensing failure when the data is present.
+// Sign-in ingestion requires Entra P1/P2 (confirmed live via the E5 trial).
+SigninLogs
+| where TimeGenerated > ago(1h)
+| project TimeGenerated, UserPrincipalName, ResultType, AppDisplayName, IPAddress, Location
+| order by TimeGenerated desc

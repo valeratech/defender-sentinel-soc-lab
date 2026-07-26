@@ -985,3 +985,58 @@ entries:
       rules) did not auto-install with the Windows Security Events solution, contrary
       to source guidance - ingestion does not need it; detection on this data is
       deferred to the alerts/incidents work later in the course.
+
+  - id: POS-034
+    lab: "08"
+    setting: Entra ID and Azure Activity connectors
+    location: Azure > Subscription > Activity log > diagnostic setting (activity-to-law-soc-lab); Entra ID > Monitoring & health > Diagnostic settings (AzureSentinel_law-soc-lab)
+    state: Both connectors configured and verified flowing. Azure Activity via a manual diagnostic setting (Method B) after the policy path (Method A) failed twice. Entra ID sign-in/audit/risk logs via the connector's diagnostic setting. AzureActivity and EntraIdSignInEvents both populated.
+    baseline: No control-plane or identity ingestion - only Defender XDR (POS-032) and Windows events (POS-033)
+    kind: hardened
+    production: Azure Activity via policy across all subscriptions with auto-enrollment; Entra ID with the log types matched to real detection needs; risk tables backed by active Entra ID Protection
+    revisit: true
+    verified: 2026-07-25
+    note: >-
+      The two foundational first-party connectors - control-plane (AzureActivity)
+      and identity (SigninLogs/AuditLogs/risk). Both were installed as Content Hub
+      solutions earlier; this records the configuration that made them flow, and the
+      verification by querying tables rather than trusting the connector status label
+      ("connected is not flowing").
+
+      Connector-tiers model (the analysis grounding Labs 04/07/08): config effort
+      scales with how foreign the source is to Sentinel. Defender XDR (Lab 04) is the
+      same platform - auto-connected. AMA/Windows events (Lab 07) is your resource on
+      an external disk - agent + DCR. Azure Activity and Entra ID (this lab) are
+      separate Azure/Entra services with their own logging systems - connecting them
+      means reconfiguring THOSE services to export (a diagnostic setting or policy),
+      plus licensing. This is why these two surface the "connected is not flowing"
+      warning: the connector page reads connected while the real work sits on the
+      source service.
+
+      Azure Activity - Method A failed, Method B worked, and B was the right choice.
+      The Azure Policy wizard (Method A, the guide's recommended path) failed TWICE:
+      "you need to log in" at submission, with Policy > Assignments confirming 0
+      policy assignments both times. Not user error - the wizard's managed-identity
+      creation needs a privileged token and the session kept expiring. The manual
+      diagnostic setting (Method B) succeeded first try. Analysis: for a SINGLE
+      subscription, Method B is architecturally appropriate, not a fallback; Method A's
+      machinery (policy + managed identity + remediation + enforcement) only earns its
+      complexity at multi-subscription scale. Decision rule: count subscriptions.
+
+      SigninLogs vs EntraIdSignInEvents. Querying SigninLogs (the guide's table name)
+      returned nothing while EntraIdSignInEvents held 489 rows - the SAME sign-in data
+      under two schema names. SigninLogs is the Log Analytics workspace name (Sentinel
+      > Logs); EntraIdSignInEvents is the Defender Advanced Hunting name. The identity
+      instance of the Lab 04 two-surfaces distinction. An analyst querying the wrong
+      name for the surface reads "no data" and may wrongly conclude a licensing failure.
+
+      Licensing test PASSED. Entra sign-in ingestion needs P1/P2; the E5 trial's P2 is
+      live - 489 sign-in events captured. The risk tables (AADRiskyUsers/
+      AADUserRiskEvents) may stay empty even when licensed - they populate only on
+      actual risk detection, and a quiet lab tenant produces none; empty risk tables
+      are not a licensing failure.
+
+      Both connectors are platform diagnostic settings - VM-independent - so they keep
+      ingesting with the VM and Bastion deallocated. Cost: low lab volume; the section's
+      two ingestion levers (connectors coarse on/off, DCRs fine filter-at-source) are
+      the disciplines already applied in Labs 07-08.

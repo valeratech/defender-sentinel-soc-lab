@@ -92,11 +92,12 @@ Product names are used precisely throughout. "Defender" alone is avoided whereve
 | Tenant | Single Entra tenant, lab-only, created 2026-07-14 |
 | Licensing | M365 E5 trial + Defender for Endpoint Plan 2 / Vulnerability Management |
 | Identity | Global Administrator + subscription Owner; scoped read-only analyst identity created (Unified RBAC) |
-| Endpoint | One Windows 11 VM onboarded via local script — sensor Active, streaming, Streamlined connectivity |
+| Endpoints | Windows 11 VM onboarded to Defender (local script, sensor Active); Windows Server VM added for agent-based ingestion (inbound None + no public IP, Bastion access — a tighter posture than the Win11 box) |
 | Device management | Entra device join configured; **Intune auto-enrolment never fires** — every precondition verified (`POS-022`). Forecloses all Intune-managed paths |
 | Device groups | Rule-based group, Semi remediation, scoped to the analyst via an Entra group |
 | ASR | Two rules enforcing via local PowerShell (the only available path here) |
-| Sentinel | Workspace `law-soc-lab` (West US, PAYG); Sentinel enabled; Defender XDR connector Connected/Primary, **alerts/incidents only — raw `Device*` streaming OFF** (cost-safe, verified) |
+| Sentinel | Workspace `law-soc-lab` (West US, PAYG); Sentinel enabled |
+| Ingestion | Four paths, each a different tier of source: Defender XDR connector (same-platform, auto-connected, alerts/incidents only — raw `Device*` streaming OFF, cost-safe); Windows Security Events via AMA + a Common-tier DCR (`SecurityEvent`); Azure Activity via diagnostic setting (`AzureActivity`); Entra ID connector (`SigninLogs`/`AuditLogs`/risk) |
 
 **The environment is ephemeral, and three clocks bound its life:**
 
@@ -128,6 +129,8 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [04](labs/04-sentinel-workspace/) | Sentinel workspace and the endpoint-to-SIEM pipeline | Environment | 🔨 Built, documenting |
 | [05](labs/05-device-groups-scoped-access/) | Device groups, automation levels, and scoped access | Environment | 🔨 Built, documenting |
 | [06](labs/06-attack-surface-reduction/) | Attack surface reduction rules | Response | 🔨 Built, documenting |
+| [07](labs/07-windows-security-events/) | Windows Security Events via AMA — agent-based ingestion | Ingestion | 🔨 Built, documenting |
+| [08](labs/08-entra-azure-activity-connectors/) | Entra ID and Azure Activity connectors | Ingestion | 🔨 Built, documenting |
 
 Lab numbers are opaque, append-only handles — `04` is Sentinel because that folder existed as a stub before device groups were built, and renumbering corrupts cross-references. Course-module order and repo lab order diverge by design; the number is a filing handle, not a sequence claim.
 

@@ -18,7 +18,8 @@ theft patterns — and either **audit** (log, allow) or **block** (log, stop) th
 This lab configures two rules, demonstrates the audit-vs-block distinction on a
 single rule with an identical trigger, measures how fast the events reach the
 cloud, and — the part that matters most — confirms where that activity is and is
-**not** visible in the Defender console.
+**not** visible in the Defender consoles. *(§7 amended 2026-07-27: it is not one
+console but two, and they disagree.)*
 
 The lab is only safe to run because of two earlier findings: Defender AV is in
 **Normal** mode (Lab 03 §4 — ASR does nothing in passive mode), and the device is
@@ -85,6 +86,8 @@ query — the only difference is the `Audited`/`Blocked` suffix.
 
 ### Latency
 
+| Secure Score credit *(added 2026-07-27)* | Both rules **Completed, 9/9**, with the 0/9 → 9/9 transition logged on this lab's build date — see the §7 amendment |
+
 | Latency | Measured |
 |---|---|
 | Trigger → local event log | seconds (near-instant) |
@@ -134,9 +137,43 @@ carried the events.
 The cause is scope, not lag or filtering: **the ASR report is built around
 policy-managed rules** (Intune / MDM — the console's own "Add to policy" button is
 the intended path). Rules set locally with `Add-MpPreference` enforce on the
-endpoint but are invisible to the console's configuration and detection views. An
-analyst reviewing that dashboard would conclude the endpoint is unprotected and
+endpoint but are invisible to **that report's** configuration and detection views.
+An analyst reviewing that dashboard would conclude the endpoint is unprotected and
 re-deploy — while protection is already running.
+
+### Amended 2026-07-27 — it is two consoles, and they disagree
+
+This section originally said locally-set rules are "invisible to the console."
+**That was too broad, and it is disproved by counterexample.** Microsoft Secure
+Score is a Defender console, names Defender for Endpoint as its product, and shows
+both rules **Completed at 9/9 points**. Its history recorded the transition:
+
+| Date | Secure Score entry | Points |
+|---|---|---|
+| 07-18 | *Block process creations originating from PSExec and WMI* — **has become relevant** | 0/9 |
+| 07-18 | *Block persistence through WMI event subscription* — **has become relevant** | 0/9 |
+| **07-19** | *points gained by **completing** Block process creations…* — **Great work!** | **9/9** |
+| **07-19** | *points gained by **completing** Block persistence…* — **Great work!** | **9/9** |
+
+07-19 is the day this lab was built. Secure Score watched the rules go on and
+credited them the same day. Tamper Protection behaved identically — 0/8 on 07-18,
+8/8 on 07-19.
+
+**That transition also settles scope-vs-lag by elimination.** If the configuration
+had never reached the Defender cloud, Secure Score could not have logged it
+changing. The ASR report's blindness is therefore a property of that report's
+scope, not of data availability — which is what this section claimed, now
+established rather than inferred, and by a different route than the two checks that
+were pending.
+
+**The corrected finding is stronger than the original.** Not one console blind to a
+local rule, but **two consoles in the same product, reading the same configuration,
+disagreeing completely** — one reporting 18 rules off and zero in block, the other
+awarding full points and timestamping the moment they were set. An analyst cannot
+tell which is right without going to the endpoint.
+
+*Caveat:* Secure Score read Completed on 2026-07-27 with both VMs deallocated, so it
+reports last-known configuration rather than live state.
 
 This is the most consequential instance of the repository's recurring pattern
 (configured-vs-effective, `POS-011`), and it is a **direct downstream consequence of

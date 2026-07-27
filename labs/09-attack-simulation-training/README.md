@@ -240,6 +240,13 @@ not. The campaign was live while this was discovered, and testing it would have
 falsified the committed 0%.
 *(pending — SecOps-mailbox interaction with simulation reporting not exercised)*
 
+Secure Score gives this a falsifiable follow-up. Its history shows *Ensure Microsoft
+365 audit log search is Enabled* at **0/3** as of 07-19; auditing was turned on
+2026-07-27, and the portal states score updates take up to 24 hours. Either it
+credits the change or it does not, and both answers say something about what that
+instrument tracks.
+*(pending — whether Secure Score credits the audit-logging change is unverified)*
+
 **What a 100% compromise rate means with one target: nothing.** It is arithmetic.
 The metric that matters is the trend across campaigns, which this tenant cannot
 produce. Recorded as foreclosed rather than untested, along with repeat-offender

@@ -122,6 +122,8 @@ before querying, and mind the column-name difference.
 | Unified audit logging (portal) | System → Audit → Start recording user and admin activity | 2026-07-26 — **could not complete, see below** |
 | Exchange message trace | Email & collaboration → Exchange message trace | 2026-07-26 |
 | Action center (pending / history) | Actions and submissions → Action center | 2026-07-27 |
+| Microsoft Secure Score | Exposure management → Microsoft Secure Score | 2026-07-27 |
+| Secure Score history (exportable, 185 rows) | *(above)* → History → Export | 2026-07-27 |
 | Submissions (6 tabs, incl. User reported) | Actions and submissions → Submissions | 2026-07-27 |
 | User reported settings | Settings → Email & collaboration → User reported settings — **opening this page creates the policy object** (`POS-040`) | 2026-07-27 |
 
@@ -148,5 +150,6 @@ question." For endpoint activity, the surfaces are not interchangeable (Lab 06 �
 | Hunt a pattern across all devices? | Advanced hunting (`DeviceEvents`) |
 | Did a phishing *simulation* leave telemetry? | Nowhere — the payload is absent from `EmailEvents` and `EmailUrlInfo` (`POS-037`) |
 | Was anything actually *remediated*? | Actions and submissions → Action center → History. Empty ≠ broken — a detection with no remediable artifact logs nothing (Lab 03 §7) |
+| Are my ASR rules actually configured? | **Ask both.** Exposure management → Secure Score → Recommended actions says Completed 9/9; the ASR report says Rules off. Same rules, same tenant (Lab 06 §7) |
 | Where do user-reported phish actually go? | Not answerable from the portal — `Get-ReportSubmissionPolicy` / `Get-ReportSubmissionRule` in EXO PowerShell, and even then the effective mailbox is in neither (`POS-040`) |
 | Who holds a Defender role? | System → Permissions → Roles → *(role)* → Edit assignment *(count only shown until opened)* |

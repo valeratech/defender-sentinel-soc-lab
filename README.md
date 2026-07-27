@@ -31,7 +31,8 @@ The recurring theme, and the reason the posture register exists: **configured is
 | `docs/` | Concept references, navigation index, and the generated posture/coverage/open-items reports |
 | `kql/` | Hunting and investigation queries, organized by data source — portable across Defender Advanced Hunting and Sentinel |
 | `detections/` | Observed detections as tracked specs with ATT&CK frontmatter |
-| `scripts/` | Sanitization tooling and the generators for the coverage matrix, posture register, lab-coverage, and open-items reports |
+| `lessons/` | One file per course module — what was configured, established, corrected, and left untestable. Cross-references the labs and register rather than restating them |
+| `scripts/` | Sanitization tooling and the generators for the coverage matrix, posture register, lab-coverage, open-items, and lessons reports |
 | `posture.yml` | Source of truth for every security-relevant setting and its state |
 | [`SANITIZATION.md`](SANITIZATION.md) | Redaction policy, placeholder convention, and public-constant allowlist |
 | [`docs/navigation.md`](docs/navigation.md) | Portal path index for every setting configured or verified, with confirmed dates |
@@ -39,6 +40,7 @@ The recurring theme, and the reason the posture register exists: **configured is
 | [`docs/attack-coverage.md`](docs/attack-coverage.md) | Observed ATT&CK coverage — generated from detection specs |
 | [`docs/lab-coverage.md`](docs/lab-coverage.md) | Whether each posture entry is cited in the lab that owns it — generated |
 | [`docs/open-items.md`](docs/open-items.md) | Tracked documentation debt — generated |
+| [`docs/lessons-index.md`](docs/lessons-index.md) | What each course module taught, indexed by module rather than by lab — generated from [`lessons/`](lessons/) |
 
 ---
 

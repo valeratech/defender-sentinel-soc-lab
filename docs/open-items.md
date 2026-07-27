@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**13 open item(s) across 4 file(s).**
+**14 open item(s) across 5 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -37,6 +37,14 @@ Status: 🔨 Built, documentation in progress
 |---|---|---|
 | 59 | 5. Evidence | *(pending)* |
 
+## `labs/06-attack-surface-reduction/README.md`
+
+Status: 🔨 Built, documentation in progress
+
+| Line | Section | Item |
+|---|---|---|
+| 199 | Corrected 2026-07-27 — the foreclosure was incomplete | *(pending — MDE security settings management path untested; `POS-041`)* |
+
 ## `labs/09-attack-simulation-training/README.md`
 
 Status: 🔨 Built, documentation in progress
@@ -46,4 +54,4 @@ Status: 🔨 Built, documentation in progress
 | 156 | 6. Failures & Fixes | *(pending — access untested in a clean private session; labuser holds no roles by design)* |
 | 174 | 7. Analysis | *(pending — real phishing detection path untested, distinct from simulation)* |
 | 241 | 7. Analysis | *(pending — SecOps-mailbox interaction with simulation reporting not exercised)* |
-| 248 | 7. Analysis | *(pending — whether Secure Score credits the audit-logging change is unverified)* |
+| 263 | 7. Analysis | *(pending — audit-log-search credit still unverified; not synced since 2026-07-25)* |

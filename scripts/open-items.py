@@ -24,7 +24,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / "docs" / "open-items.md"
-SCAN_DIRS = ["labs", "detections"]  # docs/ is reference prose, not tracked work
+SCAN_DIRS = ["labs", "detections", "lessons"]  # docs/ is reference prose, not tracked work
 
 PENDING = re.compile(r"\*?\(pending[^)]*\)\*?", re.I)
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")

@@ -155,3 +155,6 @@ jobs:
       # see the script's docstring for why it is not strict yet.
       - name: Verify every posture entry is cited in its own lab
         run: python3 scripts/check-lab-coverage.py --check
+
+      - name: Verify lessons index and that every cited handle resolves
+        run: python3 scripts/build-lessons-index.py --check

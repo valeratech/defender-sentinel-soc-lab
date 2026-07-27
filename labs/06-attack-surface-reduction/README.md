@@ -31,7 +31,7 @@ depends on.
 
 | Decision | Chosen | Alternative | Rationale |
 |---|---|---|---|
-| Deployment method | **Local PowerShell (`Add-MpPreference`)** | Intune ASR policy; Group Policy | Intune requires an enrolled device — `POS-022`, enrolment never fires. GPO requires AD; this tenant is Entra-only. PowerShell is the only available path. This choice has a consequence the console makes visible — see §7. |
+| Deployment method | **Local PowerShell (`Add-MpPreference`)** | Intune ASR policy; Group Policy; **MDE security settings management** | Intune requires an enrolled device — `POS-022`, enrolment never fires. GPO requires AD; this tenant is Entra-only. ~~PowerShell is the only available path.~~ **Corrected 2026-07-27 (`POS-041`): a third path existed and was not checked** — MDE security settings management enforces configuration on devices *not enrolled in Intune*, and was simply switched off. The door was closed, not absent. This choice has a consequence the console makes visible — see §7. |
 | Elevation | **Bastion as `labadmin`** | Run Command as SYSTEM | Run Command does not service extensions on this VM (`POS-028`). Same forced-local path as onboarding. |
 | Rules chosen | **WMI persistence (block); PSExec/WMI process-creation (block)** | Office-child-process rules | The Office rules need Office installed; this VM has none (`Get-AppxPackage *office*` empty). The two WMI rules need nothing installed and are triggerable benignly. |
 | Test approach | **One rule, identical trigger, audit then block** | Trigger two different rules | Changing only the rule *state* between two runs of the same command isolates the audit-vs-block difference to a single variable — the cleanest possible demonstration. |
@@ -174,6 +174,29 @@ tell which is right without going to the endpoint.
 
 *Caveat:* Secure Score read Completed on 2026-07-27 with both VMs deallocated, so it
 reports last-known configuration rather than live state.
+
+### Corrected 2026-07-27 — the foreclosure was incomplete
+
+§2 recorded local PowerShell as *the only available path* for deploying these rules.
+**That was asserted, not verified, and it is wrong.** Settings → Endpoints →
+Configuration management → **Enforcement scope** offers MDE security settings
+management, which the portal describes as applying "to devices that are not yet
+enrolled to Intune" — precisely this tenant's situation. It is **off**, and off is
+the shipped default (`POS-041`). Nobody tried it.
+
+The consequence is larger than a rationale. Policy-deployed ASR rules are exactly
+the class the ASR report can see. **So the headline finding above exists because a
+switch was off and openable, not because a path was closed.** A different starting
+configuration would have produced a different lab and, quite possibly, no finding at
+all. The finding itself stands — everything observed on 07-19 remains true — but its
+*cause* is one layer further back than this section originally claimed.
+
+Untested deliberately: enforcing policy needs a device that can check in, and both
+VMs are deallocated. When tested, it is a direct test of this section's mechanism —
+deploy the same two rules as policy and see whether the ASR report begins reporting
+them. Note in advance that policy-managed ASR may conflict with the locally-set
+rules already present on the endpoint.
+*(pending — MDE security settings management path untested; `POS-041`)*
 
 This is the most consequential instance of the repository's recurring pattern
 (configured-vs-effective, `POS-011`), and it is a **direct downstream consequence of

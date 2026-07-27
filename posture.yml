@@ -1443,3 +1443,98 @@ entries:
       measured across the two portal exports on 2026-07-26. Every prior occurrence
       required inferring the offset from context; Exchange objects carry both
       forms and name one of them. Read the *UTC properties.
+  - id: POS-041
+    lab: "06"
+    setting: Enforcement scope (MDE security settings management)
+    location: Defender portal > Settings > Endpoints > Configuration management > Enforcement scope
+    state: Off - 'Use MDE to enforce security configuration settings from Intune' disabled. Observed 2026-07-27, not changed.
+    baseline: Same - off is the shipped default
+    kind: default
+    production: Enabled where devices are not Intune-enrolled, so security configuration is policy-managed and therefore visible to the consoles that only read policy-managed state
+    revisit: true
+    verified: 2026-07-27
+    note: >-
+      Discovered 2026-07-27 while reviewing Settings > Endpoints during module 55.
+      Read-only; the toggle was NOT changed. MDE security settings management lets
+      Defender for Endpoint enforce security configuration on devices that are, in
+      the portal's own words, "not yet enrolled to Intune". It requires a matching
+      switch in Intune's Microsoft Defender for Endpoint connector settings - the
+      same connector page that carries POS-011's Windows compliance toggle. Both
+      are off.
+
+      WHY IT MATTERS - it corrects an asserted absence in Lab 06. That lab's
+      design table states that Intune needs an enrolled device (POS-022, enrolment
+      never fires), GPO needs AD, and therefore "PowerShell is the only available
+      path". That was asserted, not checked. This is a second path, and it exists
+      specifically for the unenrolled case this tenant is in. The door was closed,
+      not absent - and nobody tried the handle.
+
+      The consequence runs deeper than a rationale. Had this been on, the two ASR
+      rules could have been deployed as POLICY-MANAGED rather than local, which is
+      exactly the class the ASR report can see. POS-031 - the most consequential
+      finding in this repository - describes a report blind to locally-set rules.
+      That finding is real and stands, but it exists because of a switch that was
+      off and openable, not because of a foreclosure. A different starting
+      configuration would have produced a different lab and no finding at all.
+
+      NOT TESTED, deliberately. Enabling it buys nothing until there is an
+      endpoint to enforce against - both VMs are deallocated - and it would put an
+      unexercised change into this register. It is also two switches, not one, the
+      second being on the POS-011 connector page. Deferred to the batched session
+      that also covers custom detections and analytics rules, where a live
+      endpoint is needed anyway.
+
+      When it is tested, it is a DIRECT TEST OF POS-031's MECHANISM: deploy the
+      same two rules as policy and see whether the ASR report begins showing them.
+      Success moves "the report is scoped to policy-managed rules" from well-
+      supported inference to demonstrated fact. Predict before testing: policy-
+      managed ASR may conflict with the locally-set rules already on the box, and
+      that interaction should be reasoned about in advance rather than discovered.
+
+      Adjacent observation, same settings area: Intune Permissions is empty - no
+      Entra groups have ever been granted Endpoint Security permissions in Intune.
+      Consistent with the rest of the Intune-side foreclosure and recorded so the
+      absence is on the record as observed rather than assumed.
+  - id: POS-042
+    lab: "03"
+    setting: Defender XDR email notification rules (Incidents / Actions / Threat analytics)
+    location: Defender portal > Settings > Microsoft Defender XDR > Email notifications
+    state: No rules on any of the three tabs. Observed 2026-07-27, not changed.
+    baseline: Same - empty is the shipped default
+    kind: gap
+    production: At least an incident-creation rule and an Actions rule to a monitored SecOps address, configured before the first real detection rather than after it
+    revisit: true
+    verified: 2026-07-27
+    note: >-
+      Observed 2026-07-27 during module 55, read-only, nothing changed. Defender
+      XDR > Settings > Microsoft Defender XDR > Email notifications carries three
+      tabs - Incidents, Actions, and Threat analytics. ALL THREE ARE EMPTY. No
+      notification rule of any kind has ever existed in this tenant.
+
+      So nobody is emailed when an incident is created, when a remediation action
+      needs approval, or when a threat relevant to this tenant is published. This
+      is the shipped default across all three, not a decision.
+
+      Two things make it concrete rather than theoretical. Lab 03 produced a real
+      incident on 2026-07-18 and nothing told anyone - it sat in the queue until
+      someone happened to look. And the Action center guidance states that pending
+      actions hold up the automated investigation until they are resolved, while
+      nothing would announce that there are any to resolve.
+
+      THE CONTRAST WORTH KEEPING: the Azure budget notification path in this same
+      project is VERIFIED WORKING - an alert fired and was received. The cost
+      control notifies. The security controls do not. Same tenant, same operator,
+      opposite outcomes, and both by default rather than by decision.
+
+      This is the seventh inherited silent default recorded across four feature
+      areas, after positive reinforcement, confirm-before-reporting, success
+      message and results email (POS-038, POS-040). Every one is a communication
+      path that exists and is switched off. The pattern is now large enough to be
+      the finding: Microsoft ships the security consoles quiet, and a tenant that
+      has configured nothing will be told nothing.
+
+      Not enabled here. Turning it on would need a recipient address, and this
+      project keeps addresses out of the repository; the state is recorded as
+      inherited rather than corrected. In production this is among the first
+      things to configure, because every other control in this register is
+      worthless if no one is told it fired.

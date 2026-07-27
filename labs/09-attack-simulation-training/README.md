@@ -242,10 +242,25 @@ falsified the committed 0%.
 
 Secure Score gives this a falsifiable follow-up. Its history shows *Ensure Microsoft
 365 audit log search is Enabled* at **0/3** as of 07-19; auditing was turned on
-2026-07-27, and the portal states score updates take up to 24 hours. Either it
-credits the change or it does not, and both answers say something about what that
-instrument tracks.
-*(pending — whether Secure Score credits the audit-logging change is unverified)*
+2026-07-27, and the portal states score updates take up to 24 hours.
+
+**Checked 2026-07-28 — the prediction is not yet testable, and the reason is the
+finding.** The recommendation still reads `0/3 · To address`, but its **Last synced
+is 2026-07-25** — two days *before* auditing was enabled. This is not "evaluated and
+not credited"; it is **not re-evaluated at all**, and only the `Last synced` column
+distinguishes those two states.
+
+The row also names its source: **Product = Microsoft Information Protection**,
+Category Apps. The ASR recommendations, sourced from Defender for Endpoint, synced
+2026-07-27. So **`Last synced` is per-recommendation and follows the source
+product's own cadence** — the blanket "up to 24 hours" at the top of the page
+describes no particular row, and here it is already contradicted by one. Licensing
+is not the blocker (`Have license? Yes`).
+
+Practical consequence: a Secure Score recommendation reading *To address* means
+either the control is absent **or** that product has not re-evaluated since it was
+added. Read `Last synced` before concluding anything from a status.
+*(pending — audit-log-search credit still unverified; not synced since 2026-07-25)*
 
 **What a 100% compromise rate means with one target: nothing.** It is arithmetic.
 The metric that matters is the trend across campaigns, which this tenant cannot

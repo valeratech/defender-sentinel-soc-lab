@@ -275,6 +275,13 @@ legitimately empty surface that the documentation teaches you to read as a
 fault. Detection coverage and remediation coverage are separate measurements,
 and this repo's `docs/attack-coverage.md` measures only the first.
 
+**And nothing would have told anyone.** `POS-042`: Defender XDR ships with **no
+email notification rules at all** — Incidents, Actions and Threat analytics tabs
+are all empty. The incident this lab produced on 07-18 sat in the queue until
+someone looked. Meanwhile this project's Azure *budget* alert path is verified
+working: an alert fired and was received. The cost control notifies; the security
+controls do not, and both are defaults rather than decisions.
+
 Worth recording while it is still observable: AIR ceases to be a separate,
 manually-triggerable investigation experience for Defender for Endpoint on
 **2026-09-01** (Microsoft Learn; Defender for Office 365 AIR is unaffected).

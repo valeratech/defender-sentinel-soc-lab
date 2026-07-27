@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**9 open item(s) across 3 file(s).**
+**11 open item(s) across 4 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -36,3 +36,12 @@ Status: 🔨 Built, documentation in progress
 | Line | Section | Item |
 |---|---|---|
 | 59 | 5. Evidence | *(pending)* |
+
+## `labs/09-attack-simulation-training/README.md`
+
+Status: 🔨 Built, documentation in progress
+
+| Line | Section | Item |
+|---|---|---|
+| 142 | 6. Failures & Fixes | *(pending — access untested in a clean private session; labuser holds no roles by design)* |
+| 160 | 7. Analysis | *(pending — real phishing detection path untested, distinct from simulation)* |

@@ -108,6 +108,30 @@ Logs queries the Log Analytics workspace — only connector-forwarded data
 query works in the first and fails to resolve in the second. Confirm which store
 before querying, and mind the column-name difference.
 
+### Email & collaboration — Attack simulation training (Lab 09)
+
+| Setting / view | Path | Confirmed |
+|---|---|---|
+| Attack simulation training | Email & collaboration → Attack simulation training | 2026-07-26 |
+| Launch a campaign | *(above)* → Simulations → Launch a simulation → **single simulation** (not automation) | 2026-07-26 |
+| Campaign report | *(above)* → Simulations → *(campaign)* → Report / Users / Details | 2026-07-26 |
+| Campaign timeline | *(campaign)* → View Activity Timeline | 2026-07-26 |
+| Excluded users | *(campaign)* → Report → View excluded users or groups | 2026-07-26 |
+| Payload / training / notification library | Attack simulation training → Content library | 2026-07-26 |
+| Repeat offender & training thresholds | Attack simulation training → Settings | *(pending — tab not opened)* |
+| Unified audit logging (portal) | System → Audit → Start recording user and admin activity | 2026-07-26 — **could not complete, see below** |
+| Exchange message trace | Email & collaboration → Exchange message trace | 2026-07-26 |
+
+**Audit logging is not reliably reachable from the portal.** System → Audit rendered
+two independent faults at once and its enable button raised a Client Error. The
+working path is Exchange Online PowerShell (`Set-AdminAuditLogConfig`), and the
+verifying read **must** run in the EXO endpoint — the same cmdlet in Security &
+Compliance PowerShell returns `False` even when auditing is on. See `POS-035`.
+
+**Simulation campaign dates anchor to the review-page submit timestamp**, not to the
+recorded "Simulation launched" event. The launched event anchors nothing — Lab 09 §5.
+
+
 ## Which surface answers which question
 
 Navigation is not only "where is the setting" — it is also "which view answers my
@@ -119,4 +143,5 @@ question." For endpoint activity, the surfaces are not interchangeable (Lab 06 �
 | What happened on this device, step by step? | Assets → Devices → Timeline |
 | Is an ASR rule firing, and how often? | Advanced hunting *(the ASR report omits locally-set rules — `POS-031`)* |
 | Hunt a pattern across all devices? | Advanced hunting (`DeviceEvents`) |
+| Did a phishing *simulation* leave telemetry? | Nowhere — the payload is absent from `EmailEvents` and `EmailUrlInfo` (`POS-037`) |
 | Who holds a Defender role? | System → Permissions → Roles → *(role)* → Edit assignment *(count only shown until opened)* |

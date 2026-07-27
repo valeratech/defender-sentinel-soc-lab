@@ -1,0 +1,45 @@
+// What an attack-simulation campaign leaves behind in email telemetry.
+//
+// SURFACE: Defender Advanced Hunting (security.microsoft.com). Column is
+// Timestamp, NOT TimeGenerated. These tables are XDR-native and FREE - confirmed
+// by the store-partition census on 2026-07-26 (kql/sentinel/store-partition-diff.kql),
+// where EmailEvents and EmailUrlInfo appear in the Defender run and drop out of
+// the Azure/Log Analytics run.
+//
+// THE FINDING (Lab 09, POS-037), measured 2026-07-26:
+//   The simulation PAYLOAD appears in NEITHER table. The training assignment
+//   notifications that bracket it appear in BOTH, normally, which is what proves
+//   the tables were working rather than empty.
+//
+//   EmailEvents  -> 2 rows, both "Training assignment notification" from
+//                   attacksimulationtraining.com, ThreatTypes empty, Delivered.
+//   EmailUrlInfo -> 4 rows, all security.microsoft.com training links.
+//   Absent       -> the Credential Harvest payload (sender templatern.com) and
+//                   its landing URL (sharepointle.com), delivered 3 hours earlier
+//                   and inside the query window.
+//
+//   Not ingestion lag: records from 8 minutes prior were present while one from
+//   3 hours prior was not. Under lag the NEWER rows would be missing.
+//
+// CONSEQUENCE: a simulation cannot be hunted. No row means no hunting query, no
+// custom detection rule, no analytics rule, no ATT&CK mapping. Attack simulation
+// training tests USERS - it is not evidence about detection coverage, and running
+// one proves nothing about whether real phishing would be caught.
+EmailEvents
+| where Timestamp > ago(6h)
+| project Timestamp, SenderFromDomain, RecipientEmailAddress, Subject,
+          DeliveryAction, DeliveryLocation, ThreatTypes
+| order by Timestamp desc
+
+// The URL half of the same question. Run both - one table alone cannot
+// distinguish "payload absent" from "this table is empty anyway."
+// EmailUrlInfo
+// | where Timestamp > ago(6h)
+// | project Timestamp, Url, UrlDomain
+// | order by Timestamp desc
+
+// Control check. If the notifications are ALSO missing, the tables are not
+// reporting and nothing above can be concluded.
+// EmailEvents
+// | where Timestamp > ago(24h)
+// | summarize Events = count(), Latest = max(Timestamp) by SenderFromDomain

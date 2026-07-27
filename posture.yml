@@ -1089,3 +1089,244 @@ entries:
       filter-at-source) are the disciplines already applied in Labs 07-08.
       Measured billable surface as of 2026-07-26 is five tables and negligible
       volume against the 10 GB/day trial allowance.
+  - id: POS-035
+    lab: "09"
+    setting: Unified audit log ingestion
+    location: Exchange Online PowerShell (Set-AdminAuditLogConfig); Defender portal > System > Audit
+    state: UnifiedAuditLogIngestionEnabled = True, set 2026-07-26 by cmdlet after the portal path failed
+    baseline: False - this tenant recorded nothing until this lab
+    kind: hardened
+    production: Enabled at tenant creation, before any activity worth auditing occurs; audit retention policy set deliberately rather than inherited
+    revisit: false
+    verified: 2026-07-26
+    note: >-
+      Attack simulation reporting depends on this, and the Simulations tab says so
+      in a banner that names a quarter of the reason. The full chain is five links
+      and no course guide mentions any of it: simulation reporting needs unified
+      audit logging, which needs a hydrated Exchange organisation (POS-036), which
+      new/trial tenants do not have, and which propagates unevenly across Exchange
+      backend servers.
+
+      Discovered because the banner appeared, not because anything failed. The
+      campaign launched cleanly, status In progress, no errors anywhere. Had the
+      banner been dismissed the report would have been empty and the lab would
+      have concluded that attack simulation does not report.
+
+      The portal could not do this. System > Audit rendered TWO independent faults
+      at once - "Sorry, we're having trouble figuring out if activity is being
+      recorded" and "Failed to load data" - and offered a "Start recording user
+      and admin activity" button. That button renders both when auditing is
+      genuinely off AND when the page cannot determine state, so it is not
+      evidence either way. Clicking it produced a "Complete organizational setup"
+      prompt, accepting that produced a Client Error, and the page then unlocked
+      its form and removed the button while STILL being unable to report state. UI
+      advanced, operation did not.
+
+      Resolved by cmdlet, which answered instantly what the page could not answer
+      at all: Get-AdminAuditLogConfig returned False. The state was always
+      readable; only the page could not read it. Prior state therefore measured,
+      not assumed - the failed portal attempt changed nothing.
+
+      ENDPOINT TRAP. Get-AdminAuditLogConfig also exists in Security & Compliance
+      PowerShell, where UnifiedAuditLogIngestionEnabled reads False even when
+      auditing is ON (Microsoft Learn, audit-log-enable-disable). Run in the wrong
+      endpoint it returns a permanently false value with nothing to distinguish it
+      from a true one. This is the same shape as POS-034's corrected finding (two
+      stores behind one query language) and the Lab 04 surface distinction - a
+      third instance, now in PowerShell rather than KQL. Same command, different
+      service endpoint, different meaning.
+
+      Vendor claim vs measurement: the cmdlet warns "could take up to 60 minutes
+      to take effect" and Microsoft Learn separately states audit events may take
+      several hours to become searchable. Those are two different delays and only
+      the first gates event capture. The property read back False immediately
+      after a successful Set and True on a later read.
+
+      Why it was off is not established. One secondary source states trial tenants
+      are not auto-enabled for audit logging unlike new enterprise tenants, which
+      fits this tenant exactly, but that is a blog claim rather than Learn and is
+      recorded as a candidate explanation only.
+
+      Cost: none. Audit data lives in the Microsoft 365 substrate, not in law-soc-
+      lab. The billable surface measured on 2026-07-26 (POS-034) is unchanged. It
+      becomes an ingestion cost only if the Office 365 connector is later added to
+      Sentinel, which is a separate decision.
+  - id: POS-036
+    lab: "09"
+    setting: Exchange organisation customization (tenant hydration)
+    location: Exchange Online PowerShell (Get-OrganizationConfig / Enable-OrganizationCustomization)
+    state: IsDehydrated = False. Irreversible; confirmed already applied when first read on 2026-07-26
+    baseline: True - new tenants ship dehydrated, sharing consolidated configuration objects rather than owning unique copies
+    kind: default
+    production: Hydration performed deliberately and recorded, rather than triggered as a side effect of the first admin who happens to change a shared object
+    revisit: false
+    verified: 2026-07-26
+    note: >-
+      New Microsoft 365 tenants are provisioned dehydrated - they share an out-of-
+      the-box configuration for objects like role assignment and mailbox policies
+      instead of receiving unique copies. Before any of that can be altered,
+      Enable-OrganizationCustomization must move the tenant to a customizable
+      state. It runs explicitly, or implicitly when an admin changes a standard
+      setting for the first time. It is a one-time operation with no way to reset
+      IsDehydrated.
+
+      Recorded as a posture entry because it is an IRREVERSIBLE tenant-level state
+      change and because it is invisible: nothing in the portal surfaces hydration
+      state, and the tenant had already crossed it before this lab read the value.
+      In a tenant expiring 2026-08-13 the irreversibility costs nothing, which is
+      why it was accepted without hesitation - that is a judgement about this
+      environment, not a general one.
+
+      THE FINDING - a property read is not a capability test. Within one
+      PowerShell session, three tests disagreed. Get-OrganizationConfig returned
+      IsDehydrated False. Enable-OrganizationCustomization returned "not required,
+      organization is already enabled for customization." And Set-
+      AdminAuditLogConfig failed with
+      InvalidOperationInDehydratedContextException, naming target
+      AdminAuditLogConfig. Two sources said hydrated; the one operation that
+      actually attempted work said otherwise.
+
+      Resolved by waiting. Roughly thirty minutes later the identical Set executed
+      and returned only its warning. So the org-level flag was true while a
+      specific consolidated object beneath it had not yet been instantiated - per-
+      object propagation behind an org-level boolean. Measured window: the object
+      rejected the write at 00:23:43 GMT and accepted it within the next ~30
+      minutes. Microsoft documents org hydration and says nothing about
+      propagation behind it; this number does not exist in the vendor
+      documentation.
+
+      The three exception timestamps also crossed a different backend server than
+      the successful reads, which is consistent with distributed propagation but
+      was not isolated and is not claimed as the cause.
+
+      Generalises past Exchange: an org-level status property answered "yes" for a
+      capability that was not yet usable. That is POS-011's shape - configured is
+      not effective - reached from a property rather than a portal label.
+  - id: POS-037
+    lab: "09"
+    setting: Attack simulation campaign - My First Attack Simulation Training
+    location: Defender portal > Email & collaboration > Attack simulation training > Simulations
+    state: Credential Harvest, Netflix account suspension global payload, all-users targeting with the admin excluded, Microsoft training assigned, launched 2026-07-26 16:20:02, ends 2026-07-28 16:20:02, training due 2026-08-04
+    baseline: No simulation had ever run; Recent Simulations empty
+    kind: hardened
+    production: Pilot to a small controlled group first, payload indicators enabled, positive reinforcement delivered, and repeated campaigns so the trend rather than any single compromise rate is the metric
+    revisit: true
+    verified: 2026-07-26
+    note: >-
+      The first Defender for Office 365 capability in this lab and the first that
+      tests people rather than machines. MDO Plan 2 rides on the E5 trial; no
+      Azure resource, no VM, no ingestion cost.
+
+      Scoping decision: all-users targeting plus an explicit exclusion of the
+      admin, rather than selecting labuser directly. One extra click, two
+      mechanics tested instead of one - whether all-users resolves correctly, and
+      whether the exclusion list actually excludes. Both held: every denominator
+      in the report reads /1.
+
+      MEASURED RESULTS. Delivery ~1 minute after launch, to the Focused Inbox,
+      bypassing tenant filtering entirely. First link clicked 2h55m11s and first
+      credential entered 2h58m37s after launch (both operator-driven, so they
+      measure nothing about the platform except that it recorded them). Training
+      assignment notifications arrived ~90 seconds behind each trigger. Actual
+      compromise rate 100%, predicted 37%, users who reported 0%.
+
+      Two training modules were assigned, not one: "Business Email Compromise |
+      ClickedPayload" and "Ransomware | Compromised". The recommendation engine
+      assigns per BEHAVIOUR exhibited, not per user - confirmed three independent
+      ways (two named modules in the report, two notification emails three minutes
+      apart, two distinct assignmentId GUIDs in EmailUrlInfo).
+
+      THE DETECTION FINDING - and it goes further than expected. Zero incidents
+      and zero alerts over a one-week window, which was predicted: Microsoft
+      exempts its own simulations, because a 5,000-user drill that raised 5,000
+      incidents would bury the SOC that scheduled it. But the payload is also
+      absent from EmailEvents and EmailUrlInfo entirely, while the training
+      notifications either side of it are recorded normally in both. The tables
+      were working; the payload is not in them.
+
+      So attack simulation training tests USERS. It cannot validate detection,
+      because it is engineered not to trigger it, and it cannot be hunted, because
+      it leaves no telemetry to hunt. Two symmetrical misreadings follow: seeing
+      no alert and concluding phishing detection is broken (it was told to stand
+      down), or seeing no alert and concluding the tenant is covered (nothing
+      about detection was exercised). Neither the course guide nor the portal says
+      this anywhere.
+
+      Two sending infrastructures, deliberately split. The drill came from
+      templatern.com and landed the victim on sharepointle.com - a lookalike of
+      sharepointonline.com, attacker-shaped and untelemetered. The notifications
+      come from attacksimulationtraining.com, plainly labelled and recorded as
+      ordinary mail. The typosquat is correct design: the address bar is where a
+      trained user actually catches a credential harvest, so making it obviously
+      Microsoft would invalidate the exercise. It also means allow-listing for
+      simulations spans more than the sender domain - a tenant with strict DNS or
+      egress filtering could deliver the mail and break the click, which would
+      read as a user who did not engage rather than a control that intervened.
+
+      Exemption is not total. Outlook still blocked remote content because the
+      sender was not in Safe Senders. The simulation is exempt from FILTERING but
+      not from client-side rendering protections - two mechanisms the guide's
+      "harmless messages get through" framing collapses into one.
+
+      What this campaign cannot show, foreclosed by the 2026-08-13 tenant expiry
+      and by n=1: trend across campaigns, repeat-offender behaviour (needs
+      consecutive compromises), and training-threshold reassignment at 90 days.
+      Recorded as foreclosed rather than untested. A 100% compromise rate with one
+      target is arithmetic, not a measurement.
+  - id: POS-038
+    lab: "09"
+    setting: End-user notification delivery preferences (simulation-scoped)
+    location: Attack simulation training > Launch wizard > Select end user notification
+    state: Microsoft default notifications; positive reinforcement = Do not deliver; training reminder = Weekly; training assignment = delivered
+    baseline: Same - all three are the pre-selected values, not chosen
+    kind: default
+    production: Positive reinforcement delivered, so that correctly reporting a phish is reinforced rather than met with silence
+    revisit: true
+    verified: 2026-07-26
+    note: >-
+      Inherited, not decided - recorded because documentation-standard.md section
+      2 treats a silently inherited default as a finding when it is labelled as
+      one.
+
+      The consequence is asymmetric and works against the feature's purpose. A
+      user who falls for the phish gets a landing page, two training modules, and
+      weekly reminders. A user who correctly REPORTS it gets nothing at all,
+      because positive reinforcement ships pre-set to Do not deliver. The
+      behaviour the whole capability exists to encourage is the only one with no
+      feedback path.
+
+      Confirmed from the data rather than the wizard: the report shows "Positive
+      Reinforcement Message Delivered 0/0". The denominator is zero, not one - the
+      metric knows the notification was never in play, rather than recording a
+      delivery that failed. Cleanest possible evidence for an inherited default.
+
+      Not observed: the tenant-wide Settings tab (repeat offender threshold,
+      training threshold). Those were never opened, so they are absent from this
+      register rather than recorded from the guide's stated values.
+  - id: POS-039
+    lab: "09"
+    setting: Phish landing page - payload indicators
+    location: Attack simulation training > Launch wizard > Select phish landing page
+    state: Microsoft Landing Page Template 1, payload indicators NOT enabled
+    baseline: Same - off by default
+    kind: default
+    production: Payload indicators enabled, so the teaching moment annotates the specific cues that gave the message away
+    revisit: true
+    verified: 2026-07-26
+    note: >-
+      Observed on the landing page after compromise: the "Tips to identify the
+      phishing message" panel was collapsed and empty, and the reproduced email
+      below it carried no annotations - nothing marking the urgency language, the
+      mismatched sender, the fake deletion deadline, or the lookalike domain.
+
+      So the educational moment is a verbatim copy of the message that just fooled
+      the user, with nothing pointing at why. The user is shown the evidence and
+      left to infer the lesson. Enabling payload indicators is one checkbox in the
+      same wizard step.
+
+      An inherited default that measurably weakens the training value of the whole
+      exercise, on the one screen the compromised user is guaranteed to read.
+
+      Also observed: the template renders a broken companyLogo placeholder when no
+      logo is uploaded, rather than degrading gracefully. Cosmetic, but it is the
+      default experience.

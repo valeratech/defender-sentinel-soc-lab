@@ -131,6 +131,7 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [06](labs/06-attack-surface-reduction/) | Attack surface reduction rules | Response | 🔨 Built, documenting |
 | [07](labs/07-windows-security-events/) | Windows Security Events via AMA — agent-based ingestion | Ingestion | 🔨 Built, documenting |
 | [08](labs/08-entra-azure-activity-connectors/) | Entra ID and Azure Activity connectors | Ingestion | 🔨 Built, documenting |
+| [09](labs/09-attack-simulation-training/) | Attack simulation training — phishing campaign and what it does not prove | Response | 🔨 Built, documenting |
 
 Lab numbers are opaque, append-only handles — `04` is Sentinel because that folder existed as a stub before device groups were built, and renumbering corrupts cross-references. Course-module order and repo lab order diverge by design; the number is a filing handle, not a sequence claim.
 

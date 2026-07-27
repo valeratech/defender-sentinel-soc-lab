@@ -99,6 +99,7 @@ below was observed, not assumed.
 | **Defender AV mode** | `Get-MpComputerStatus` → `AMRunningMode` | Normal (AV primary, no third-party) | ✅ **Normal**, `AntivirusEnabled True` — matters for module 33 ASR enforcement |
 | **ATT&CK mapping** (module 30) | Incident → alert summary | A technique, Defender-assigned | ✅ **`T1059.001` PowerShell** (Execution) — first *observed* coverage, tracked as `DET-001` |
 | **Investigation surface** | Incident graph + Process tree + Alert timeline | Full Plan 2 experience | ✅ Full graph, complete process lineage — **Plan 2 confirmed active** (E5) |
+| **Remediation actions logged** *(added 2026-07-27)* | Action center → History | *(expected ≥1)* | ⚠️ **"No actions found"** — investigation ran, nothing was remediable. See §7 |
 
 ### The four latencies — measured, against vendor expectations
 
@@ -243,6 +244,43 @@ timezone trap appears in the timeline as its own script event. Harmless, but a
 reminder that once a device is onboarded, *everything* done on it as any account
 is telemetry, including the work of investigating it — the same lesson as the
 `senseir.exe` self-collection pattern.
+
+**An alert is not an action — the Action Center is empty, correctly** *(observed
+2026-07-27, during module 53).* `Action center → History` reads **"No actions
+found"** for this detection, and that is not a fault. An automated investigation
+demonstrably *did* run: the `senseir.exe` self-collection above is AIR gathering
+evidence in the first minutes. The device sat under **Full** automation
+(`POS-030`; Microsoft Learn also confirms new tenants default to full
+automation). Both preconditions the documentation names were met.
+
+Nothing was remediable. Match the detection against the supported remediation
+actions — quarantine a file, remove a registry key, stop a service, disable a
+driver, remove a scheduled task, isolate/contain/restrict a device — and none has
+an object to act on. The test attempts a `WebClient` download from `127.0.0.1`
+where nothing is served: no file lands, no persistence is written, nothing runs
+that could be stopped. The behaviour was detected; there was nothing to undo.
+(Defender additionally fingerprinted the sanctioned test string — the
+Informational `[Test Alert]` in §5 — which plausibly contributes, but the
+structural explanation stands without it.)
+
+This matters because the standard troubleshooting for an empty Action Center
+gives two causes, both misconfigurations: submitted-item analysis has not
+returned, or the device group is set to *No automated response*. Neither
+applies here, and following that list would send an analyst hunting a fault
+that does not exist. A third cause belongs on it: **the detection produced no
+remediable artifact.**
+
+`POS-011` reads a healthy status over a dead control. This is the mirror — a
+legitimately empty surface that the documentation teaches you to read as a
+fault. Detection coverage and remediation coverage are separate measurements,
+and this repo's `docs/attack-coverage.md` measures only the first.
+
+Worth recording while it is still observable: AIR ceases to be a separate,
+manually-triggerable investigation experience for Defender for Endpoint on
+**2026-09-01** (Microsoft Learn; Defender for Office 365 AIR is unaffected).
+This tenant expires 2026-08-13, so everything above is necessarily a
+pre-retirement observation and cannot be re-checked here against the
+after-state.
 
 ## 8. References
 

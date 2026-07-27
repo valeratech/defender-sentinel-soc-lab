@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**11 open item(s) across 4 file(s).**
+**12 open item(s) across 4 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -43,5 +43,6 @@ Status: 🔨 Built, documentation in progress
 
 | Line | Section | Item |
 |---|---|---|
-| 142 | 6. Failures & Fixes | *(pending — access untested in a clean private session; labuser holds no roles by design)* |
-| 160 | 7. Analysis | *(pending — real phishing detection path untested, distinct from simulation)* |
+| 156 | 6. Failures & Fixes | *(pending — access untested in a clean private session; labuser holds no roles by design)* |
+| 174 | 7. Analysis | *(pending — real phishing detection path untested, distinct from simulation)* |
+| 241 | 7. Analysis | *(pending — SecOps-mailbox interaction with simulation reporting not exercised)* |

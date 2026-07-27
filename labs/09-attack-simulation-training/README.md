@@ -68,7 +68,7 @@ reproducing this hits it.
 | Campaign launches | Simulations tab | Status `In progress` | ✅ `In progress` |
 | Delivery | `labuser` mailbox | Message arrives | ✅ ~1 min, **Focused Inbox** |
 | Filtering bypassed | Delivery location | Not Junk, not quarantined | ✅ Focused, not Other |
-| Exclusion holds | Report denominators | `/1`, admin absent | ✅ every denominator `/1` |
+| Exclusion holds | Report denominators **and** the excluded mailbox itself | `/1`, admin absent, nothing delivered | ✅ every denominator `/1`; admin Inbox **and Junk** empty of the payload and of any training notification *(verified independently 2026-07-27)* |
 | Compromise recorded | Report | Clicked + credentials | ✅ both, 1/1 |
 | Training auto-assigned | Notifications + report | ≥1 module | ✅ **2** modules, ~90 s behind each trigger |
 | Report populates | Report tab | Non-empty | ✅ fully populated |
@@ -103,9 +103,23 @@ Related: the review page recomputed its launch time from 16:13:35 to 16:20:02
 between arriving and submitting. That looked cosmetic. It is the value every
 derived date in the campaign hangs from.
 
+**The exclusion is verified twice, from both sides.** The report's denominators all
+read `/1`, which is the platform describing its own behaviour. The excluded admin
+mailbox was then checked directly — no payload in Inbox or Junk, and no training
+notification. Platform-reported and independently observed are different grades of
+evidence, and an exclusion claim resting only on the first is the weaker kind this
+repository exists to distinguish.
+
 **Report** — 100% compromised, 0% reported, predicted 37%. `Positive Reinforcement
 Message Delivered 0/0` (`POS-038`). Two modules assigned by trigger:
 `Business Email Compromise | ClickedPayload` and `Ransomware | Compromised`.
+
+**"0% reported" is a behavioural result, not a missing control** *(verified
+2026-07-27)*. The Outlook **Report** button is present in `labuser`'s mailbox with
+both options — *Report junk* and *Report phishing*. The capability existed and went
+unused. Without that check the figure was ambiguous between "the user didn't report"
+and "the user couldn't," and those are different findings. What the button would
+*do* is `POS-040`, and the answer is less obvious than the metric suggests.
 
 **Email telemetry, 6-hour window** — `EmailEvents` returned two rows, both training
 notifications from `attacksimulationtraining.com`, `ThreatTypes` empty, delivered to
@@ -199,6 +213,33 @@ a landing page, two modules, and weekly reminders. The behaviour the capability
 exists to encourage is the only one with no feedback path — and both are inherited
 defaults, not decisions.
 
+**The reporting path is configured to be silent, and reading it changed it**
+(`POS-040`, observed 2026-07-27). Four inherited defaults across two feature areas
+all point the same way: no confirmation prompt, no success message, no results
+email, and positive reinforcement set to *Do not deliver*. A user who correctly
+reports a phish receives nothing. A user who fails receives a landing page, two
+modules, and weekly reminders. That does not explain the 0% here — `labuser` simply
+did not report — but it explains why nobody would learn that reporting is worth
+doing.
+
+Two things surfaced underneath it that are sharper than the defaults themselves.
+**The routing destination is in neither object that supposedly holds it**: the
+policy says *send to a customised address*, the rule that would define that address
+does not exist, and per Learn the effective recipient is the global admin's mailbox,
+which no surface displays until someone reports. Blank is not unset. And
+**`Get-ReportSubmissionPolicy` shows the policy was created 2026-07-27, thirteen
+days after the tenant** — inside the window in which the settings page was first
+opened, and never modified since. Reading configuration wrote configuration. An
+audit is not necessarily a non-event, which undercuts an assumption every audit
+rests on.
+
+One consequence recorded but not tested: Learn instructs that the reporting mailbox
+be identified as a SecOps mailbox specifically when Attack simulation training is in
+use, or a user report may trigger an unwanted training assignment. This tenant's is
+not. The campaign was live while this was discovered, and testing it would have
+falsified the committed 0%.
+*(pending — SecOps-mailbox interaction with simulation reporting not exercised)*
+
 **What a 100% compromise rate means with one target: nothing.** It is arithmetic.
 The metric that matters is the trend across campaigns, which this tenant cannot
 produce. Recorded as foreclosed rather than untested, along with repeat-offender
@@ -207,6 +248,7 @@ behaviour and 90-day training reassignment.
 ## 8. References
 
 - `POS-035` (audit logging), `POS-036` (hydration), `POS-037` (the campaign),
+  `POS-040` (user reported settings — the reporting half of the same story),
   `POS-038` (notification defaults), `POS-039` (payload indicators), `POS-021`
   (the endpoint-identity decision the SSO prompt would have undone)
 - Lab 03 — the detection pipeline this lab is the deliberate inverse of

@@ -1330,3 +1330,98 @@ entries:
       Also observed: the template renders a broken companyLogo placeholder when no
       logo is uploaded, rather than degrading gracefully. Cosmetic, but it is the
       default experience.
+  - id: POS-040
+    lab: "09"
+    setting: User reported settings (Outlook/Teams report button routing and feedback)
+    location: Defender portal > Settings > Email & collaboration > User reported settings; Exchange Online PowerShell (*-ReportSubmissionPolicy / *-ReportSubmissionRule)
+    state: Microsoft and my reporting mailbox, mailbox field blank (= global admin's mailbox, undisplayed). Policy object exists, submission RULE does not. All four user-feedback options off.
+    baseline: Same - every value is the shipped default. The policy object itself did not exist until this page was first opened.
+    kind: default
+    production: A dedicated reporting mailbox specified explicitly and identified as a SecOps mailbox, success and results notifications on, and the routing destination verified by sending a test report rather than read off a page that cannot show it
+    revisit: true
+    verified: 2026-07-27
+    note: >-
+      Read-only visit to Defender > Settings > Email & collaboration > User
+      reported settings during module 53. Nothing was saved and no Save exists for
+      what was done. The page was opened, read, and left. Assigned to lab 09
+      because these settings govern the "users who reported 0%" metric that lab
+      measured, and because Microsoft's SecOps-mailbox guidance for this setting
+      is specifically about Attack simulation training.
+
+      OBSERVATION CREATED STATE. Get-ReportSubmissionPolicy returned
+      DefaultReportSubmissionPolicy with WhenCreatedUTC = 2026-07-27 12:56:04,
+      WhenChangedUTC identical. The tenant was created 2026-07-14, so this object
+      did not ship with it - it was instantiated thirteen days later, roughly 44
+      minutes after that morning's CI push, inside the window in which this page
+      was first opened. Written once, never modified. A secondary source states
+      that visiting the page for the first time creates the default report
+      submission policy; this is the direct measurement of that claim. Microsoft
+      Learn documents the resulting default state and does not mention that
+      reading the page produces it. The consequence is uncomfortable and worth
+      stating plainly: reading configuration can write configuration, so an audit
+      is not necessarily a non-event.
+
+      BLANK IS NOT UNSET, AND THE DESTINATION IS IN NEITHER OBJECT. The portal
+      shows "Send reported items to: Microsoft and my reporting mailbox" with the
+      mailbox field empty - confirmed placeholder, not a saved value, by the
+      Suggested contacts autocomplete appearing on click. Per Microsoft Learn this
+      blank field IS the documented default, and it means the reporting mailbox is
+      the global admin's Exchange Online mailbox, which is not displayed on the
+      page until after the first user in the organisation reports a message from
+      Outlook. The cmdlets agree and sharpen it: the policy carries
+      ReportJunkToCustomizedAddress True and ReportPhishToCustomizedAddress True -
+      send to a customised address - while Get-ReportSubmissionRule, the object
+      that would define that address, returns nothing at all. Configuration split
+      across two objects, one absent, and the operative value present in neither.
+      The only way to learn where reports go is to send one.
+
+      POS-011's shape at a third polarity. POS-011 is a healthy status over a dead
+      control. POS-036 is an error over an operation that succeeded. This is a
+      BLANK FIELD OVER A LIVE DESTINATION - reports have a real recipient and no
+      surface will tell you which until the control is exercised.
+
+      FOUR DEFAULTS, ALL SILENT ON SUCCESS. Ask the user to confirm before
+      reporting: off. Show a success message after the message is reported: off.
+      Automatically email users the results of the investigation: off. Positive
+      reinforcement notification (POS-038): Do not deliver. A user who correctly
+      reports a phish receives no prompt, no confirmation, no result, and no
+      reinforcement - four independent inherited defaults across two feature
+      areas, all pointing the same way. A user who FAILS gets a landing page, two
+      training modules, and weekly reminders. The tenant is configured, by
+      inheritance rather than decision, to give zero feedback for the behaviour
+      the capability exists to encourage. This does not explain lab 09's 0%
+      reported - labuser simply did not report - but it explains why no one would
+      learn that reporting is worth doing.
+
+      SECOPS MAILBOX GAP, UNRESOLVED. Microsoft Learn instructs that the reporting
+      mailbox be identified as a SecOps mailbox in the advanced delivery policy,
+      and states this is especially important when Attack simulation training is
+      in use, because otherwise a user-reported message might trigger a training
+      assignment by the simulation product. This tenant's reporting mailbox is the
+      global admin's by default and is NOT configured as a SecOps mailbox, while
+      the lab 09 campaign ran live until 2026-07-28 16:20. The interaction was not
+      tested and reporting the simulation would have falsified lab 09's committed
+      0% figure. Recorded as a known unexercised interaction rather than a
+      demonstrated one.
+
+      Confirmed and requiring no action: built-in Outlook Report button selected
+      over a non-Microsoft add-in (EnableThirdPartyAddress False), Monitor
+      reported messages in Outlook on, Monitor reported items in Microsoft Teams
+      on, reporting from quarantine allowed, EnableReportToMicrosoft True.
+      Submissions baseline clean on 2026-07-27 - Emails 0 pending / 0 completed
+      and User reported 0 across all four categories over a 7-day window, so any
+      future report has an unambiguous before-state.
+
+      The User reported tab classifies reports into four categories - Threats,
+      Spam, No threats, and SIMULATIONS. Microsoft treats a user's report of its
+      own drill as a distinct type rather than folding it into Threats. Set
+      against lab 09's finding that the simulation payload leaves no EmailEvents
+      or EmailUrlInfo row, the asymmetry is notable: the message is invisible to
+      hunting, but a user's report of it has a dedicated counter waiting.
+
+      Timestamp trap, eighth occurrence, and the first with a labelled companion
+      property sitting beside the ambiguous one. WhenCreated read 5:56:04 AM and
+      WhenCreatedUTC read 12:56:04 PM - exactly seven hours, the same offset
+      measured across the two portal exports on 2026-07-26. Every prior occurrence
+      required inferring the offset from context; Exchange objects carry both
+      forms and name one of them. Read the *UTC properties.

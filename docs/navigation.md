@@ -121,6 +121,9 @@ before querying, and mind the column-name difference.
 | Repeat offender & training thresholds | Attack simulation training → Settings | *(pending — tab not opened)* |
 | Unified audit logging (portal) | System → Audit → Start recording user and admin activity | 2026-07-26 — **could not complete, see below** |
 | Exchange message trace | Email & collaboration → Exchange message trace | 2026-07-26 |
+| Action center (pending / history) | Actions and submissions → Action center | 2026-07-27 |
+| Submissions (6 tabs, incl. User reported) | Actions and submissions → Submissions | 2026-07-27 |
+| User reported settings | Settings → Email & collaboration → User reported settings — **opening this page creates the policy object** (`POS-040`) | 2026-07-27 |
 
 **Audit logging is not reliably reachable from the portal.** System → Audit rendered
 two independent faults at once and its enable button raised a Client Error. The
@@ -144,4 +147,6 @@ question." For endpoint activity, the surfaces are not interchangeable (Lab 06 �
 | Is an ASR rule firing, and how often? | Advanced hunting *(the ASR report omits locally-set rules — `POS-031`)* |
 | Hunt a pattern across all devices? | Advanced hunting (`DeviceEvents`) |
 | Did a phishing *simulation* leave telemetry? | Nowhere — the payload is absent from `EmailEvents` and `EmailUrlInfo` (`POS-037`) |
+| Was anything actually *remediated*? | Actions and submissions → Action center → History. Empty ≠ broken — a detection with no remediable artifact logs nothing (Lab 03 §7) |
+| Where do user-reported phish actually go? | Not answerable from the portal — `Get-ReportSubmissionPolicy` / `Get-ReportSubmissionRule` in EXO PowerShell, and even then the effective mailbox is in neither (`POS-040`) |
 | Who holds a Defender role? | System → Permissions → Roles → *(role)* → Edit assignment *(count only shown until opened)* |

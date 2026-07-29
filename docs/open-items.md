@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**14 open item(s) across 5 file(s).**
+**15 open item(s) across 6 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -55,3 +55,11 @@ Status: 🔨 Built, documentation in progress
 | 174 | 7. Analysis | *(pending — real phishing detection path untested, distinct from simulation)* |
 | 241 | 7. Analysis | *(pending — SecOps-mailbox interaction with simulation reporting not exercised)* |
 | 263 | 7. Analysis | *(pending — audit-log-search credit still unverified; not synced since 2026-07-25)* |
+
+## `labs/10-alert-policies/README.md`
+
+Status: 🔨 Built, documentation in progress
+
+| Line | Section | Item |
+|---|---|---|
+| 139 | 7. Analysis | *(pending — Purview device onboarding state not checked)* |

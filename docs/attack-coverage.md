@@ -13,9 +13,9 @@ unvalidated rule is a hypothesis, not coverage.
 
 | Metric | Count |
 |---|---|
-| Detections specified | 2 |
-| Active (not retired) | 2 |
-| Validated (proven to fire) | 2 |
+| Detections specified | 3 |
+| Active (not retired) | 3 |
+| Validated (proven to fire) | 3 |
 | Unvalidated | 0 |
 
 ## By Tactic
@@ -23,6 +23,7 @@ unvalidated rule is a hypothesis, not coverage.
 | Tactic | Techniques | Detections | State |
 |---|---|---|---|
 | Execution (`TA0002`) | T1047, T1059.001 | `DET-001`, `DET-002` | COVERED (2/2) |
+| Collection (`TA0009`) | T1114.003 | `DET-003` | COVERED (1/1) |
 
 ## Detections
 
@@ -30,3 +31,4 @@ unvalidated rule is a hypothesis, not coverage.
 |---|---|---|---|---|---|---|
 | [`DET-001`](detections/defender-xdr/DET-001-suspicious-powershell-detection-test.md) | Suspicious PowerShell command line (EDR detection test) | defender-xdr | ml | medium | active | yes |
 | [`DET-002`](detections/defender-xdr/DET-002-asr-wmi-process-creation.md) | ASR — process creation via PSExec/WMI (audit and block observed) | defender-xdr | custom-detection | medium | active | yes |
+| [`DET-003`](detections/defender-xdr/DET-003-mail-forwarding-rule-created.md) | Inbox forwarding/redirect rule created (authored alert policy) | defender-xdr | alert-policy | medium | active | yes |

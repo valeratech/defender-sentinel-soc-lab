@@ -123,6 +123,8 @@ before querying, and mind the column-name difference.
 | Exchange message trace | Email & collaboration → Exchange message trace | 2026-07-26 |
 | Action center (pending / history) | Actions and submissions → Action center | 2026-07-27 |
 | Microsoft Secure Score | Exposure management → Microsoft Secure Score | 2026-07-27 |
+| Alert policies (49; 48 built-in) | Email & collaboration → Policies & rules → Alert policy | 2026-07-28 |
+| Alert tuning | Settings → Microsoft Defender XDR → Rules → Alert tuning | 2026-07-28 |
 | Threat analytics | Threat intelligence → Threat analytics | 2026-07-27 |
 | Custom indicators (IOC) | Settings → Endpoints → Rules → Indicators (file hash / IP / URL-domain / certificate) | 2026-07-27 |
 | Enforcement scope (MDE settings mgmt) | Settings → Endpoints → Configuration management → Enforcement scope | 2026-07-27 |

@@ -1093,6 +1093,19 @@ appears only when genuinely observed and attributed.
 - **Adjacent, noted for later:** the Recommended actions tab carries a banner offering to configure Secure Score data visibility by data source in **URBAC** — relevant to `POS-027` and to `POS-002`, the one standing unverified entry.
 
 
+### 3.16 Microsoft Sentinel UEBA - `POS-044` ✅ hardened (enabled 2026-07-28)
+
+- [ ] **Path:** Defender > System > Settings > Microsoft Sentinel > UEBA
+- [ ] **Path (verify residency):** Azure > Sentinel > Logs — `kql/sentinel/store-partition-diff.kql`
+- [ ] **Path (verify billability):** Azure > Sentinel > Logs — `Usage | where IsBillable == true`
+- **State:** Entra ID sync on, Active Directory off, **7 data sources connected (3 carrying data)**, behaviors layer off.
+- **The cost shape:** the feature is free; the data it generates is not. `IdentityInfo` is now a **billable** DataType at 0.001416 MB/24h. Total billable volume 0.0437 MB/day against 10 GB/day.
+- **Residency ≠ billability.** The store-partition census answers *which store*; `Usage | where IsBillable` answers *what is metered*. `AzureActivity` is workspace-resident **and free** — see the Lab 08 §7 correction.
+- **Enabling is three acts** — feature toggle, directory sync, data source connection — and the page reports "enabled" after the first, with `0 sources` and both directories `Sync disabled`.
+- **Measured:** initial sync under an hour against Learn's "a few days"; `BehaviorAnalytics` inherits the **source event's** timestamp, so UEBA's own latency is not measurable from `TimeGenerated`.
+- **Open:** `BehaviorAnalytics` billability — absent from the billable list, but its only row postdates `Usage`'s reporting lag. *(pending)*
+
+
 ## The divergences
 
 Where the source guides and this environment disagree. Every one was found by checking
@@ -1139,6 +1152,9 @@ this environment's).
 | 30 | **Alert policy guide** §2/§3: the three parts are activity, conditions and trigger; pick a trigger | The **threshold trigger is pre-selected**, at 15 activities in 60 minutes. In a three-identity tenant no threshold policy on any activity would ever fire | Accepting the default yields a policy that is enabled, correctly configured and **structurally silent**. The guide's own §8 warns that most "policy not working" reports are timing or aggregation — three sections away from the page that pre-selects the trigger causing it | **live, 2026-07-28** |
 | 31 | **Alert policy guide** §2: choose an activity by name from the list | The friendly label is not the stored value. The picker offers *Created mail forward/redirect rule*; the policy stores **`Activity is MailRedirect`**, and `MailRedirect` is what appears in the alert body and the unified audit log | The schema value is the one you hunt on, and nothing in the wizard reveals it — it surfaces only on the review page and in the notification. Same shape as `POS-034`'s two-store finding and Lab 09's PowerShell endpoint trap: **the name depends on the surface** | **live, 2026-07-28** |
 | 32 | **Alert policy guide** §3 step 1: give the policy a descriptive name and description so you can identify its alerts later | The **description reaches nobody**. Both notification emails — custom and built-in — carry identical `Details` text, so that string is a property of the *activity*, not the policy. Severity is the only field the custom policy actually changed | A description written to carry context (here, the MITRE `T1114.003` reference) exists only in the portal. An analyst reading the alert email gets Microsoft's generic activity text regardless of what was authored | **live, 2026-07-28** |
+| 33 | **Microsoft Learn**: enabling UEBA requires *Microsoft Sentinel Contributor* at workspace scope and *Log Analytics Contributor* at resource-group scope — Azure RBAC | The portal's own banner reads **"Only a Global Administrator or a Security Administrator in your Microsoft Entra ID can turn this feature on or off"** — an **Entra** role. The enable succeeded (`POS-044`) | Two different permission models named for the same action. This project asserted, on Learn's basis, that Global Admin alone would not suffice — **that assertion was wrong**, and the portal was right about what the portal enforces | **live, 2026-07-28** — banner read, enable succeeded |
+| 34 | **Microsoft Learn**: UEBA initial synchronization *"may take a few days"*; UEBA writes to `BehaviorAnalytics`, `IdentityInfo`, `UserPeerAnalytics`, `UserAccessAnalytics` | Enabled 02:58 UTC; `IdentityInfo` carried data by **03:50 UTC — under an hour**. And only **two of the four tables** appeared: `IdentityInfo` (4 rows) and `BehaviorAnalytics` (1) (`POS-044`) | The duration estimate is presumably written for thousands of identities; for three it is off by ~2 orders of magnitude. The missing two need peer groups and access history a three-identity tenant may be unable to produce — **hypothesis, indistinguishable from latency on one census** | **live, 2026-07-28/29** |
+| 35 | **Portal**, *Recommended settings*: "Click *Connect available data sources* to automatically select and connect all eligible data sources" | Seven sources went green; **three carry data**. Two are Entra log types **deliberately declined** in Lab 08 (`POS-034`), one names the **legacy agent** connector where Lab 07 built AMA + DCR ingestion, one needs a running device (`POS-044`) | **Eligible means the connector exists, not that anything flows through it.** Four sources will read `Connected` indefinitely and contribute nothing, and the page offers no way to tell them from the three that work — `POS-011`'s shape, inside the recommended path | **live, 2026-07-28** |
 
 ---
 

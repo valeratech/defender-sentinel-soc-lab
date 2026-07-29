@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**15 open item(s) across 6 file(s).**
+**16 open item(s) across 7 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -62,4 +62,12 @@ Status: 🔨 Built, documentation in progress
 
 | Line | Section | Item |
 |---|---|---|
-| 139 | 7. Analysis | *(pending — Purview device onboarding state not checked)* |
+| 150 | 7. Analysis | *(pending — Purview device onboarding state not checked)* |
+
+## `lessons/MOD-57-entities-and-ueba.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 102 | What could not be tested | evidence. *(pending)* |

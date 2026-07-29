@@ -1098,8 +1098,10 @@ entries:
       empty even when licensed - they populate only on actual risk detection, and
       a quiet lab tenant produces none; empty risk tables are not a licensing
       failure. AuditLogs was selected but absent from a 24h window on 2026-07-26;
-      a quiet tenant with no directory changes is the likely reason, and it is
-      recorded as unconfirmed rather than assumed.
+      a quiet tenant with no directory changes was the likely reason, recorded as
+      unconfirmed rather than assumed. CLOSED 2026-07-29: AuditLogs carries data.
+      The connector was fine and the tenant was quiet, which is what the entry
+      declined to assume at the time.
 
       Both connectors are platform diagnostic settings - VM-independent - so they
       keep ingesting with the VM and Bastion deallocated. Cost: low lab volume;
@@ -1623,3 +1625,107 @@ entries:
       notification limit, and send to a monitored SecOps mailbox rather than an
       individual admin. Left in the lab-shaped configuration deliberately so the
       trigger would be unambiguous.
+  - id: POS-044
+    lab: "08"
+    setting: Microsoft Sentinel UEBA (User and Entity Behavior Analytics)
+    location: Defender portal > System > Settings > Microsoft Sentinel > UEBA
+    state: Enabled 2026-07-28 19:58 local. Entra ID sync on, Active Directory off, 7 data sources connected (3 carrying data), behaviors layer off.
+    baseline: Off - no UEBA tables existed on the workspace side; IdentityInfo was XDR-lake only
+    kind: hardened
+    production: Enabled with a population large enough for peer analysis to mean something, only the data sources that actually carry data connected, and the storage cost of the generated tables budgeted rather than discovered
+    revisit: true
+    verified: 2026-07-29
+    note: >-
+      Enabled 2026-07-28 19:58 local (02:58 UTC) at Defender > System > Settings >
+      Microsoft Sentinel > UEBA. Microsoft Entra ID directory sync on; Active
+      Directory left off (it needs Defender for Identity and on-prem AD, neither
+      of which exists here). Seven data sources connected. Behaviors layer - a
+      separate tab, enabled independently, creating SentinelBehaviorInfo and
+      SentinelBehaviorEntities - deliberately left OFF to keep one variable.
+
+      THE COST FINDING, MEASURED RATHER THAN QUOTED. Microsoft Learn states that
+      no licence is required and there is no extra cost for UEBA, but that it
+      generates new data in new workspace tables and additional storage charges
+      therefore apply. Both halves are true and only the first is memorable.
+      IdentityInfo now appears as a BILLABLE DataType at 0.001416 MB/24h,
+      alongside SigninLogs (0.038757) and AuditLogs (0.003583). Total billable
+      volume 0.0437 MB/day against a 10 GB/day allowance. The principle is proven;
+      the bill is not. "The feature is free" and "enabling it is free" are
+      different claims.
+
+      THE STORE-PARTITION METHOD DETECTED A TABLE CHANGING SIDES. On 2026-07-26
+      IdentityInfo appeared in the Defender census and NOT in the Azure one - XDR-
+      only, which was the evidence used at the time to conclude UEBA was not
+      running. It is now workspace-resident with four rows. The method built
+      during the Lab 08 correction did exactly what it was built for, on a
+      question it was not built for.
+
+      PREDICTION 2 OF 4, recorded before the fact. Predicted that
+      BehaviorAnalytics, IdentityInfo, UserPeerAnalytics and UserAccessAnalytics
+      would cross to the workspace side. IdentityInfo (4 rows) and
+      BehaviorAnalytics (1 row) appeared; UserPeerAnalytics and
+      UserAccessAnalytics did not. HYPOTHESIS, NOT ESTABLISHED: a three-identity
+      tenant has no peer groups to compare against and almost no access history,
+      so those two may be structurally unpopulatable here rather than merely slow.
+      The competing explanation is ordinary latency - Learn mentions a 14-day
+      resync cycle - and a single census cannot separate them.
+
+      INITIAL SYNC TOOK UNDER AN HOUR, NOT "A FEW DAYS". Enabled 02:58 UTC;
+      IdentityInfo carries data at 03:50 UTC. Learn's estimate is presumably
+      written for organisations with thousands of identities; for three it is off
+      by roughly two orders of magnitude. AzureActivity independently corroborates
+      the enablement, recording control-plane writes at 03:08 UTC.
+
+      BehaviorAnalytics INHERITS THE SOURCE EVENT'S TIMESTAMP. Its only row reads
+      13:25:48.657 UTC - identical to the millisecond to the latest SigninLogs
+      row. The behaviour record carries the time of the underlying activity, not
+      the time UEBA produced it. Consequence for hunting: UEBA's own processing
+      latency cannot be measured from TimeGenerated, and a BehaviorAnalytics row
+      tells you when something happened, not when it was noticed.
+
+      ENABLING UEBA IS THREE ACTS, AND THE PAGE REPORTS "ENABLED" AFTER THE FIRST.
+      Feature toggle, then directory sync, then data source connection. With the
+      toggle on and nothing else done, both directory services read "Sync
+      disabled" and the source list read "0 sources" - the feature switched on and
+      analysing nothing. Only the empty-state text ("Start sync for at least one
+      directory to see the available data sources") reveals the required order.
+      Configured is not effective, in a feature whose own status page says
+      otherwise.
+
+      "CONNECT AVAILABLE DATA SOURCES" CONNECTS EVERYTHING ELIGIBLE, AND ELIGIBLE
+      MEANS THE CONNECTOR EXISTS. Seven sources went green; THREE carry data. AAD
+      Managed Identity SignIn Logs and AAD Service Principal SignIn Logs are
+      connected to log types deliberately declined in Lab 08 (POS-034) - green
+      because the Entra connector exists, empty because its log types were
+      refused. Security Events names the LEGACY AGENT connector, where Lab 07
+      built ingestion via AMA and a DCR. Device Logon Events needs a running
+      device and both VMs are deallocated. Four sources will read Connected
+      indefinitely and contribute nothing, and nothing on the page distinguishes
+      them from the three that work.
+
+      The bulk action was taken rather than the curated three, and is recorded as
+      CHOSEN rather than defaulted - it is also the path the portal labels
+      Recommended settings, and therefore the realistic one. Reverting three
+      sources afterwards would have produced a half-corrected state harder to
+      describe honestly than one clean decision.
+
+      The data source list is a CATALOGUE, NOT AN INVENTORY. AWS CloudTrail, GCP
+      Audit Logs and Okta are listed and greyed out with "Data source is not
+      ingested to Sentinel" plus a Content Hub link. It shows the feature's reach
+      independently of this tenant, which is better design than hiding them.
+
+      PREREQUISITE CLAIM CORRECTED. Microsoft Learn lists Microsoft Sentinel
+      Contributor at workspace scope and Log Analytics Contributor at resource-
+      group scope - Azure RBAC - and this project asserted on that basis that
+      Global Administrator alone would not suffice. The portal's own banner reads
+      "Only a Global Administrator or a Security Administrator in your Microsoft
+      Entra ID can turn this feature on or off", an Entra role, and the enable
+      succeeded. Documentation and portal name different requirements; the portal
+      was right about what the portal enforces.
+
+      WHAT THIS CANNOT SHOW: UEBA's actual value. Fifteen days of tenant life,
+      three identities and almost no activity cannot produce a behavioural
+      baseline, and anomaly detection without a baseline detects nothing. This was
+      designed as a PLUMBING TEST from the outset - does enabling it create the
+      tables, does the data cross to the billable side, how long does sync take -
+      and must not be read as an evaluation of UEBA.

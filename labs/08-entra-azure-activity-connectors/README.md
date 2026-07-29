@@ -235,13 +235,60 @@ applied across Labs 07 and 08: declining high-volume Entra types is Lever 1;
 Lab 07's Common-not-All DCR is Lever 2. The section's optimization guidance
 externally validates the cost discipline the project had been applying independently.
 
-**Measured, 2026-07-26.** The billable surface is exactly five tables — `SecurityEvent`,
-`Heartbeat`, `Usage`, `AzureActivity`, `SigninLogs` — at negligible volume against the
-10 GB/day trial allowance. The largest table visible from the Defender portal
+**Measured, 2026-07-26 — and corrected 2026-07-29.** This originally read: *"the
+billable surface is exactly five tables — `SecurityEvent`, `Heartbeat`, `Usage`,
+`AzureActivity`, `SigninLogs`."* **Wrong.** A `Usage | where IsBillable == true`
+query on 2026-07-29 returned three: `SigninLogs`, `AuditLogs`, `IdentityInfo`.
+`AzureActivity` had 11 events in the window and does not appear as billable, and
+neither does `Usage` itself.
+
+The error was conflating **workspace-resident** with **billable**. The
+store-partition census separates the free XDR lake from the workspace, and that
+finding stands — but there is a **second split inside the workspace**, between
+billable and free data sources, which the census cannot see. `AzureActivity` is
+workspace-resident *and* free. **`Usage` with `IsBillable` is the instrument for
+billability; the census is the instrument for residency.** Two questions, two tools.
+
+This also establishes that `SecurityAlert` and `SecurityIncident` are free — the
+entire Defender XDR → Sentinel path built in Lab 04 costs nothing to carry. The largest table visible from the Defender portal
 (`GraphAPIAuditEvents`, 3,578 events in 24 hours) is XDR-native and bills nothing.
 Declining the high-volume Entra log types in §4 is doing exactly what it was chosen to
 do. `Usage` reports on a lag of several hours, so the most recent window reads as
 not-yet-reported rather than as zero.
+
+## 7b. UEBA — enabled 2026-07-28, and what it cost (`POS-044`)
+
+This lab's connectors are UEBA's inputs, so the enablement is recorded here rather
+than in a lab of its own — nothing was built, one feature was switched on.
+
+**The finding is the cost shape.** Learn says no licence is required and there is
+no extra cost for UEBA, then says it generates new data in new workspace tables and
+storage charges therefore apply. Both are true; only the first is memorable.
+Measured here:
+
+| DataType | BillableMB / 24h |
+|---|---|
+| `SigninLogs` | 0.038757 |
+| `AuditLogs` | 0.003583 |
+| **`IdentityInfo`** | **0.001416** |
+
+**"The feature is free" and "enabling it is free" are different claims.**
+
+**The store-partition method detected a table changing sides.** `IdentityInfo` was
+XDR-only on 2026-07-26 — that absence was the evidence used to conclude UEBA was
+off. It is now workspace-resident and metered.
+
+**Prediction 2 of 4**, recorded before the fact: `IdentityInfo` and
+`BehaviorAnalytics` appeared, `UserPeerAnalytics` and `UserAccessAnalytics` did
+not. Three identities may have no peer groups to compare and no access history to
+analyse — hypothesis, not established, and indistinguishable from latency on one
+census.
+
+**Initial sync took under an hour**, against Learn's "may take a few days."
+
+**`AuditLogs` — the open caveat from §6 is closed.** It was recorded on 2026-07-26
+as *selected but absent, quiet tenant likely, unconfirmed rather than assumed*. It
+carries data as of 2026-07-29. The connector was fine; the tenant was quiet.
 
 ## 8. Deferred
 

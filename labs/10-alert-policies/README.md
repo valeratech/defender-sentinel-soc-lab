@@ -75,6 +75,17 @@ Incident **ID 2**, `LAB-BEC-Forwarding-Rule-Created`, Medium, `Active`, service
 source Office 365, detection source MDO, one active alert, categorised
 `Initial access`.
 
+**It reached Sentinel too** *(verified 2026-07-29)*. A workspace census the
+following day returned `SecurityAlert: 2` and `SecurityIncident: 1`, timestamped
+02:18–02:19 UTC — minutes after the trigger. So the detection travelled the full
+path: Purview activity → Defender alert → XDR incident → Sentinel, over the
+connector Lab 04 established.
+
+That is also a **third independent confirmation of the duplicate**: two alerts and
+one incident, seen in the portal, in the two notification emails, and now in the
+workspace tables — three surfaces agreeing. And it costs nothing to carry;
+`SecurityAlert` and `SecurityIncident` are not billable (Lab 08 §7).
+
 The two emails are from `Office365Alerts@microsoft.com`: one Medium carrying the
 authored policy name, one Informational carrying the built-in's name. **Same
 activity, same user, same timestamp, identical `Details` text.**

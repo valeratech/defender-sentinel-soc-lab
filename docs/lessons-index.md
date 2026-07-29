@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**5 module(s) recorded · 2 produced a lab · 6 correction(s) to previously committed content.**
+**6 module(s) recorded · 2 produced a lab · 8 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -17,6 +17,7 @@ than restates**: each finding has exactly one authoritative home.
 | [54](../lessons/MOD-54-secure-score.md) | Identify and remediate risks with Microsoft Secure Score | 📖 concept | `Lab 06` | `POS-031` | `row 23`, `row 24` | 1 |
 | [55](../lessons/MOD-55-threat-analytics.md) | Analyze threat analytics | 📖 concept | `Lab 06`, `Lab 03` | `POS-041`, `POS-042` | `row 25`, `row 26`, `row 27`, `row 28` | 2 |
 | [56](../lessons/MOD-56-alert-policies.md) | Configure and manage custom detections and alerts | 🔨 lab | `Lab 10` | `POS-043` | `row 29`, `row 30`, `row 31`, `row 32` | 1 |
+| [57](../lessons/MOD-57-entities-and-ueba.md) | Classify and analyze data by using entities | 🔀 mixed | `Lab 08` | `POS-044`, `POS-034` | `row 33`, `row 34`, `row 35` | 2 |
 
 ## Corrections to previously committed content
 
@@ -32,3 +33,5 @@ anything.
 | 55 | Lab 06 §2 — 'PowerShell is the only available path' was an asserted absence; MDE security settings management is a second path and was simply switched off. |
 | 55 | Working hypothesis withdrawn — threat analytics is not a third console with an opinion on device configuration; its Recommended actions tab is Secure Score, filtered. |
 | 56 | Design error caught by the trigger — the chosen activity was already covered by a built-in policy, and no check was made before authoring a redundant one. |
+| 57 | Lab 08 — 'the billable surface is exactly five tables' conflated workspace-resident with billable; AzureActivity and Usage are workspace-resident and free. |
+| 57 | Prerequisite claim withdrawn — Global Admin was asserted insufficient for enabling UEBA on Learn's basis; the portal states it is exactly what is required, and the enable succeeded. |

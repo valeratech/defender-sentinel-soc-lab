@@ -123,6 +123,8 @@ before querying, and mind the column-name difference.
 | Exchange message trace | Email & collaboration → Exchange message trace | 2026-07-26 |
 | Action center (pending / history) | Actions and submissions → Action center | 2026-07-27 |
 | Microsoft Secure Score | Exposure management → Microsoft Secure Score | 2026-07-27 |
+| Sentinel UEBA | System → Settings → Microsoft Sentinel → UEBA (three acts: toggle, directory sync, connect sources) | 2026-07-28 |
+| Sentinel analytics rules | Microsoft Sentinel → Configuration → Analytics | *(pending — not yet visited)* |
 | Alert policies (49; 48 built-in) | Email & collaboration → Policies & rules → Alert policy | 2026-07-28 |
 | Alert tuning | Settings → Microsoft Defender XDR → Rules → Alert tuning | 2026-07-28 |
 | Threat analytics | Threat intelligence → Threat analytics | 2026-07-27 |
@@ -156,5 +158,6 @@ question." For endpoint activity, the surfaces are not interchangeable (Lab 06 �
 | Did a phishing *simulation* leave telemetry? | Nowhere — the payload is absent from `EmailEvents` and `EmailUrlInfo` (`POS-037`) |
 | Was anything actually *remediated*? | Actions and submissions → Action center → History. Empty ≠ broken — a detection with no remediable artifact logs nothing (Lab 03 §7) |
 | Are my ASR rules actually configured? | **Ask both.** Exposure management → Secure Score → Recommended actions says Completed 9/9; the ASR report says Rules off. Same rules, same tenant (Lab 06 §7) |
+| Is a workspace table actually *billable*? | Not the census — `Usage \| where IsBillable == true`. Residency and billability are different questions (`POS-044`, Lab 08 §7) |
 | Where do user-reported phish actually go? | Not answerable from the portal — `Get-ReportSubmissionPolicy` / `Get-ReportSubmissionRule` in EXO PowerShell, and even then the effective mailbox is in neither (`POS-040`) |
 | Who holds a Defender role? | System → Permissions → Roles → *(role)* → Edit assignment *(count only shown until opened)* |

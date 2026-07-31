@@ -105,7 +105,7 @@ Product names are used precisely throughout. "Defender" alone is avoided whereve
 
 | Clock | Behavior at expiry |
 |---|---|
-| **M365 Defender trial** | Fixed calendar end — **the binding constraint**; ends the telemetry source |
+| **M365 Defender trial** | 2026-07-14 → **2026-08-13** — **the binding constraint**; ends the telemetry source |
 | **Azure pay-as-you-go** | Never expires, never stops — bills continuously for whatever runs (no free-credit safety net; the offer was unavailable) |
 | **Sentinel 31-day trial** | 2026-07-19 → 2026-08-19, 10 GB/day free on both Sentinel and Log Analytics |
 
@@ -150,8 +150,12 @@ Lab numbers are opaque, append-only handles — `04` is Sentinel because that fo
 | Tactic | Techniques | Detections | State |
 |---|---|---|---|
 | Execution (`TA0002`) | T1059.001 (PowerShell), T1047 (WMI) | `DET-001`, `DET-002` | **COVERED (2/2)** |
+| Credential Access (`TA0006`) | T1110 (Brute Force) | `DET-004`, `DET-005` | **PARTIAL (1/2)** |
+| Collection (`TA0009`) | T1114.003 (Email Forwarding Rule) | `DET-003` | **COVERED (1/1)** |
 
-Both were observed firing live — `DET-001` from the endpoint detection test (Lab 03), `DET-002` from an ASR rule demonstrated in both audit and block states (Lab 06).
+Four of five were observed firing live. **`DET-005` is the reason `TA0006` reads PARTIAL** — a Microsoft rule template, enabled and correctly configured, presented with the exact activity it names, which produced nothing. It is recorded as unvalidated rather than quietly counted.
+
+*Table is a snapshot; [`docs/attack-coverage.md`](docs/attack-coverage.md) is authoritative and CI-enforced.*
 
 ```bash
 python3 scripts/build-attack-matrix.py          # regenerate
@@ -164,7 +168,7 @@ python3 scripts/build-attack-matrix.py --check  # CI staleness check
 
 A lab accumulates weakenings. Each is defensible when made and invisible three weeks later.
 
-[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **32 entries** (30 verified) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
+[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **46 entries** (45 verified) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
 
 The register separates **verified** (observed in a portal view) from **asserted** (recorded on the operator's word), because blurring that is how a register becomes decoration.
 

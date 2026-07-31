@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**16 open item(s) across 7 file(s).**
+**18 open item(s) across 9 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -64,6 +64,14 @@ Status: 🔨 Built, documentation in progress
 |---|---|---|
 | 150 | 7. Analysis | *(pending — Purview device onboarding state not checked)* |
 
+## `labs/11-sentinel-analytics-rules/README.md`
+
+Status: 🔨 Built, documentation in progress
+
+| Line | Section | Item |
+|---|---|---|
+| 106 | 6. Failures & Fixes | *(pending — whether an alert can carry an event range from a summarized result)* |
+
 ## `lessons/MOD-57-entities-and-ueba.md`
 
 Status: —
@@ -71,3 +79,11 @@ Status: —
 | Line | Section | Item |
 |---|---|---|
 | 102 | What could not be tested | evidence. *(pending)* |
+
+## `lessons/MOD-59-analytics-rules.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 96 | What could not be tested | summarized result. *(pending)* |

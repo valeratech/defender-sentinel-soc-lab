@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**6 module(s) recorded · 2 produced a lab · 8 correction(s) to previously committed content.**
+**9 module(s) recorded · 3 produced a lab · 12 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -18,6 +18,9 @@ than restates**: each finding has exactly one authoritative home.
 | [55](../lessons/MOD-55-threat-analytics.md) | Analyze threat analytics | 📖 concept | `Lab 06`, `Lab 03` | `POS-041`, `POS-042` | `row 25`, `row 26`, `row 27`, `row 28` | 2 |
 | [56](../lessons/MOD-56-alert-policies.md) | Configure and manage custom detections and alerts | 🔨 lab | `Lab 10` | `POS-043` | `row 29`, `row 30`, `row 31`, `row 32` | 1 |
 | [57](../lessons/MOD-57-entities-and-ueba.md) | Classify and analyze data by using entities | 🔀 mixed | `Lab 08` | `POS-044`, `POS-034` | `row 33`, `row 34`, `row 35` | 2 |
+| [59](../lessons/MOD-59-analytics-rules.md) | Configure and manage analytics rules | 🔨 lab | `Lab 11` | `POS-045`, `POS-046` | `row 36`, `row 37`, `row 38`, `row 39` | 3 |
+| [60](../lessons/MOD-60-asim.md) | Query Microsoft Sentinel data by using ASIM parsers | 📖 concept | — | — | `row 40` | — |
+| [61](../lessons/MOD-61-enabling-ueba.md) | Implement behavioral analytics | 📖 concept | `Lab 08` | `POS-044` | `row 41` | 1 |
 
 ## Corrections to previously committed content
 
@@ -35,3 +38,7 @@ anything.
 | 56 | Design error caught by the trigger — the chosen activity was already covered by a built-in policy, and no check was made before authoring a redundant one. |
 | 57 | Lab 08 — 'the billable surface is exactly five tables' conflated workspace-resident with billable; AzureActivity and Usage are workspace-resident and free. |
 | 57 | Prerequisite claim withdrawn — Global Admin was asserted insufficient for enabling UEBA on Learn's basis; the portal states it is exactly what is required, and the enable succeeded. |
+| 59 | Design error — suppression left unconfigured on an authored rule after the duplication mechanism had already been explained in full; 12 alerts and 12 incidents from one 92-second event. |
+| 59 | Recommended fix did not work — `extend timestamp = StartTime`, inferred from Microsoft's template, does nothing; `extend TimeGenerated = StartTime` is the working convention. |
+| 59 | Two readings withdrawn mid-lab — run 3 was called contaminated when it had succeeded, and an app-attribution hypothesis was disproved by re-running in the correct portal. |
+| 61 | Claim withdrawn — 'Sentinel ships with no detections running' was wrong; 48 anomaly rules were enabled the whole time, on a tab the Active rules count excludes. |

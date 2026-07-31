@@ -135,6 +135,7 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [08](labs/08-entra-azure-activity-connectors/) | Entra ID and Azure Activity connectors | Ingestion | 🔨 Built, documenting |
 | [09](labs/09-attack-simulation-training/) | Attack simulation training — phishing campaign and what it does not prove | Response | 🔨 Built, documenting |
 | [10](labs/10-alert-policies/) | Alert policies — the first detection authored here, and the built-in that already covered it | Detection | 🔨 Built, documenting |
+| [11](labs/11-sentinel-analytics-rules/) | Sentinel analytics rules — twelve alerts from one event, and a template that never fired | Detection | 🔨 Built, documenting |
 
 Lab numbers are opaque, append-only handles — `04` is Sentinel because that folder existed as a stub before device groups were built, and renumbering corrupts cross-references. Course-module order and repo lab order diverge by design; the number is a filing handle, not a sequence claim.
 

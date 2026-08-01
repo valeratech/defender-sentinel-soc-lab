@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**9 module(s) recorded · 3 produced a lab · 12 correction(s) to previously committed content.**
+**10 module(s) recorded · 4 produced a lab · 15 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -21,6 +21,7 @@ than restates**: each finding has exactly one authoritative home.
 | [59](../lessons/MOD-59-analytics-rules.md) | Configure and manage analytics rules | 🔨 lab | `Lab 11` | `POS-045`, `POS-046` | `row 36`, `row 37`, `row 38`, `row 39` | 3 |
 | [60](../lessons/MOD-60-asim.md) | Query Microsoft Sentinel data by using ASIM parsers | 📖 concept | — | — | `row 40` | — |
 | [61](../lessons/MOD-61-enabling-ueba.md) | Implement behavioral analytics | 📖 concept | `Lab 08` | `POS-044` | `row 41` | 1 |
+| [62](../lessons/MOD-62-mdo-threat-policies.md) | Using policies to remediate threats with Email, Teams, SharePoint & OneDrive | 🔨 lab | `Lab 12` | `POS-047`, `POS-048`, `POS-049`, `POS-050`, `POS-051`, `POS-052`, `POS-053`, `POS-054`, `POS-055` | `row 42`, `row 43`, `row 44`, `row 45`, `row 46`, `row 47`, `row 48`, `row 49`, `row 50`, `row 51`, `row 52` | 3 |
 
 ## Corrections to previously committed content
 
@@ -42,3 +43,6 @@ anything.
 | 59 | Recommended fix did not work — `extend timestamp = StartTime`, inferred from Microsoft's template, does nothing; `extend TimeGenerated = StartTime` is the working convention. |
 | 59 | Two readings withdrawn mid-lab — run 3 was called contaminated when it had succeeded, and an app-attribution hypothesis was disproved by re-running in the correct portal. |
 | 61 | Claim withdrawn — 'Sentinel ships with no detections running' was wrong; 48 anomaly rules were enabled the whole time, on a tab the Active rules count excludes. |
+| 62 | A latency finding stated three times and withdrawn — three measurement methods applied to one message were described as three independent confirmations. |
+| 62 | Predicted that Configuration analyzer needs custom policies to report anything; it returned 18 recommendations against the defaults. The guide makes the same error. |
+| 62 | Explorer reporting no action on a message was read as a possible logging behaviour; re-running the identical export returned the value. The surface was behind, not selective. |

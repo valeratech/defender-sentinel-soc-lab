@@ -28,6 +28,35 @@ being reached is stable even when its location is not.
 | Device timeline | Assets → Devices → *(device)* → Timeline | 2026-07-19 |
 | Incidents & alerts | Incidents & alerts → Incidents / Alerts | 2026-07-18 |
 | Advanced hunting | Hunting → Advanced hunting | 2026-07-18 |
+| Threat policies (hub) | Email & collaboration → Policies & rules → Threat policies | 2026-08-01 |
+| Preset security policies | Threat policies → Templated policies → Preset security policies → Manage protection settings | 2026-08-01 |
+| Configuration analyzer | Threat policies → Templated policies → Configuration analyzer | 2026-08-01 |
+| Safe Attachments policies | Threat policies → Policies → Safe Attachments | 2026-08-01 |
+| Safe Attachments — SharePoint/OneDrive/Teams + Safe Documents | Threat policies → Safe Attachments → **Global settings** (toolbar, not a policy) | 2026-08-01 |
+| Safe Links policies | Threat policies → Policies → Safe Links | 2026-08-01 |
+| Anti-phishing / anti-spam / anti-malware policies | Threat policies → Policies → *(each)* | 2026-08-01 |
+| Tenant Allow/Block Lists | Threat policies → Rules → Tenant Allow/Block Lists | 2026-08-01 |
+| DKIM / ARC | Threat policies → Rules → Email authentication settings → DKIM / ARC | 2026-08-01 |
+| Advanced delivery (SecOps mailbox, phishing simulation) | Threat policies → Rules → Advanced delivery | 2026-08-01 |
+| Quarantine policies | Threat policies → Rules → Quarantine policy | 2026-08-01 |
+| Email Explorer (per-message actions, verdicts, export) | Email & collaboration → Explorer → All email | 2026-08-01 |
+| Message headers (recipient view) | `outlook.office.com` → *(message)* → ⋯ → View → View message details | 2026-08-01 |
+
+## Microsoft 365 admin center — `admin.microsoft.com`
+
+| Setting / view | Path | Confirmed |
+|---|---|---|
+| **Mail-enabled security group** | Teams & groups → Active teams & groups → **Security groups** tab → Add a mail-enabled security group | 2026-08-01 |
+| Subscription terms (licences, renewal, recurring billing) | Billing → Your products → *(product)* | 2026-08-01 |
+| Licence assignment count | Billing → Your products — *Assigned / Available / Purchased quantity* | 2026-08-01 |
+
+> ⚠️ **Active teams and groups opens on the *Teams & Microsoft 365 groups* tab**, whose
+> primary action is *Add a Microsoft 365 group* — the wrong object for a policy scope.
+> An M365 group provisions a SharePoint site and group mailbox as side effects. The
+> **Security groups** tab exposes *Add a security group* and *Add a mail-enabled security
+> group* side by side; that pair states the distinction more clearly than either wizard's
+> own text, and the mail-enabled wizard's description ("give people access to resources
+> such as SharePoint sites") actively invites the confusion.
 
 ## Microsoft Entra — `entra.microsoft.com`
 

@@ -1906,3 +1906,266 @@ entries:
       subsequent run at portal.azure.com logged all seven as Azure Portal,
       confirmed against SigninLogs. AppDisplayName is a faithful record of the
       entry point; the variance was in the test, not the platform.
+
+  # ---------- Lab 12 — Defender for Office 365 threat policies ----------
+  - id: POS-047
+    lab: "12"
+    setting: Preset security policies (Standard, Strict)
+    location: Defender > Email & collaboration > Policies & rules > Threat policies > Preset security policies
+    state: Both Off; no rule objects exist
+    baseline: Microsoft recommends Standard broadly, Strict for high-value targets
+    kind: gap
+    production: Standard applied to all recipients; Strict scoped to executives, finance, HR, IT admins
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      Off is the shipped state, not a decision made here. The gap is worth
+      recording because presets are the only configuration that stays current
+      automatically - Microsoft updates their values as its recommendations
+      change, where a custom policy drifts from the day it is created.
+
+      The absence is stronger than the toggle suggests. Get-EOPProtectionPolicyRule
+      and Get-ATPProtectionPolicyRule both return NOTHING - not State: Disabled,
+      no object at all. The rule objects are created only when a preset is first
+      enabled in the portal. So the portal renders two toggles reading off for
+      configurations that do not exist, and PowerShell cannot distinguish "never
+      enabled" from "does not apply" because both are silence (row 42).
+
+  - id: POS-048
+    lab: "12"
+    setting: Built-in protection preset (Safe Attachments and Safe Links)
+    location: Defender > Threat policies > Safe Attachments / Safe Links > Built-in protection (Microsoft)
+    state: State Enabled, Action Block, universal scope, no observed effect on delivered mail
+    baseline: Enabled by default for paid Defender for Office 365 tenants
+    kind: gap
+    production: Verify by observation on a paid tenant; do not treat the status label as evidence of enforcement
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      THE HEADLINE FINDING OF THIS LAB. Every configuration surface reports this
+      control healthy. Get-ATPBuiltInProtectionRule returns State: Enabled.
+      Get-SafeAttachmentPolicy returns Action: Block, Enable: True,
+      IsBuiltInProtection: True. The rule has a real hydration timestamp
+      (2026-07-26, POS-036). Every scoping and exception field is empty, which in
+      Exchange rule semantics means it applies to every recipient with no
+      exclusions. The portal shows Status: On.
+
+      Two messages were sent to the one mailbox this policy covers, two hours
+      apart, from an external sender with clean SPF/DKIM/DMARC. NEITHER carries
+      X-MS-Exchange-AtpMessageProperties. The two messages sent to the mailbox
+      covered by the custom policy BOTH carry it. n=2 on each side.
+
+      The portal's own note beside the toggle reads "Built-in protection is
+      enabled only for paid Microsoft Defender for Office 365 tenants." This
+      tenant is on trial. Whether that explains the absence is NOT established -
+      the prediction recorded in advance was that the policy was genuinely active,
+      and it was falsified (row 47).
+
+      Nothing here is misconfigured. This is a correctly configured control,
+      reporting healthy across four surfaces, that produced no observable effect
+      on the traffic it claims. Configured is not effective, in its cleanest
+      available form.
+
+  - id: POS-049
+    lab: "12"
+    setting: Default anti-phishing policy - impersonation protection
+    location: Defender > Threat policies > Anti-phishing > Office365 AntiPhish Default
+    state: Always on; impersonation protection off; all impersonation actions set to take no action
+    baseline: Microsoft Standard preset enables user and domain impersonation protection with quarantine actions
+    kind: default
+    production: User and domain impersonation protection enabled with protected senders and owned domains populated; actions set to quarantine
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      The policy reads Always on and Enabled: True. Underneath, three independent
+      layers do nothing.
+
+      EnableTargetedUserProtection: False, 0 senders specified. Domain
+      impersonation off for owned domains and 0 custom domains. Mailbox
+      intelligence is ON and learning each mailbox's contact patterns -
+      EnableMailboxIntelligence: True - but mailbox intelligence FOR
+      impersonations is off, so nothing reads its output. And all three
+      impersonation actions read "Don't apply any action", so even a detection
+      would produce nothing. PhishThresholdLevel is 1, the least aggressive of
+      four. All four safety tips off.
+
+      The EOP half of the same policy IS live: DMARC p=quarantine quarantines,
+      p=reject rejects, spoof intelligence moves to junk. The accurate statement
+      is not "anti-phishing is off" - it is that EOP spoof protection works out of
+      the box and MDO impersonation protection ships inert.
+
+      Configuration analyzer independently flags 12 anti-phishing items against
+      this policy, which is Microsoft's own measurement of the same gap.
+
+      Portal detail pane and PowerShell schema agree exactly on every field
+      checked. Recorded deliberately - surfaces disagreeing is the exception, not
+      the rule.
+
+  - id: POS-050
+    lab: "12"
+    setting: Default anti-spam (inbound content filter) policy
+    location: Defender > Threat policies > Anti-spam > Default; Get-HostedContentFilterPolicy
+    state: SpamAction / HighConfidenceSpamAction / PhishSpamAction / BulkSpamAction all MoveToJmf; BulkThreshold 7; QuarantineRetentionPeriod 15
+    baseline: Standard preset quarantines high-confidence spam and phish; BCL 6; 30-day retention
+    kind: default
+    production: Quarantine rather than junk for high-confidence detections; BCL 6; 30-day quarantine retention
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      Four of Configuration analyzer's 18 recommendations land here, and the
+      schema confirms each one: three actions at MoveToJmf where Standard wants
+      Quarantine, bulk threshold 7 where Standard wants 6, and 15-day retention
+      where Standard wants 30.
+
+      HighConfidencePhishAction is already Quarantine and is the one anti-spam
+      action the analyzer does NOT flag - two independent surfaces agreeing on
+      both the gaps and the non-gap.
+
+      The junk-versus-quarantine distinction is the substantive one. Junk mail is
+      in the user's mailbox and one click from being opened; quarantine is not.
+
+  - id: POS-051
+    lab: "12"
+    setting: Default anti-malware policy
+    location: Defender > Threat policies > Anti-malware > Default; Get-MalwareFilterPolicy
+    state: ZapEnabled True; EnableFileFilter True; QuarantineTag AdminOnlyAccessPolicy; internal sender admin notifications off
+    baseline: n/a - these are the shipped values
+    kind: default
+    production: Same values; review the common attachments filter file-type list against the organisation's needs
+    revisit: false
+    verified: 2026-08-01
+    note: >-
+      Recorded because it is the one default in this lab that ships in a
+      defensible state, and a register that only records failures implies failure
+      is the norm.
+
+      Zero-hour Auto Purge is on, so mail identified as malicious after delivery
+      is retroactively removed from mailboxes. The common attachments filter is
+      on. Quarantined malware is admin-release-only. The guide's section 6 is
+      correct on all of these, confirmed against the schema rather than the
+      portal.
+
+      Not verified: the full FileTypes list, which the portal truncates at
+      {ace, apk, app, appx...}.
+
+  - id: POS-052
+    lab: "12"
+    setting: DKIM signing for the default domain
+    location: Defender > Threat policies > Email authentication settings > DKIM
+    state: Disabled - Status NoDKIMKeys; Get-DkimSigningConfig returns nothing
+    baseline: Configuration analyzer flags Enable DKIM as a Standard recommendation
+    kind: gap
+    production: DKIM enabled and CNAMEs published for every sending domain, alongside SPF and DMARC
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      The portal lists a row for this domain - authoritative, default signing
+      domain, toggle Disabled. Get-DkimSigningConfig returns NOTHING. The status
+      value NoDKIMKeys is honest about why: there is no object, only a row
+      rendered for a configuration that does not exist. Enabling the toggle would
+      not change a setting, it would create one.
+
+      Same shape as POS-047's preset toggles. In this portal, absence and disabled
+      render identically (row 42).
+
+      Trusted ARC sealers is likewise empty - Get-ArcConfig returns nothing.
+      Recorded here rather than as its own entry: no third-party mail gateway
+      exists in this environment, so the absence is correct rather than a gap.
+
+  - id: POS-053
+    lab: "12"
+    setting: Outbound spam filter - automatic forwarding mode
+    location: Defender > Threat policies > Anti-spam > Outbound; Get-HostedOutboundSpamFilterPolicy
+    state: AutoForwardingMode Automatic (service-controlled)
+    baseline: Off is the hardened value; Automatic lets the service decide per-tenant
+    kind: gap
+    production: AutoForwardingMode Off, with exceptions granted per-policy where a business case exists
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      Lab 10 authored LAB-BEC-Forwarding-Rule-Created, a DETECTIVE control for
+      attacker-created mail forwarding, and a built-in policy fired on the same
+      activity. Two detections for one behaviour.
+
+      The PREVENTIVE control that governs whether that forwarding actually
+      delivers mail outside the tenant had never been examined until this lab. It
+      reads Automatic - the service decides - rather than an explicit block.
+
+      Nothing is misconfigured. The finding is in the documentation: an alert was
+      built, committed, and cross-referenced for a behaviour whose enabling
+      setting was never recorded. Both Lab 10 alert policies are visible on the
+      labuser entity page alongside this lab's evidence.
+
+      NOT RECORDED, pending confirmation: RecipientLimitExternalPerHour and
+      RecipientLimitInternalPerHour both read 0. In EOP, 0 conventionally denotes
+      "use the service default" rather than "zero recipients permitted." The value
+      reads as its own opposite and will not be transcribed until confirmed.
+
+  - id: POS-054
+    lab: "12"
+    setting: SA-Sales-DynamicDelivery - custom Safe Attachments policy
+    location: Defender > Threat policies > Safe Attachments > SA-Sales-DynamicDelivery
+    state: Action DynamicDelivery; Enable True; scoped to sales-lab; Redirect True to the admin mailbox; quarantine policy AdminOnlyAccessPolicy
+    baseline: No default Safe Attachments policy exists; Built-in protection supplies Block to unscoped recipients
+    kind: hardened
+    production: Redirect removed; ActionOnError set explicitly; policy scoped by group with the group's membership under change control
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      The only custom threat policy in this tenant. Built and measured in Lab 12.
+      Proven to apply by observation: both messages to the scoped mailbox carry
+      X-MS-Exchange-AtpMessageProperties: SA, and Explorer records
+      "Dynamic delivery-Success" on both - though only after indexing caught up.
+      The second message read "--" at first export and carried the value on
+      re-export of the identical query (row 50).
+
+      PRECEDENCE CONFIRMED. Get-SafeAttachmentRule returns exactly this rule and
+      does not return Built-in protection. Built-in protection's exception fields
+      remained EMPTY after this policy was created - the service does not
+      materialise an exclusion for sales-lab. Precedence is evaluated at mail-flow
+      time, not written into the objects. Read both rules cold from an export and
+      both claim every recipient (row 48).
+
+      THE POLICY CARRIES A SETTING THAT CANNOT FIRE. Redirect: True with
+      RedirectAddress populated, stored in the schema, alongside Action:
+      DynamicDelivery. The creation wizard states in writing on the same screen
+      that "Enable redirect only supports the Monitor action" - and then accepts
+      the checkbox, activates the address field, validates the address format but
+      not its applicability, renders both settings on the Review page with GREEN
+      status dots, reports success, and persists it. Six checkpoints, one written
+      rule, zero enforcement. No redirect copy arrived for either test message
+      (row 43).
+
+      The wizard's DEFAULT action is Off - "attachments will not be scanned by
+      Safe Attachments" - not Block. Accepting defaults through this wizard ships
+      a named, scoped policy that scans nothing and reads Status: On (row 44).
+
+      ActionOnError is blank. The wizard never offered it. Explorer's
+      "Dynamic delivery-Success" implies a failure state exists; that branch is
+      undocumented and unobserved here.
+
+  - id: POS-055
+    lab: "12"
+    setting: Safe Attachments global settings - SharePoint/OneDrive/Teams and Safe Documents
+    location: Defender > Threat policies > Safe Attachments > Global settings
+    state: Defender for Office 365 for SharePoint/OneDrive/Teams ON; Safe Documents ON; click-through on malicious OFF
+    baseline: n/a - inherited, no record of anyone setting these
+    kind: default
+    production: Same values, but set deliberately and dated
+    revisit: false
+    verified: 2026-08-01
+    note: >-
+      Recorded as inherited BY ABSENCE OF RECORD rather than as verified
+      inheritance. Three prior sessions were searched: none configured Defender
+      for Office 365 at all. Absent from the record is weaker than did not happen,
+      and the audit log cannot settle it - unified audit logging was enabled
+      2026-07-26 at ~18:00 local, after the tenant was created.
+
+      Not a hardening claim. If these were set deliberately the entry is wrong and
+      should be corrected to hardened with a date.
+
+      Operationally relevant to this lab: SharePoint/OneDrive/Teams protection
+      being on is why the Lab 12 scope group had to be a mail-enabled security
+      group rather than a Microsoft 365 group. An M365 group provisions a
+      SharePoint site as a side effect, which would have introduced a second
+      protected content surface immediately before measuring the first.

@@ -2169,3 +2169,67 @@ entries:
       group rather than a Microsoft 365 group. An M365 group provisions a
       SharePoint site as a side effect, which would have introduced a second
       protected content surface immediately before measuring the first.
+
+  # ---------- Lab 13 — Explorer investigation and Defender-native remediation ----------
+  - id: POS-056
+    lab: "13"
+    setting: Email preview and download permission
+    location: Defender > Email & collaboration > Explorer > (message) > Email entity > Email preview
+    state: Global Administrator cannot preview or download delivered mail; quarantine only
+    baseline: Requires Security operations / Raw data / Email & collaboration content (read) under Unified RBAC
+    kind: gap
+    production: A scoped analyst role carrying the content-read permission, held by an identity that is not the Global Administrator
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      Observed verbatim: "You have permission to preview or download only emails
+      that are in Quarantine. Please check permissions page or contact your
+      admin."
+
+      The identity holding total authority over this tenant cannot read the body
+      of a delivered message. Global Administrator does not carry
+      "Email & collaboration content (read)" - it is a separate Unified RBAC
+      permission, deliberately gated because previewing mail is reading private
+      correspondence.
+
+      THIS SHARPENS POS-002 IN A DIRECTION THE REGISTER HAS NOT ARGUED BEFORE.
+      Every prior entry treats the single standing Global Administrator as a
+      RISK. This one shows it is also INSUFFICIENT: a workload exists here that
+      the all-powerful account cannot perform. The scoped-identity argument is
+      no longer only about least privilege; without a second role, part of the
+      email investigation surface is simply unavailable.
+
+      Not a misconfiguration. The product is correct to gate this. Recorded
+      because the gap is invisible until an investigation needs the message body.
+
+  - id: POS-057
+    lab: "13"
+    setting: Email remediation reversibility - soft delete
+    location: Defender > Explorer > Take action > Move or delete > Soft deleted items
+    state: Recoverable by the mailbox owner from the standard Outlook client, no notification to the operator
+    baseline: n/a - documented product behaviour; hard delete is the non-recoverable option
+    kind: gap
+    production: Hard delete where the mailbox may be compromised or the account is under investigation; soft delete only where the recipient is trusted
+    revisit: true
+    verified: 2026-08-01
+    note: >-
+      Measured end to end. Soft delete executed (Approval ID 6570a3, Action
+      Center History, Approved, Completed), the message left the Inbox, and it
+      was then restored by the mailbox owner via Deleted Items > Recover items
+      deleted from this folder > Deletions. Two clicks, standard end-user UI, no
+      admin involvement, no notification to the operator who remediated it.
+
+      The wizard presents Junk / Deleted items / Soft deleted items / Hard
+      deleted items as four adjacent radio buttons. The guide describes the
+      distinction as recoverable versus permanent and frames it as operator
+      convenience. Neither states WHO can recover.
+
+      Operationally this matters most in the case remediation exists for: a BEC
+      or phishing message in a mailbox that is compromised or whose owner is
+      complicit. Soft-deleting it leaves the message one click from restoration
+      by the account under investigation, and the Action Center still reads
+      Completed.
+
+      Nothing here is broken. Soft delete is documented as recoverable and that
+      is its purpose. The gap is that the surface presenting the choice does not
+      surface the consequence.

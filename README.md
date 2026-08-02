@@ -137,6 +137,7 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [10](labs/10-alert-policies/) | Alert policies — the first detection authored here, and the built-in that already covered it | Detection | 🔨 Built, documenting |
 | [11](labs/11-sentinel-analytics-rules/) | Sentinel analytics rules — twelve alerts from one event, and a template that never fired | Detection | 🔨 Built, documenting |
 | [12](labs/12-mdo-threat-policies/) | Defender for Office 365 threat policies — a control that reads healthy on four surfaces and did nothing | Response | 🔨 Built, documenting |
+| [13](labs/13-explorer-air-remediation/) | Explorer, AIR, and what the Action Center actually holds | Response | 🔨 Built, documenting |
 
 Lab numbers are opaque, append-only handles — `04` is Sentinel because that folder existed as a stub before device groups were built, and renumbering corrupts cross-references. Course-module order and repo lab order diverge by design; the number is a filing handle, not a sequence claim.
 
@@ -169,7 +170,7 @@ python3 scripts/build-attack-matrix.py --check  # CI staleness check
 
 A lab accumulates weakenings. Each is defensible when made and invisible three weeks later.
 
-[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **55 entries** (54 verified) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
+[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **57 entries** (56 verified) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
 
 The register separates **verified** (observed in a portal view) from **asserted** (recorded on the operator's word), because blurring that is how a register becomes decoration.
 

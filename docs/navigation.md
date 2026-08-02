@@ -41,6 +41,12 @@ being reached is stable even when its location is not.
 | Quarantine policies | Threat policies → Rules → Quarantine policy | 2026-08-01 |
 | Email Explorer (per-message actions, verdicts, export) | Email & collaboration → Explorer → All email | 2026-08-01 |
 | Message headers (recipient view) | `outlook.office.com` → *(message)* → ⋯ → View → View message details | 2026-08-01 |
+| Email entity page | Email & collaboration → Explorer → *(message subject)* → **Open email entity** — Timeline / Analysis / Attachments / URL / Similar emails / Email preview | 2026-08-01 |
+| Message Header Analyzer | Email entity → Analysis → Copy message header → Microsoft Message Header Analyzer | 2026-08-01 |
+| Take action (email remediation) | Email entity or Explorer grid → **Take action** — 3 steps: Choose actions / Choose target entities / Review and submit | 2026-08-01 |
+| Investigations (AIR) | Investigation & response → Actions & submissions → Action center → **Open investigation page**; also linked from the AIR submission banner | 2026-08-01 |
+| Action center | Investigation & response → Actions & submissions → **Action center** — Pending / History | 2026-08-01 |
+| Recover a soft-deleted message (end user) | `outlook.office.com` → Deleted Items → **Recover items deleted from this folder** → Deletions | 2026-08-01 |
 
 ## Microsoft 365 admin center — `admin.microsoft.com`
 

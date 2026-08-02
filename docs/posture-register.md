@@ -31,17 +31,17 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 55 |
-| Verified by direct observation | 54 |
+| Settings tracked | 57 |
+| Verified by direct observation | 56 |
 | Asserted but unverified | 1 |
-| Flagged to revisit | 43 |
+| Flagged to revisit | 45 |
 
 | Kind | Count |
 |---|---|
 | hardened | 22 |
 | default | 17 |
 | **weakening** | 6 |
-| **gap** | 10 |
+| **gap** | 12 |
 
 ## Flagged to revisit
 
@@ -94,6 +94,8 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-052` | 12 | DKIM signing for the default domain | Disabled - Status NoDKIMKeys; Get-DkimSigningConfig returns nothing | **gap** | DKIM enabled and CNAMEs published for every sending domain, alongside SPF and DMARC | 2026-08-01 |
 | `POS-053` | 12 | Outbound spam filter - automatic forwarding mode | AutoForwardingMode Automatic (service-controlled) | **gap** | AutoForwardingMode Off, with exceptions granted per-policy where a business case exists | 2026-08-01 |
 | `POS-054` | 12 | SA-Sales-DynamicDelivery - custom Safe Attachments policy | Action DynamicDelivery; Enable True; scoped to sales-lab; Redirect True to the admin mailbox; quarantine policy AdminOnlyAccessPolicy | hardened | Redirect removed; ActionOnError set explicitly; policy scoped by group with the group's membership under change control | 2026-08-01 |
+| `POS-056` | 13 | Email preview and download permission | Global Administrator cannot preview or download delivered mail; quarantine only | **gap** | A scoped analyst role carrying the content-read permission, held by an identity that is not the Global Administrator | 2026-08-01 |
+| `POS-057` | 13 | Email remediation reversibility - soft delete | Recoverable by the mailbox owner from the standard Outlook client, no notification to the operator | **gap** | Hard delete where the mailbox may be compromised or the account is under investigation; soft delete only where the recipient is trusted | 2026-08-01 |
 
 ## All tracked settings
 
@@ -318,6 +320,17 @@ it is an oversight. Closing an item means recording which one it was.
 **`POS-054` — SA-Sales-DynamicDelivery - custom Safe Attachments policy.** The only custom threat policy in this tenant. Built and measured in Lab 12. Proven to apply by observation: both messages to the scoped mailbox carry X-MS-Exchange-AtpMessageProperties: SA, and Explorer records "Dynamic delivery-Success" on both - though only after indexing caught up. The second message read "--" at first export and carried the value on re-export of the identical query (row 50). PRECEDENCE CONFIRMED. Get-SafeAttachmentRule returns exactly this rule and does not return Built-in protection. Built-in protection's exception fields remained EMPTY after this policy was created - the service does not materialise an exclusion for sales-lab. Precedence is evaluated at mail-flow time, not written into the objects. Read both rules cold from an export and both claim every recipient (row 48). THE POLICY CARRIES A SETTING THAT CANNOT FIRE. Redirect: True with RedirectAddress populated, stored in the schema, alongside Action: DynamicDelivery. The creation wizard states in writing on the same screen that "Enable redirect only supports the Monitor action" - and then accepts the checkbox, activates the address field, validates the address format but not its applicability, renders both settings on the Review page with GREEN status dots, reports success, and persists it. Six checkpoints, one written rule, zero enforcement. No redirect copy arrived for either test message (row 43). The wizard's DEFAULT action is Off - "attachments will not be scanned by Safe Attachments" - not Block. Accepting defaults through this wizard ships a named, scoped policy that scans nothing and reads Status: On (row 44). ActionOnError is blank. The wizard never offered it. Explorer's "Dynamic delivery-Success" implies a failure state exists; that branch is undocumented and unobserved here.
 
 **`POS-055` — Safe Attachments global settings - SharePoint/OneDrive/Teams and Safe Documents.** Recorded as inherited BY ABSENCE OF RECORD rather than as verified inheritance. Three prior sessions were searched: none configured Defender for Office 365 at all. Absent from the record is weaker than did not happen, and the audit log cannot settle it - unified audit logging was enabled 2026-07-26 at ~18:00 local, after the tenant was created. Not a hardening claim. If these were set deliberately the entry is wrong and should be corrected to hardened with a date. Operationally relevant to this lab: SharePoint/OneDrive/Teams protection being on is why the Lab 12 scope group had to be a mail-enabled security group rather than a Microsoft 365 group. An M365 group provisions a SharePoint site as a side effect, which would have introduced a second protected content surface immediately before measuring the first.
+
+### Lab 13
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-056` | Email preview and download permission | `Defender > Email & collaboration > Explorer > (message) > Email entity > Email preview` | Global Administrator cannot preview or download delivered mail; quarantine only | **gap** | yes | 2026-08-01 |
+| `POS-057` | Email remediation reversibility - soft delete | `Defender > Explorer > Take action > Move or delete > Soft deleted items` | Recoverable by the mailbox owner from the standard Outlook client, no notification to the operator | **gap** | yes | 2026-08-01 |
+
+**`POS-056` — Email preview and download permission.** Observed verbatim: "You have permission to preview or download only emails that are in Quarantine. Please check permissions page or contact your admin." The identity holding total authority over this tenant cannot read the body of a delivered message. Global Administrator does not carry "Email & collaboration content (read)" - it is a separate Unified RBAC permission, deliberately gated because previewing mail is reading private correspondence. THIS SHARPENS POS-002 IN A DIRECTION THE REGISTER HAS NOT ARGUED BEFORE. Every prior entry treats the single standing Global Administrator as a RISK. This one shows it is also INSUFFICIENT: a workload exists here that the all-powerful account cannot perform. The scoped-identity argument is no longer only about least privilege; without a second role, part of the email investigation surface is simply unavailable. Not a misconfiguration. The product is correct to gate this. Recorded because the gap is invisible until an investigation needs the message body.
+
+**`POS-057` — Email remediation reversibility - soft delete.** Measured end to end. Soft delete executed (Approval ID 6570a3, Action Center History, Approved, Completed), the message left the Inbox, and it was then restored by the mailbox owner via Deleted Items > Recover items deleted from this folder > Deletions. Two clicks, standard end-user UI, no admin involvement, no notification to the operator who remediated it. The wizard presents Junk / Deleted items / Soft deleted items / Hard deleted items as four adjacent radio buttons. The guide describes the distinction as recoverable versus permanent and frames it as operator convenience. Neither states WHO can recover. Operationally this matters most in the case remediation exists for: a BEC or phishing message in a mailbox that is compromised or whose owner is complicit. Soft-deleting it leaves the message one click from restoration by the account under investigation, and the Action Center still reads Completed. Nothing here is broken. Soft delete is documented as recoverable and that is its purpose. The gap is that the surface presenting the choice does not surface the consequence.
 
 ## Asserted but not observed
 

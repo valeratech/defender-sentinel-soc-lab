@@ -441,6 +441,16 @@ actually **returns**.
   way you would find out is an invoice.
 - **What we did about it:** budgets (`POS-015`) and deallocation discipline
   (`POS-016`), neither of which G1 mentions because G1 assumes the credit model.
+- **CORRECTED 2026-08-01 — the "no free credit" claim above is withdrawn.** A $200
+  sign-up credit exists (effective 2026-07-14, expires 2026-08-13) on a **different
+  billing profile** than the one carrying lab spend — see `POS-058` and §3.6. G1 was
+  right that the credit exists and wrong about the safety catch: the spending limit is
+  unavailable on pay-as-you-go pricing, so this environment holds credit **without** the
+  services-pause mechanism the credit model normally implies — worse than either
+  position this document has held. The 2026-07-16 verification consulted resource cost
+  analysis, which is scoped to the spending subscription's profile and structurally
+  cannot see the other profile's credit. The original text above is retained as written;
+  divergence rows 1 and 60 carry the withdrawal.
 
 ### 3.2 Cost budgets — `POS-015` ✅ hardened — not in source guidance
 
@@ -486,6 +496,16 @@ actually **returns**.
   operator memory, and Lab 03 onward means sessions ending at unpredictable times.
   Auto-shutdown (VM → Operations → Auto-shutdown) would make it a control and costs
   nothing.
+- **CORRECTED 2026-08-01 — "the only mechanism that actually ends spend" overstates.**
+  True for compute; false for **managed disks and public IPs**, which bill while they
+  exist and continued accruing into August with both VMs deallocated. Measured by
+  invoice: July actual **~$10.84 pre-tax** against **~$7.58** tracked — a ~43%
+  understatement, mostly storage and IP hours on "stopped" machines. Deallocation ends
+  compute spend; **deletion** ends resource spend. Same family as Bastion — Lab 07
+  records it billing per hour while up, and it offers no stopped/deallocated state at
+  all, which is why the hosts were deleted rather than stopped — now measured on
+  resources that DO have a stopped state; the state just covers less than the word
+  suggests. Divergence row 61.
 
 ### 3.4 Log Analytics workspace & Microsoft Sentinel — `POS-032` ✅ hardened
 
@@ -591,6 +611,30 @@ to the single VM. Also more faithful for the labs ahead: ASR and attack-simulati
 results as a non-admin are what an analyst actually sees.
 
 ---
+
+### 3.6 Azure billing topology — `POS-058` ❌ gap — recorded 2026-08-01
+
+- [ ] **Path:** Cost Management + Billing → Billing scopes (and → Payment methods per
+  profile)
+- **What it is:** Which billing account and billing profile every dollar and every
+  credit actually attaches to.
+- **What we verified (2026-08-01):** **Two Microsoft Customer Agreement billing
+  accounts, identically named**, each with its own billing profile. Profile A holds the
+  **$200 credit** (effective 2026-07-14, expires 2026-08-13) and has never carried a
+  charge. Profile B carries **every dollar of lab spend** and holds no credit. Under
+  MCA, credits attach to a billing profile and pay down only that profile's invoice —
+  the credit is **structurally unable to reach the lab**.
+- **Why it went unseen for 18 days:** the surface consulted (resource cost analysis) is
+  scoped to the spending subscription and cannot render another profile's credit. The
+  payment-methods page answers a different question than the cost page — the
+  identify-the-surface rule applied to money.
+- **Decision, with reasoning:** **do not chase the credit.** Migration or rebuild to
+  capture $200 costs hours of an 11-day budget, and the existing VMs carry the ASR
+  state that `POS-031`'s pending enforcement-scope test is a test *of*. It expires
+  unspent by choice.
+- **Related hazard:** both subscriptions are named **`Azure subscription 1`**. Every
+  portal picker shows the name; the name does not disambiguate. Renaming one is a
+  standing recommendation.
 
 ## 4. Microsoft Intune admin center — `intune.microsoft.com`
 
@@ -1160,7 +1204,7 @@ this environment's).
 
 | # | Guide says | Environment is | Consequence | Record |
 |---|---|---|---|---|
-| 1 | **G1**: Azure free trial gives $200 credit; services pause at exhaustion; card never auto-charged | Pay-as-you-go, uncapped, no credit (`POS-005`) | **The safety net does not exist.** No spending limit is available. Budgets notify but cannot cap. Deallocation (`POS-016`) is the only real control | **revision notes only** — original G1 not read back |
+| 1 | **G1**: Azure free trial gives $200 credit; services pause at exhaustion; card never auto-charged | ~~Pay-as-you-go, uncapped, no credit~~ (`POS-005`) — **"no credit" WITHDRAWN 2026-08-01, see row 60.** The credit exists on another billing profile; the safety-net half of this row stands | **The safety net does not exist** — that conclusion survives the correction. No spending limit is available. Budgets notify but cannot cap. Deallocation (`POS-016`, itself corrected — row 61) controls compute only | **revision notes only** — original G1 not read back; environment claim corrected by live verification, row 60 |
 | 2 | G4: The MDE↔Intune connection lets Intune enforce compliance based on Defender's device risk | Connection *Available*, but `POS-011` is **Off** | G4's two steps do not enable risk-based compliance. The step that does is never mentioned. Following the guide exactly produces an integration that reports healthy and does not do what the guide says | **original, 2026-07-17** — two steps, toggle absent, verbatim |
 | 3 | **G1**: Cancel the subscription before the trial ends | Turned recurring billing off instead (`POS-017`) | Cancelling ends access immediately; turning recurring billing off keeps the trial to full term and stops the conversion. Same cost, four more weeks of lab | **revision notes only** — original G1 not read back |
 | 4 | **G2**: the device silently registers with Intune after sign-in | Never enrols (`POS-022`) | **The sharpest one.** G2 describes user-driven join behaviour; G5 builds a VM joined by the `AADLoginForWindows` extension. Both guides individually correct; together they produce a device that never enrols, with every precondition satisfied and no error raised | **revision notes only** — original G2 not read back |
@@ -1219,6 +1263,9 @@ this environment's).
 | 57 | **Message Header Analyzer** headline: *"Delivered after 4 seconds"* | The analyzer's own hop table shows creation at 14:00:57 and final hop at 14:01:15 — **18 seconds**. It sums inter-hop delays (0+1+0+3) and silently drops 14 seconds of sender-side queueing | One message now has **four** latency figures: `EndToEndLatency` 3.25 s (Microsoft-side only), analyzer headline 4 s (inter-hop only), message trace `Receive`→`Deliver` 5 s (transport events), analyzer timestamps 18 s (creation to delivery). They differ by nearly **6×** and measure different intervals. This vindicates the withdrawn Lab 12 latency finding from the other direction — three of these were called "independent measurement methods" and are neither independent nor comparable. **The tool's headline number is the one that omits the most** | **live, 2026-08-01** |
 | 58 | **Microsoft Message Header Analyzer** parses Exchange Online headers into a readable breakdown | Two `Unknown fields` entries: `DIR:INB` and the entire `ARA:` rule-attribution list — **both emitted by Exchange Online Protection**. In the `Other` section, values appear stripped of their field names entirely | **`SA` sits in `Other` as a bare unlabelled string.** That is `X-MS-Exchange-AtpMessageProperties`, the single field that distinguished the two policy paths across four messages in Lab 12 — and Microsoft's own analyzer renders it as a value with no key. The parse is otherwise correct: SPF/DKIM/DMARC/composite all Pass, SCL 1, BCL 0, matching the manual read exactly | **live, 2026-08-01** |
 | 59 | **Guide** §7 and the Take action wizard present Junk / Deleted items / **Soft delete** / Hard delete as adjacent choices, distinguished as *recoverable* versus *permanent* | Soft delete executed (Approval ID `6570a3`, Action Center History, Approved, Completed) and the message was then **restored by the mailbox owner** via Deleted Items → Recover items deleted from this folder → Deletions. Two clicks, standard end-user client, no admin involvement, **no notification to the operator who remediated it** (`POS-057`) | Correct behaviour — soft delete is documented as recoverable and that is its purpose. Neither the wizard nor the guide states **who** can recover. In the case remediation exists for — a compromised or complicit mailbox — the message sits one click from restoration by the account under investigation, and the Action Center still reads `Completed`. Hard delete is the control that closes it, presented as an adjacent radio button with no indication of the difference | **live, 2026-08-01** |
+| 60 | **This table, row 1** (and `POS-005` as first written): the environment has *no free credit* | A **$200 sign-up credit exists** — effective 2026-07-14, expiring 2026-08-13, attached to **billing profile A**, which has never carried a charge; all lab spend bills to **profile B** (`POS-058`). Under MCA a credit pays down only its own profile's invoice | The 2026-07-16 check consulted resource cost analysis — a surface structurally unable to see another profile's credit. **Residency ≠ billability had a billing-side sibling: existence ≠ reachability.** Credit exists, is worth $0 to this lab, and expires unspent by recorded decision. G1 was right that the credit exists; wrong that a safety catch comes with it — the spending limit is unavailable on pay-as-you-go pricing, so this is credit **without** the net | **live, 2026-08-01** — self-correction, withdrawal recorded rather than edited away |
+| 61 | `POS-016` as first written (and §3.3): deallocation is *"the only mechanism that actually ends spend"* | True for compute only. **Managed disks and public IPs bill while they exist** and kept accruing into August with both VMs deallocated. July invoice: **~$10.84 pre-tax actual vs ~$7.58 tracked** (~43% under) | "Stopped (deallocated)" ends the compute meter and leaves the storage and IP meters running — the stopped state covers less than the word suggests. Same family as Bastion (bills while existing, offers no stopped state at all — the reason the hosts were deleted, not stopped). Deletion, not deallocation, is what ends resource spend | **live, 2026-08-01** — measured by invoice, self-correction |
+| 62 | `POS-017` as originally written states the license answer flatly: 1 paid license converts on 2026-08-13 | **Three surfaces report 25 licenses** (trial allocation, Change plan panel, Azure billing inventory) against **one reporting 1 paid license** (M365 admin center renewal field) | Stating only the resolution caused a real misreading — the 25 was briefly raised as a 25-license billing exposure when re-encountered. The renewal field answers "what converts to paid"; the 25 is trial provisioning. The disagreement is the durable fact and now the recorded one | **live, 2026-08-01** — register amended to carry the disagreement |
 
 ---
 

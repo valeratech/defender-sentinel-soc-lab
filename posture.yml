@@ -93,13 +93,24 @@ entries:
     kind: gap
     production: Budgets with alert thresholds; auto-shutdown on lab compute
     revisit: true
-    verified: 2026-07-16
+    verified: 2026-08-01
     note: >-
-      Free-credit offer unavailable, so the "services disabled, never charged"
-      safety net does not exist. The spending limit feature is unavailable on
-      pay-as-you-go, so there is no mechanism that stops spend — only ones that
-      report it. Deallocating lab compute is therefore the actual cost control;
-      the budget is what reports that the habit slipped.
+      CORRECTED 2026-08-01 — the original premise is disproven; the conclusion
+      survives on different grounds. As first written (2026-07-16) this entry
+      asserted "free-credit offer unavailable". That was wrong: a $200 Azure
+      sign-up credit EXISTS, effective 2026-07-14, expiring 2026-08-13. It was
+      invisible because it sits on a different billing profile than the one
+      carrying lab spend (POS-058) — the surface consulted was resource cost,
+      which answers a different question than the payment-methods page.
+
+      What survives, and is now worse than either position previously held:
+      the spending limit feature is unavailable on subscriptions with
+      pay-as-you-go pricing, so this environment has credit WITHOUT the
+      "services disabled, never charged" safety net the credit model normally
+      implies. There is still no mechanism that stops spend — only ones that
+      report it. Deallocating lab compute remains the primary cost control
+      (with the POS-016 correction: compute only), and the budget is what
+      reports that the habit slipped. A gap entry that was accidentally right.
 
   - id: POS-015
     lab: "00"
@@ -173,8 +184,18 @@ entries:
       This is the primary cost control on this subscription. POS-005 records
       that pay-as-you-go has no spending limit, and POS-015 records that Azure
       budgets notify but do not cap and are evaluated only every 8-24 hours.
-      Deallocation is therefore the only mechanism here that actually ends
-      spend rather than reporting it.
+
+      CORRECTED 2026-08-01 — as first written this note called deallocation
+      "the only mechanism here that actually ends spend". That is true for
+      COMPUTE and false as a general claim: managed disks and public IP
+      addresses bill while they exist, and both continued accruing into August
+      with both VMs deallocated. The July invoice measured the gap — ~$10.84
+      pre-tax actual against ~$7.58 tracked, an understatement of roughly 43%,
+      most of it storage and IP hours attributed to "deallocated" machines.
+      Deallocation ends compute spend; only deletion ends resource spend. The
+      same shape as Bastion (billed while existing, no stopped state), now
+      measured on resources that DO have a stopped state — the stopped state
+      just covers less than the word suggests.
 
       REVISIT: verified as a one-time observation, not as a control. The
       current mechanism is operator memory, which is not a control at all —
@@ -215,6 +236,18 @@ entries:
       turned off. That is a decision point, not a deadline: month-to-month is
       cancellable at any renewal, so the lab need not be compressed to fit the
       trial window.
+
+      SURFACE DISAGREEMENT, recorded 2026-08-01 because stating only the
+      resolution caused a misreading: THREE surfaces report 25 licenses (the
+      trial allocation, the Change plan panel, and the Azure billing
+      inventory) against ONE reporting 1 paid license (the M365 admin center
+      renewal field). The renewal field is the surface that answers "what
+      converts to paid" — 1 license, 1 month, pay monthly — and the 25 is the
+      trial's provisioned allocation, not a purchase commitment. This register
+      originally stated the 1-license answer flatly, which is why the 25 was
+      briefly read as a 25-license billing exposure when re-encountered on
+      another surface. The disagreement is the durable fact; the resolution is
+      one surface's answer to one question.
 
       UNVERIFIED, AND TESTED LIVE ON 2026-08-13: whether Microsoft 365 E5
       survives Office 365 E5 lapsing. If O365 E5 was structurally required to
@@ -2233,3 +2266,39 @@ entries:
       Nothing here is broken. Soft delete is documented as recoverable and that
       is its purpose. The gap is that the surface presenting the choice does not
       surface the consequence.
+
+  # ---------- Cross-lab — Azure billing topology (recorded 2026-08-01) ----------
+
+  - id: POS-058
+    lab: "00"
+    setting: Azure billing topology - credit placement across billing profiles
+    location: Cost Management + Billing > Billing scopes / Payment methods
+    state: Two Microsoft Customer Agreement billing accounts, identically named, each with its own billing profile. Profile A holds the $200 credit (expires 2026-08-13) and has never carried a charge. Profile B carries every dollar of lab spend and holds no credit.
+    baseline: n/a - structure produced by the two-trial acquisition path, not chosen
+    kind: gap
+    production: One billing account per organization; credits and spend on the same billing profile; distinct subscription names
+    revisit: false
+    verified: 2026-08-01
+    note: >-
+      Under a Microsoft Customer Agreement, credits attach to a billing
+      profile and pay down only that profile's invoice. The $200 credit is
+      therefore structurally unable to reach the lab's spend — not expired,
+      not consumed, not conditional: attached to an invoice the lab does not
+      bill to. This is the mechanism behind the POS-005 correction, and it is
+      why the credit was invisible for 18 days — the surface consulted
+      (resource cost analysis) is scoped to the subscription, which belongs to
+      profile B, and profile A's credit appears on no surface reachable from
+      there.
+
+      DECISION, recorded with reasoning: do not chase the credit. Migrating
+      existing resources or rebuilding state to capture $200 costs hours of an
+      11-day budget, and the VMs carry ASR state that POS-031's pending
+      enforcement-scope test is a test OF. The credit expires unspent on
+      2026-08-13 by choice.
+
+      RELATED HAZARD: the two subscriptions are BOTH named "Azure subscription
+      1". Every subscription picker in every portal shows the name, and the
+      name does not disambiguate — a deployment aimed at the wrong one would
+      look correct at every step. Renaming one is a standing recommendation,
+      unexecuted because every existing artifact references the current
+      names' GUIDs rather than display names.

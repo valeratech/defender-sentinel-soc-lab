@@ -180,6 +180,19 @@ Compliance PowerShell returns `False` even when auditing is on. See `POS-035`.
 recorded "Simulation launched" event. The launched event anchors nothing — Lab 09 §5.
 
 
+
+## Microsoft Purview — `purview.microsoft.com`
+
+| Task | Path | Confirmed |
+|---|---|---|
+| Reach Data Loss Prevention (first visit) | Purview **Home → solution tiles → Data Loss Prevention** — absent from the left nav until launched once, then pins (pin persisted across sessions) | 2026-08-01; pin re-confirmed 2026-08-02 |
+| DLP policy list | Data Loss Prevention → Policies — the Mode column encodes the tips sub-option ("In simulation with/without notifications") | 2026-08-02 |
+| Test content against a SIT (policy-independent) | Classifiers → Sensitive info types → *(select SIT)* → **Test** → upload file — reports every qualifying confidence tier with supporting keywords | 2026-08-02 |
+| DLP simulation results | Policies → *(policy)* → **View simulation** — Simulation overview / Items for review / Alerts tabs; overview counters and the Items grid aggregate on different cadences (row 79) | 2026-08-03 |
+| DLP metered-features usage | Data Loss Prevention → Pay-as-you-go usage report — readable without linking a subscription | 2026-08-01 |
+| Role group membership | Settings → Roles and scopes → Role groups (Export for the CSV; contains no PII) | 2026-08-01 |
+| IRM alerts | Insider Risk Management → Users → **Alerts (preview)** (an Alerts (classic) coexists; Agents has a third Alerts) | 2026-08-03 |
+
 ## Which surface answers which question
 
 Navigation is not only "where is the setting" — it is also "which view answers my
@@ -198,3 +211,5 @@ question." For endpoint activity, the surfaces are not interchangeable (Lab 06 �
 | Is a workspace table actually *billable*? | Not the census — `Usage \| where IsBillable == true`. Residency and billability are different questions (`POS-044`, Lab 08 §7) |
 | Where do user-reported phish actually go? | Not answerable from the portal — `Get-ReportSubmissionPolicy` / `Get-ReportSubmissionRule` in EXO PowerShell, and even then the effective mailbox is in neither (`POS-040`) |
 | Who holds a Defender role? | System → Permissions → Roles → *(role)* → Edit assignment *(count only shown until opened)* |
+| Will this content match a SIT? | **Not the policy or its report** — Classifiers → SIT → Test answers in seconds, policy-independent, before any activation wait (Lab 14) |
+| What timezone is this Purview timestamp? | Depends on the surface: policy list local unlabelled, CSV export GMT labelled, Items grid UTC unlabelled, IRM alerts UTC labelled (row 81) |

@@ -31,17 +31,17 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 58 |
-| Verified by direct observation | 57 |
+| Settings tracked | 62 |
+| Verified by direct observation | 61 |
 | Asserted but unverified | 1 |
-| Flagged to revisit | 45 |
+| Flagged to revisit | 46 |
 
 | Kind | Count |
 |---|---|
 | hardened | 22 |
-| default | 17 |
+| default | 20 |
 | **weakening** | 6 |
-| **gap** | 13 |
+| **gap** | 14 |
 
 ## Flagged to revisit
 
@@ -96,6 +96,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-054` | 12 | SA-Sales-DynamicDelivery - custom Safe Attachments policy | Action DynamicDelivery; Enable True; scoped to sales-lab; Redirect True to the admin mailbox; quarantine policy AdminOnlyAccessPolicy | hardened | Redirect removed; ActionOnError set explicitly; policy scoped by group with the group's membership under change control | 2026-08-01 |
 | `POS-056` | 13 | Email preview and download permission | Global Administrator cannot preview or download delivered mail; quarantine only | **gap** | A scoped analyst role carrying the content-read permission, held by an identity that is not the Global Administrator | 2026-08-01 |
 | `POS-057` | 13 | Email remediation reversibility - soft delete | Recoverable by the mailbox owner from the standard Outlook client, no notification to the operator | **gap** | Hard delete where the mailbox may be compromised or the account is under investigation; soft delete only where the recipient is trusted | 2026-08-01 |
+| `POS-061` | 14 | Purview role group membership | 70 built-in role groups, zero users and zero security groups in every one; no custom role groups | **gap** | Scoped role-group membership per function (Security Reader for triage, Compliance Administrator for policy work); no standing Global Administrator use for Purview operations | 2026-08-01 |
 
 ## All tracked settings
 
@@ -334,6 +335,23 @@ it is an oversight. Closing an item means recording which one it was.
 **`POS-056` — Email preview and download permission.** Observed verbatim: "You have permission to preview or download only emails that are in Quarantine. Please check permissions page or contact your admin." The identity holding total authority over this tenant cannot read the body of a delivered message. Global Administrator does not carry "Email & collaboration content (read)" - it is a separate Unified RBAC permission, deliberately gated because previewing mail is reading private correspondence. THIS SHARPENS POS-002 IN A DIRECTION THE REGISTER HAS NOT ARGUED BEFORE. Every prior entry treats the single standing Global Administrator as a RISK. This one shows it is also INSUFFICIENT: a workload exists here that the all-powerful account cannot perform. The scoped-identity argument is no longer only about least privilege; without a second role, part of the email investigation surface is simply unavailable. Not a misconfiguration. The product is correct to gate this. Recorded because the gap is invisible until an investigation needs the message body.
 
 **`POS-057` — Email remediation reversibility - soft delete.** Measured end to end. Soft delete executed (Approval ID 6570a3, Action Center History, Approved, Completed), the message left the Inbox, and it was then restored by the mailbox owner via Deleted Items > Recover items deleted from this folder > Deletions. Two clicks, standard end-user UI, no admin involvement, no notification to the operator who remediated it. The wizard presents Junk / Deleted items / Soft deleted items / Hard deleted items as four adjacent radio buttons. The guide describes the distinction as recoverable versus permanent and frames it as operator convenience. Neither states WHO can recover. Operationally this matters most in the case remediation exists for: a BEC or phishing message in a mailbox that is compromised or whose owner is complicit. Soft-deleting it leaves the message one click from restoration by the account under investigation, and the Action Center still reads Completed. Nothing here is broken. Soft delete is documented as recoverable and that is its purpose. The gap is that the surface presenting the choice does not surface the consequence.
+
+### Lab 14
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-059` | Pre-seeded default DLP policies | `Purview > Data Loss Prevention > Policies` | Four policies, priorities 0-3, all stamped Jul 14 2026 9:39 PM (Pacific, per the Lab 14 timezone decode) - Default Office 365 DLP (On), Copilot interactions (simulation with notifications), Teams (On), Devices (On) | default | no | 2026-08-01 |
+| `POS-060` | Pre-policy classification baseline (zero change management) | `Purview > Home > Featured insights` | 17 items classified (Microsoft 365), three SIT types matched - Poland Passport (2), DEA Number (2), HKID Number (2) - with zero DLP policies configured by the operator | default | no | 2026-08-01 |
+| `POS-061` | Purview role group membership | `Purview > Settings > Roles and scopes > Role groups` | 70 built-in role groups, zero users and zero security groups in every one; no custom role groups | **gap** | yes | 2026-08-01 |
+| `POS-062` | Lab DLP policy - US Financial, simulation mode, template defaults | `Purview > Data Loss Prevention > Policies > Lab14-USFinancial-Simulation` | Created 2026-08-02 16:04 PDT. Priority 4. In simulation without notifications. All wizard values template defaults except surface choice, template choice, and name. Two compiled rules (Low volume / High volume) | default | no | 2026-08-03 |
+
+**`POS-059` — Pre-seeded default DLP policies.** Three of the four are ENFORCING and nobody chose any of them. Third instance of the provisioning-window pattern after Built-in protection (POS-048) and the auto-created groups - a security-relevant capability active without a decision, recorded so it is never mistaken for one. Any policy created in this tenant lands at priority 4 or below, behind all four. The Jul 14 9:39 PM stamp is now decodable as Pacific evening: the Purview policy list renders local time (Lab 14 finding).
+
+**`POS-060` — Pre-policy classification baseline (zero change management).** Purview classifies before any policy exists - "zero change management" is Microsoft's own term for it. The three matched SITs are weakly-anchored patterns and this tenant contains only lab mail and service notifications, so these are almost certainly false positives - recorded as UNVERIFIED because verifying means opening Content explorer, which displays matched content, and the sanitization rule keeps that display-only. The value of the observation is the baseline itself: a measured false-positive floor that predates the first policy, in the same family as Built-in protection - scanning nobody enabled. Lab 14 Phase C then reproduced the mechanism deliberately: one controlled value matched two SITs at once (cross-matching).
+
+**`POS-061` — Purview role group membership.** POS-002's Purview dimension, quantified: 70 delegation containers holding hundreds of role assignments, not one with a member. Everything Purview does in this tenant runs on Global Administrator's implicit access. Measured by CSV export (which contains no PII - group names, types, and zeroes). It pairs with POS-056 in the opposite direction: Lab 13 found GA insufficient (cannot preview delivered mail), Lab 14 found it load-bearing (the only path to any Purview capability), and the policy-creation confirmation page then showed "Permission required" on communication compliance TO Global Administrator - a third data point. The fix is harder than it reads: guide 65 records that broad Entra roles OVERRIDE scoped Purview assignments, so populating a role group produces a scoped identity only if that identity holds no overriding Entra role. Closes only when a scoped analyst identity does real work (POS-002's standing condition). AMENDED 2026-08-03: first deliberate membership - the admin account was added to the Insider Risk Management role group (the full 17-role group; narrower groups rejected for lab purposes) at 07:50 PDT to enable Lab 15's alert surfaces. This is a capability grant to the SAME identity, not POS-002's scoped analyst - the gap this entry records narrows by one group and does not close. Propagation measured: the IRM Policies page banner ("you aren't assigned to a role group that allows you to view alerts") still rendered past the documented one-hour ceiling while the Alerts grid itself served content by ~09:00 - the warning outlived the condition it warned about. The GA-insufficiency family this entry anchors reached five measured instances across three solutions: mail preview (POS-056), communication compliance, DLP sensitive-info details (Data Classification Content Viewer), IRM alert viewing (this grant's cause) - against Adaptive Protection rendering fully to GA unaided.
+
+**`POS-062` — Lab DLP policy - US Financial, simulation mode, template defaults.** Deliberately all-defaults so the defaults themselves are the measurement. What defaults ship: seven locations blanket-enabled (two non-functional here, and those same two unsupported by simulation mode); notify-and-report on (tips, threshold 10, incident reports, alerts) with the only enforcement action OFF; the entire device-action section off, so Devices is in scope and uninstrumented; 15-day auto-enable unchecked (verified - it would have fired 2026-08-17, past the trial's 2026-08-13 death). Incident reports cover four of the seven in-scope locations. PHASE D OUTCOME (2026-08-03): EFFECTIVE for the covered paths, measured. Detected the pre-validated content at rest (OneDrive, including content predating activation) and in transit (Exchange, evaluated at the send minute, twice), with exact per-SIT attribution (ABA 1 Medium / Bank Account 2 Medium, Low volume rule). Report indexing lags evaluation by 8-12 minutes. Restart-the-simulation is a destructive rebuild that wipes unrecoverable real-time history behind a consequence-free confirmation dialog - the policy detects; its evidence surface is fragile. Devices produced nothing through three stacked mechanisms (no at-rest device scan, device actions off, endpoints deallocated), as predicted.
 
 ## Asserted but not observed
 

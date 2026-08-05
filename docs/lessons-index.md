@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**12 module(s) recorded · 6 produced a lab · 19 correction(s) to previously committed content.**
+**13 module(s) recorded · 7 produced a lab · 21 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -24,6 +24,7 @@ than restates**: each finding has exactly one authoritative home.
 | [62](../lessons/MOD-62-mdo-threat-policies.md) | Using policies to remediate threats with Email, Teams, SharePoint & OneDrive | 🔨 lab | `Lab 12` | `POS-047`, `POS-048`, `POS-049`, `POS-050`, `POS-051`, `POS-052`, `POS-053`, `POS-054`, `POS-055` | `row 42`, `row 43`, `row 44`, `row 45`, `row 46`, `row 47`, `row 48`, `row 49`, `row 50`, `row 51`, `row 52` | 3 |
 | [63](../lessons/MOD-63-explorer-air-remediation.md) | Investigate, respond, and remediate threats with Defender for Office 365 | 🔨 lab | `Lab 13` | `POS-056`, `POS-057` | `row 53`, `row 54`, `row 55`, `row 56`, `row 57`, `row 58`, `row 59` | 2 |
 | [66](../lessons/MOD-66-dlp-policies.md) | Implement data loss prevention policies | 🔨 lab | `Lab 14` | `POS-059`, `POS-060`, `POS-061`, `POS-062` | `row 63`, `row 64`, `row 65`, `row 66`, `row 67`, `row 68`, `row 69`, `row 70`, `row 71`, `row 72`, `row 73`, `row 74`, `row 75`, `row 76`, `row 77`, `row 78`, `row 79`, `row 80`, `row 81`, `row 82` | 2 |
+| [71](../lessons/MOD-71-insider-risk-policy.md) | Generating an insider risk policy | 🔨 lab | `Lab 15` | `POS-063`, `POS-064`, `POS-065` | `row 83`, `row 84`, `row 85`, `row 86`, `row 87`, `row 88`, `row 89`, `row 90`, `row 91`, `row 92`, `row 93`, `row 94` | 2 |
 
 ## Corrections to previously committed content
 
@@ -52,3 +53,5 @@ anything.
 | 63 | Log (0) on a completed investigation was nearly recorded as a finding; the counter read Log (4) minutes later with no action taken. |
 | 66 | The ABA-checksum assumption carried in from session notes was contradicted by the SIT documentation (Checksum: No); withdrawn, and the test design routed around it with a published institutional routing number. |
 | 66 | No Low confidence tier was predicted for U.S. Bank Account Number (the published definition has a single 75-level pattern); the live Test panel returned one. Recorded as a docs-vs-product divergence with the mechanism unasserted. |
+| 71 | The policy-health `last updated` stamp reading 9:08 and then 9:09 across two near-simultaneous screenshots was nearly written up as a live-recomputing field. A read the next day showed an ordinary refresh (04:38); the delta was two reads spanning a minute. Recorded as unremarkable rather than as a finding. |
+| 71 | P15-1's text did not survive a session transfer. Reconstructing it after the outcome was known would have produced an unfalsifiable prediction; it is withdrawn from the record instead. |

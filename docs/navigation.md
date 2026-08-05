@@ -213,3 +213,9 @@ question." For endpoint activity, the surfaces are not interchangeable (Lab 06 �
 | Who holds a Defender role? | System → Permissions → Roles → *(role)* → Edit assignment *(count only shown until opened)* |
 | Will this content match a SIT? | **Not the policy or its report** — Classifiers → SIT → Test answers in seconds, policy-independent, before any activation wait (Lab 14) |
 | What timezone is this Purview timestamp? | Depends on the surface: policy list local unlabelled, CSV export GMT labelled, Items grid UTC unlabelled, IRM alerts UTC labelled (row 81) |
+| Is an IRM policy actually able to fire? | **Not `Status`.** `Healthy` means configuration-valid; `1 warning` may be about an unrelated connector. Read `Users in scope` on the Policies grid — 0 is structural (row 83, `POS-064`) |
+| Where do IRM alerts live? | Three surfaces: Insider Risk Management → **Users → Alerts (preview)**, → **Alerts (classic)**, and a third under **Agents → Alerts**. Which one populates first is itself a finding |
+| Did an IRM alert fire at all, regardless of dashboard? | The **admin mailbox** — the first-alert notification toggle is ON by default and works when the grids are ambiguous (Lab 15 §5) |
+| Which org indicators are on? | Purview → Insider Risk Management → **Settings → Policy indicators**. Reachable only through the policy wizard's forced dialog on first run (`POS-063`) |
+| What triggering event does an IRM policy use? | **Not the Policy settings flyout** — it omits the trigger entirely. Edit policy → Triggers (row 92) |
+| Was a directory role assigned without me? | Entra ID → Roles and administrators. The only notification came from Entra ID Protection email, not from the product that caused it (`POS-065`, row 93) |

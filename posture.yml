@@ -2419,3 +2419,130 @@ entries:
       dialog - the policy detects; its evidence surface is fragile. Devices
       produced nothing through three stacked mechanisms (no at-rest device
       scan, device actions off, endpoints deallocated), as predicted.
+
+  - id: POS-063
+    lab: "15"
+    setting: Insider Risk Management org-level indicators - Microsoft's pre-selected recommended set accepted verbatim
+    location: Purview > Insider Risk Management > Settings > Policy indicators (reached via the policy wizard's forced dialog)
+    state: Enabled ~08:45 PDT 2026-08-03 (approximate - exact save minute never captured). 45 of 103 indicators on, accepted exactly as pre-selected. On - Office 31/31, Physical access 1/1, MDCA 14/14, Health record 5/5, Cumulative exfiltration 2/2, Risk boosters 4/4, GenAI 2/7, Entra ID Protection 2/2, DLP alert 1/1. Off - Device/MDE, Risky browsing, Network, Cloud storage, Cloud service, Fabric, Communication compliance
+    baseline: All 103 indicators OFF org-wide at provisioning
+    kind: default
+    production: A real deployment scopes indicators to the exfiltration paths it can actually observe, enables Device indicators only after endpoint onboarding is verified, and records why each off-category is off. Accepting the vendor set unread means inheriting a detection surface nobody sized
+    revisit: false
+    verified: 2026-08-03
+    note: >-
+      Two findings, one entry. First, the baseline: IRM ships with EVERY
+      indicator off - the inverse of DLP's posture two labs earlier, where
+      seven locations arrived blanket-enabled and scoped All (POS-062). Two
+      Purview solutions, provisioned in the same window, shipping opposite
+      defaults. DLP defaults to watching everything and enforcing nothing;
+      IRM defaults to watching nothing at all.
+
+      Second, the enablement is not a decision the operator gets to skip.
+      The policy wizard forces the dialog and pre-selects Microsoft's
+      recommended set; accepting it is one click and declining it leaves the
+      policy unable to score. What was accepted is therefore a vendor
+      judgment, not ours - recorded here as such rather than as a hardening
+      choice.
+
+      Three surfaces disagree on how many indicators exist. The chooser
+      renders 17 categories; the policy screen renders 12 categories with
+      different per-category totals; the review page states "45/126". No two
+      agree, and the 103 figure used above is this repository's count from the
+      chooser. The disagreement is the durable fact.
+
+      Timestamp debt recorded honestly: the save minute was never captured at
+      the time and is reconstructed only as "~08:45 PDT" from surrounding
+      wall-clock anchors (role group 07:50, policy creation 08:52).
+
+  - id: POS-064
+    lab: "15"
+    setting: Lab IRM policy - Data leaks template, DLP-match trigger against a simulation-mode policy
+    location: Purview > Insider Risk Management > Policies > Lab15-DataLeaks-DLPTrigger
+    state: Created 2026-08-03 08:52 PDT. Template Data leaks. All users, no exclusions. Priority content = the three Lab 14 SITs (ABA Routing, Credit Card, US Bank Account). Scoring = all activity (default). Trigger = "User matches a DLP policy" scoped to Lab14-USFinancial-Simulation only. 39/103 indicators auto-selected from the org set and kept. Microsoft-provided thresholds. Notifications - first-alert ON, high-severity OFF, weekly OFF
+    baseline: n/a - operator-created
+    kind: default
+    production: A production IRM policy needs a triggering event that can actually fire - which per the wizard's own fine print means a DLP policy in enforcement mode emitting High-severity incident reports. It also needs Analytics on (or thresholds set deliberately), Insider risk settings configured rather than skipped, and a scored user population. This policy has none of those and is retained as a measurement, not as a control
+    revisit: false
+    verified: 2026-08-05
+    note: >-
+      Built to answer one question: does a SIMULATION-MODE DLP match function
+      as an IRM triggering event? Answer, measured over 49 hours across three
+      independent surfaces: NO - and nothing anywhere says so.
+
+      The trigger dropdown listed all five tenant DLP policies with ZERO mode
+      or severity annotation, while the same wizard screen states the DLP
+      policy "must be configured to generate 'High' severity incident
+      reports". The selector does not enforce the requirement the wizard
+      states one paragraph away.
+
+      OUTCOME (2026-08-05): NULL, confirmed twice on each surface. Trigger
+      email sent 09:11 PDT 2026-08-03 and MATCHED - Lab 14's report carries it
+      as LAB15 TRIGGER TEST.eml, Exchange, Aug 3 4:11 PM UTC, Low volume rule,
+      U.S. Bank Account +1 more. So the triggering event's precondition
+      demonstrably occurred. At +25 h and again at +49 h: Alerts (preview) 0
+      items, no first-alert notification email in either inbox tab, Active
+      alerts 0, Last alert "No alerts yet".
+
+      ONE null, FOUR candidate causes - not four independent rejections. They
+      are not co-equal: (c) Users in scope = 0, persistent across 49 h, would
+      PREEMPT the others, since a policy with no scored population may never
+      have evaluated the trigger at all, leaving (a) simulation-mode and (b)
+      the unenforced High-severity requirement no opportunity to reject
+      anything. (d) non-evaluation upstream is indistinguishable from (c).
+
+      And (c) is itself uncertain: the grid reads 0 while the flyout on the
+      same screen reports coverage of all active users at High (divergence row
+      83). Two surfaces, one field, no third surface to break the tie. The
+      leading candidate rests on believing the persistent reading on the field
+      named for the question - recorded as a choice, not as a measurement.
+      Mechanism open.
+
+      Status read Healthy at creation and "1 warning" from 2026-08-04 onward
+      with no configuration change between. The warning is "Physical badging
+      data isn't being uploaded" - an unconfigured optional connector,
+      irrelevant to a DLP-triggered policy. The health job is demonstrably
+      live (last-updated stamp moved 08-04 09:08 -> 08-05 04:38) and has
+      reported that same irrelevant warning on every pass while saying nothing
+      about zero users in scope or a trigger that cannot fire. Policy alert
+      effectiveness renders 0% - a computed metric over an empty set,
+      presented as a definite number.
+
+      Recorded omission: Microsoft's own checklist marks "Configure insider
+      risk settings" REQUIRED and it was skipped. Defaults-as-shipped
+      everywhere except the org indicator toggle (POS-063).
+
+  - id: POS-065
+    lab: "15"
+    setting: Entra directory role Purview Workload Content Reader, auto-assigned to the standing GA identity outside PIM
+    location: Entra ID > Roles and administrators > Purview Workload Content Reader
+    state: Assigned 2026-08-03 14:52 UTC (07:52 PDT) by service principal PurviewRoleAssignmentMigrator. Not requested, not performed by the operator. Surfaced only via an Entra ID Protection notification email ("A privileged directory role was assigned outside of PIM")
+    baseline: Role unassigned before 2026-08-03
+    kind: weakening
+    production: Directory-role assignments made by automated migrator principals need the same review as human-made ones. In production this warrants an alert rule on privileged-role assignment outside PIM, and a periodic reconciliation of directory roles against the Purview role-group memberships that spawn them
+    revisit: false
+    verified: 2026-08-03
+    note: >-
+      SECOND cross-product side-effect provisioning measured in this
+      repository, and structurally identical to the first. Two minutes after
+      the admin was added to the Insider Risk Management role group at 07:50
+      PDT (POS-061), a Microsoft-operated principal assigned an ENTRA
+      DIRECTORY role - a different permission system entirely. Causation is
+      inference from two-minute proximity and is labelled as such; the
+      assigner name (PurviewRoleAssignmentMigrator) supports it.
+
+      The sibling case: Lab 14's DLP policy creation caused MIP to auto-create
+      two mirror file policies and auto-enable file monitoring in MDCA
+      (Lab 16). One action in one product silently provisioning state in
+      another is now a pattern, not an anomaly.
+
+      Note what it did NOT grant. Purview still reports that "Data
+      Classification Content Viewer" is required to view sensitive info
+      details (divergence row 80). An automated process granted a
+      content-reader role that is not the content-reader role the UI demands -
+      two similarly named roles, neither implying the other. Open question
+      rather than a claim.
+
+      This entry is kind: weakening because the tenant's privileged surface
+      grew without a decision. It narrows nothing about POS-002, which stays
+      open.

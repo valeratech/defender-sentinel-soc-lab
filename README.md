@@ -92,8 +92,8 @@ Product names are used precisely throughout. "Defender" alone is avoided whereve
 | Component | State |
 |---|---|
 | Tenant | Single Entra tenant, lab-only, created 2026-07-14 |
-| Licensing | M365 E5 trial + Defender for Endpoint Plan 2 / Vulnerability Management |
-| Identity | Global Administrator + subscription Owner; scoped read-only analyst identity created (Unified RBAC) |
+| Licensing | M365 E5 trial + Defender for Endpoint Plan 2 / Vulnerability Management. E5 also carries the Purview (DLP, Insider Risk), Defender for Cloud Apps, and Defender for Office 365 surfaces exercised in Labs 12–16 — all of which expire with it |
+| Identity | Global Administrator + subscription Owner; scoped read-only `analyst` identity created and unlicensed by design (`POS-027`); `labuser` non-admin endpoint identity (`POS-021`). `POS-002` stays open — the second identity exists but is not the one doing the work |
 | Endpoints | Windows 11 VM onboarded to Defender (local script, sensor Active); Windows Server VM added for agent-based ingestion (inbound None + no public IP, Bastion access — a tighter posture than the Win11 box) |
 | Device management | Entra device join configured; **Intune auto-enrolment never fires** — every precondition verified (`POS-022`). Forecloses all Intune-managed paths |
 | Device groups | Rule-based group, Semi remediation, scoped to the analyst via an Entra group |
@@ -138,6 +138,9 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [11](labs/11-sentinel-analytics-rules/) | Sentinel analytics rules — twelve alerts from one event, and a template that never fired | Detection | 🔨 Built, documenting |
 | [12](labs/12-mdo-threat-policies/) | Defender for Office 365 threat policies — a control that reads healthy on four surfaces and did nothing | Response | 🔨 Built, documenting |
 | [13](labs/13-explorer-air-remediation/) | Explorer, AIR, and what the Action Center actually holds | Response | 🔨 Built, documenting |
+| [14](labs/14-purview-dlp-simulation/) | Purview DLP — a US Financial policy in simulation, and what the defaults ship | Data protection | 🔨 Built, documenting |
+| [15](labs/15-insider-risk-policy/) | Insider Risk Management — a trigger the selector accepts and the runtime ignores | Data protection | 🔨 Built, documenting |
+| [16](labs/16-mdca-file-policy/) | Defender for Cloud Apps — two products, one engine, one file | Data protection | 🔨 Built, documenting |
 
 Lab numbers are opaque, append-only handles — `04` is Sentinel because that folder existed as a stub before device groups were built, and renumbering corrupts cross-references. Course-module order and repo lab order diverge by design; the number is a filing handle, not a sequence claim.
 

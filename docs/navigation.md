@@ -219,3 +219,10 @@ question." For endpoint activity, the surfaces are not interchangeable (Lab 06 �
 | Which org indicators are on? | Purview → Insider Risk Management → **Settings → Policy indicators**. Reachable only through the policy wizard's forced dialog on first run (`POS-063`) |
 | What triggering event does an IRM policy use? | **Not the Policy settings flyout** — it omits the trigger entirely. Edit policy → Triggers (row 92) |
 | Was a directory role assigned without me? | Entra ID → Roles and administrators. The only notification came from Entra ID Protection email, not from the product that caused it (`POS-065`, row 93) |
+| Which MDCA policies are actually running? | **Not the policy list** — 23 of 26 built-ins are `[Disabled]` by the dynamic threat detection model, which runs where this page does not show (`POS-066`, row 95) |
+| How many MDCA policies exist? | **Use a filtered view.** The unfiltered list mis-paginated and undercounted the MIP mirrors; `Category: DLP` showed both (row 100) |
+| Is the app connector actually carrying data? | **Not the `Connected` label.** Ask three: Activity log, `CloudAppEvents` in advanced hunting, and the connector's `Last activity` column (`POS-068`, row 97) |
+| Did another product configure something in MDCA? | Cloud apps → **Activity log**. It is the only surface that showed Lab 14's DLP policy auto-creating file policies and flipping file monitoring (`POS-067`, row 96) |
+| Where is the file-monitoring toggle? | Settings → Cloud apps → **Microsoft Information Protection → Files** *(path verbatim — it is not under Policies)* |
+| What timezone does MDCA render? | **Local, unlabelled** — the exception to the Defender portal's UTC (row 101). The Audit page labels both of its own conventions (row 102) |
+| Why is `Inspect protected files` greyed? | An Entra permission grant to the MDCA application is missing — application-consent, not a role gap on the operator (`POS-069`) |

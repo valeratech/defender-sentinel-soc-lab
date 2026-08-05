@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**18 open item(s) across 9 file(s).**
+**21 open item(s) across 11 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -71,6 +71,23 @@ Status: 🔨 Built, documentation in progress
 | Line | Section | Item |
 |---|---|---|
 | 106 | 6. Failures & Fixes | *(pending — whether an alert can carry an event range from a summarized result)* |
+
+## `labs/15-insider-risk-policy/README.md`
+
+Status: ✅ Built and measured — null verdict, confirmed twice on three surfaces
+
+| Line | Section | Item |
+|---|---|---|
+| 126 | The candidate causes — one null, four candidates, not four rejections | *(pending)* — **IRM → Users → Users** was never read. If that page enumerates |
+| 193 | 7. Analysis | *(pending)* — whether holding `Purview Workload Content Reader` changes what |
+
+## `labs/16-mdca-file-policy/README.md`
+
+Status: ✅ Built and measured — divergence confirmed, mechanism open
+
+| Line | Section | Item |
+|---|---|---|
+| 112 | How the zero must be read | *(pending)* — the MDE-side discovery toggle (Settings → Endpoints → Advanced |
 
 ## `lessons/MOD-57-entities-and-ueba.md`
 

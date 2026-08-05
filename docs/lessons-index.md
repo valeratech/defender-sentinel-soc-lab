@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**13 module(s) recorded · 7 produced a lab · 21 correction(s) to previously committed content.**
+**14 module(s) recorded · 8 produced a lab · 24 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -25,6 +25,7 @@ than restates**: each finding has exactly one authoritative home.
 | [63](../lessons/MOD-63-explorer-air-remediation.md) | Investigate, respond, and remediate threats with Defender for Office 365 | 🔨 lab | `Lab 13` | `POS-056`, `POS-057` | `row 53`, `row 54`, `row 55`, `row 56`, `row 57`, `row 58`, `row 59` | 2 |
 | [66](../lessons/MOD-66-dlp-policies.md) | Implement data loss prevention policies | 🔨 lab | `Lab 14` | `POS-059`, `POS-060`, `POS-061`, `POS-062` | `row 63`, `row 64`, `row 65`, `row 66`, `row 67`, `row 68`, `row 69`, `row 70`, `row 71`, `row 72`, `row 73`, `row 74`, `row 75`, `row 76`, `row 77`, `row 78`, `row 79`, `row 80`, `row 81`, `row 82` | 2 |
 | [71](../lessons/MOD-71-insider-risk-policy.md) | Generating an insider risk policy | 🔨 lab | `Lab 15` | `POS-063`, `POS-064`, `POS-065` | `row 83`, `row 84`, `row 85`, `row 86`, `row 87`, `row 88`, `row 89`, `row 90`, `row 91`, `row 92`, `row 93`, `row 94` | 2 |
+| [76](../lessons/MOD-76-mdca-file-policy.md) | Identify, investigate, and remediate security risks by using Defender for Cloud Apps | 🔨 lab | `Lab 16` | `POS-066`, `POS-067`, `POS-068`, `POS-069`, `POS-070` | `row 95`, `row 96`, `row 97`, `row 98`, `row 99`, `row 100`, `row 101`, `row 102`, `row 103`, `row 104`, `row 105`, `row 106`, `row 107`, `row 108` | 3 |
 
 ## Corrections to previously committed content
 
@@ -55,3 +56,6 @@ anything.
 | 66 | No Low confidence tier was predicted for U.S. Bank Account Number (the published definition has a single 75-level pattern); the live Test panel returned one. Recorded as a docs-vs-product divergence with the mechanism unasserted. |
 | 71 | The policy-health `last updated` stamp reading 9:08 and then 9:09 across two near-simultaneous screenshots was nearly written up as a live-recomputing field. A read the next day showed an ordinary refresh (04:38); the delta was two reads spanning a minute. Recorded as unremarkable rather than as a finding. |
 | 71 | P15-1's text did not survive a session transfer. Reconstructing it after the outcome was known would have produced an unfalsifiable prediction; it is withdrawn from the record instead. |
+| 76 | File monitoring was claimed to have been ON since provisioning. The MDCA Activity log showed all five of its events originate from Lab 14's DLP policy creation on 2026-08-02, including the monitoring toggle — our own action flipped it. Corrected before it reached a file. |
+| 76 | The 17:52 mirror-creation timestamp was read as approximately corresponding to DLP sync completion. Withdrawn: the DLP completion alert self-stamps 16:06 local, leaving 1 h 46 m the inference cannot cover. Mechanism reopened, not re-attributed. |
+| 76 | Divergence row 49 revised 'Defender local, Azure UTC' to 'Defender renders UTC'. MDCA's Activity log renders LOCAL inside the same portal, so that revision is itself amended to 'Defender UTC except MDCA'. |

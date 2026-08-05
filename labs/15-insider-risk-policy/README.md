@@ -123,6 +123,11 @@ the tie. So the leading candidate rests on choosing which of two contradictory
 readings to believe — the persistent one, over 49 h, on the field named for the
 question — and that choice is recorded here as a choice.
 
+*(pending)* — **IRM → Users → Users** was never read. If that page enumerates
+the scoped population directly, it is a third surface and the tie breaks on
+evidence rather than on judgment. It also determines whether candidates (a) and
+(b) are reachable at all: if scope is genuinely zero, they were never evaluated.
+
 What is not in doubt: the trigger's precondition occurred, and nothing
 downstream followed. The mechanism is open.
 
@@ -184,6 +189,12 @@ feature nobody enabled.
 without being asked — Lab 16 holds the first. And the GA-insufficiency family
 gained a member that runs the other way: an automated process *added* privilege
 that still does not satisfy the role Purview demands elsewhere.
+
+*(pending)* — whether holding `Purview Workload Content Reader` changes what
+the DLP match detail renders. Lab 14's Match summary demanded `Data
+Classification Content Viewer` for sensitive-info details; the auto-granted role
+is a different one. Re-reading that pane now would establish whether the two are
+related or merely similarly named.
 
 **Retained as a measurement, not as a control.** `POS-064` is not a working
 insider-risk capability and is not represented as one.

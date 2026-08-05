@@ -2546,3 +2546,158 @@ entries:
       This entry is kind: weakening because the tenant's privileged surface
       grew without a decision. It narrows nothing about POS-002, which stays
       open.
+
+  - id: POS-066
+    lab: "16"
+    setting: MDCA policy census at provisioning - 23 of 26 built-in policies disabled by platform migration
+    location: Defender > Cloud apps > Policies > Policy management
+    state: Observed 2026-08-04. 29 policies total - 26 built-in, 2 MIP-generated mirrors (POS-067), 1 operator-created (POS-069). 23 built-ins carry [Disabled]. Three remain ACTIVE, all OAuth threat-intelligence - Malicious OAuth app consent (High) and two Low-severity policies whose names suggest anomaly detection. All built-ins stamped Jul 14 2026 (provisioning window)
+    baseline: Vendor-shipped
+    kind: default
+    production: Enabling the anomaly policies is no longer the operator's decision - the dynamic model replaced them. A production deployment verifies which detections the dynamic model actually runs (not visible from this page) rather than reading the policy list as a detection inventory
+    revisit: false
+    verified: 2026-08-04
+    note: >-
+      The June 15 2025 dynamic threat detection model migration disabled the
+      anomaly-policy objects; the page carries the banner. Guide 53's claim
+      that a substantial set ships enabled is STALE - the largest accumulator
+      correction of the course arc so far.
+
+      The migration took UEBA and left threat intelligence: the three
+      survivors are all OAuth/TI policies, not behavioural ones. Labelled as
+      inference from the survivor set, not from documentation.
+
+      The policy list is therefore NOT a detection inventory. 23 objects that
+      look like configured detections are inert placeholders for a model that
+      runs somewhere this page does not show. Same family as the Sentinel
+      three-surface detection count (divergence row 41): asking "what is
+      running" of a list that answers "what exists".
+
+  - id: POS-067
+    lab: "16"
+    setting: MDCA file monitoring and two mirror file policies - auto-provisioned by a DLP policy created in a different product
+    location: Defender > Cloud apps > Policies (mirrors) | Settings > Cloud apps > Microsoft Information Protection > Files (monitoring toggle)
+    state: File monitoring ON, Save greyed. Two mirror file policies exist - "MIP - Lab14-USFinancial-Simulation - High volume of content detected" (High severity, alert bell set) and "- Low volume of content detected" (Low, no bell). All three created 2026-08-02 17:52 local, per the MDCA Activity log. Both mirrors edited 2026-08-03 07:59 local. As of 2026-08-05 both read 0 matches while their source DLP policy reads 2
+    baseline: File monitoring OFF and no mirrors before 2026-08-02
+    kind: weakening
+    production: Cross-product auto-provisioning needs to be inventoried after any DLP policy change, because it creates objects in a console the operator may not open. The mirrors also need their own effectiveness check - existence in the list is not detection
+    revisit: false
+    verified: 2026-08-04
+    note: >-
+      FIRST cross-product side-effect provisioning measured in this repository
+      (POS-065 is the second). Lab 14's DLP policy creation caused Microsoft
+      Information Protection to create two CAS file policies - one per
+      compiled DLP rule - AND to flip the file-monitoring toggle, in a product
+      that had not been opened. The MDCA Activity log holds only five events
+      total and every one of them is this.
+
+      CORRECTION RECORDED: an earlier claim in this repository that file
+      monitoring had been ON "since provisioning" was WRONG. The Activity log
+      proved our own Lab 14 action flipped it. Corrected in-session rather
+      than carried.
+
+      WITHDRAWAL RECORDED: the 17:52 mirror-creation timestamp was read as
+      approximately corresponding to DLP sync completion. That inference is
+      withdrawn - the DLP simulation-completion alert email self-stamps
+      16:06 local (2026-08-02 11:06 PM UTC), leaving a 1 h 46 m gap the
+      inference cannot cover. Mechanism reopened and unexplained.
+
+      The mirrors reading 0 while their source reads 2 is the sharper half:
+      objects that exist, list as ACTIVE, carry severities and an alert bell,
+      and register nothing the policy that spawned them registers.
+      Configured is not effective, in the most literal available form.
+
+  - id: POS-068
+    lab: "16"
+    setting: Microsoft 365 app connector - Connected, and silent
+    location: Defender > Cloud apps > Connected apps > App connectors
+    state: Microsoft 365 connector present and Connected. "Was connected on Jul 15 2026 5:18 AM" (suspected UTC, no wall-clock anchor - would place it Jul 14 22:18 PDT, provisioning-adjacent). Last activity - . Zero user telemetry as of 2026-08-05
+    baseline: Connector auto-created at provisioning, not requested
+    kind: gap
+    production: A connector reporting Connected with no activity is a monitoring gap that no dashboard raises. Production needs an alert on connector inactivity, not a periodic human glance at a status column
+    revisit: true
+    verified: 2026-08-04
+    note: >-
+      THREE independent surfaces agree the connector carries no user
+      telemetry: the Activity log holds five events, all administrative; the
+      CloudAppEvents table in advanced hunting returns 0 rows over 7 days; the
+      connector's own Last activity column reads a dash. Three-surface
+      agreement is why this is recorded as genuine no-flow rather than as a
+      rendering problem.
+
+      Leading suspect ELIMINATED: unified audit is ON (System > Audit renders
+      the full search interface). The obvious cause is ruled out and no
+      replacement has been found. Recorded as unexplained-with-obvious-cause-
+      eliminated rather than left implicitly attributed.
+
+      "Connected" therefore joins the status-label family alongside Healthy
+      (POS-064), Available, and Completed. It describes a configuration
+      relationship, not a data flow, and nothing on the page distinguishes
+      them.
+
+      This entry is the strongest available explanation for POS-069's zero,
+      and the reason that zero is recorded as divergence-with-mechanism-open
+      rather than as a calibration result.
+
+  - id: POS-069
+    lab: "16"
+    setting: Lab MDCA file policy - DCS inspection against the Lab 14 SITs, advanced settings untouched
+    location: Defender > Cloud apps > Policies > Lab16-FilePolicy-SITMatch
+    state: Created 2026-08-04 07:08 PDT. File policy, severity Low (default), category DLP. BOTH pre-seeded filters removed. Zero filters - all files, all file owners. Inspection method Data Classification Service, three SITs (Credit Card, US Bank Account, ABA Routing), match Any. Advanced per-SIT confidence and instance settings LEFT AS SHIPPED. Alert per matching file ON, daily limit 5, email and Power Automate off. Governance sections present for OneDrive and SharePoint, nothing selected. 0 matches at +3 h 30 m and +27 h
+    baseline: n/a - operator-created
+    kind: default
+    production: A file policy that has never matched is not a control. Production would verify the connector is actually receiving telemetry (POS-068) before trusting any file policy result, and would tune per-SIT confidence deliberately rather than inheriting it
+    revisit: false
+    verified: 2026-08-05
+    note: >-
+      Built as a cross-product calibration experiment. Advanced settings were
+      deliberately untouched so that defaults-as-shipped IS the measurement:
+      Purview's DCS and MDCA's DCS, same engine family, same three SITs, same
+      file.
+
+      OUTCOME: Purview matched the file at Medium confidence (U.S. Bank
+      Account 2 Medium / 2 Low, ABA Routing 1 Medium / 1 Low, High confidence
+      absent on both) and surfaced it within minutes. MDCA read 0 at +3 h 30 m
+      and again at +27 h. Two-read rule satisfied; MDCA file scans carry no
+      published SLA, so a zero is a claim about the scan or the index, not
+      about the file.
+
+      The zero CANNOT be resolved into "scanned and below threshold" versus
+      "never scanned", and POS-068 makes the second live. Recorded as
+      DIVERGENCE WITH MECHANISM OPEN, not as a calibration verdict. The
+      operator-facing fact stands regardless: content Purview flags at Medium
+      is invisible to an MDCA default file policy at 27 hours.
+
+      Defaults worth recording from the build: the wizard pre-seeds Access
+      level = Public/External plus a last-modified cutoff, so the DEFAULT
+      SCOPE EXCLUDES PRIVATE FILES - a default-accepting operator builds a
+      policy blind to internal-only content. Both were removed here.
+      "Inspect protected files" is greyed pending an Entra permission grant
+      to the MDCA application (application-consent, not GA-insufficiency).
+      The SIT picker offers 325 where Purview twice reported 327.
+
+  - id: POS-070
+    lab: "16"
+    setting: MDCA to Defender for Endpoint integration - enforcement off, alerting pre-armed
+    location: Defender > Settings > Cloud apps > Cloud Discovery > Microsoft Defender for Endpoint
+    state: Observed 2026-08-04. "Enforce app access" UNCHECKED. "Generate alert for blocked app access" ON at Informational severity. The reciprocal discovery-feed toggle lives MDE-side (Settings > Endpoints > Advanced features) and was NOT read
+    baseline: Vendor-shipped
+    kind: default
+    production: Either enable enforcement and keep the alert, or disable both. An alert armed for an action that cannot occur is a control that will never fire and will read as healthy indefinitely
+    revisit: true
+    verified: 2026-08-04
+    note: >-
+      The reverse of the enabled-but-inert pattern this repository usually
+      records: here the ENFORCEMENT is off and the ALERTING for it is on. A
+      notification is pre-armed for an event the configuration makes
+      impossible.
+
+      Completes an asymmetry taxonomy visible across the whole MDCA surface -
+      data-plane visibility ON by default (the connector, POS-068), endpoint
+      and third-party integration OFF by default, enforcement OFF by default.
+      The defaults are consistently permissive about seeing and consistently
+      conservative about acting, which is defensible; the alert toggle is the
+      one element that does not fit either half.
+
+      Open: the MDE-side discovery toggle was never read, so only one
+      direction of this integration is measured.

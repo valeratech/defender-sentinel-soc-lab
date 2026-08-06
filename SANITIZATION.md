@@ -27,8 +27,11 @@ Replacements are visibly synthetic and internally consistent. Values are drawn f
 | Tenant / subscription / workspace / object GUID | `00000000-0000-0000-0000-000000000000` | Nil UUID |
 | Domain | `contoso.onmicrosoft.com` | Microsoft doc convention |
 | User principal name | `analyst@contoso.com` | — |
-| Device name | `LAB-WIN11-01` | Generic, non-attributable |
+| Device name (client) | `LAB-WIN11-01` | Generic, non-attributable |
+| Device name (server) | `LAB-SRV-DEFENDER-01` | Generic. **19 characters by design** — the NetBIOS-truncation finding (`POS-033`, divergence row 13) depends on the name exceeding 15 chars and truncating to `LAB-SRV-DEFENDE`. A shorter placeholder destroys the finding silently |
 | Resource group | `rg-soc-lab` | Generic |
+| Log Analytics workspace | `law-lab-01` | Generic. Deliberately *not* in the `-soc-lab` family, which the real workspace name resembled closely enough to read as a placeholder |
+| Data collection rule | `dcr-winsec-lab` | Generic |
 | IPv4 (external) | `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24` | RFC 5737 TEST-NET-1/2/3 |
 | IPv6 | `2001:db8::/32` | RFC 3849 |
 | Public IP of lab endpoint | **Omitted entirely — not placeholdered** | — |
@@ -114,6 +117,65 @@ That matters because **both documented anchors can fail on the same string at on
 
 The ceiling here is structural, not an implementation gap: `.pii-terms` is gitignored, so neither GitHub push protection nor CI can ever run this check. It can exist only at pre-commit — the layer section 1 lists as bypassable. A `.pii-terms`-aware OCR check is worth having and must not be mistaken for a gate.
 
+### A third gap, found the same way — a repo grep, 2026-08-06
+
+**Five real resource names sat in committed source for weeks, and every gate passed.**
+Found incidentally while checking a resource-group scope for an unrelated lab: the
+repository contained the live resource group (9 uses), Log Analytics workspace (30),
+server VM (15, plus 5 of its truncated hostname), Win11 VM prefix (2), and data
+collection rule (10). Section 2 assigned placeholders for two of those five categories
+and had no row at all for the other three.
+
+**Why every gate passed.** `.gitleaks.toml` has no rule for a resource name — the same
+structural problem as the IPv4 row above, an arbitrary name having no invariant to grip.
+`audit-pii.sh` checks emails, GUIDs, IPs, domains and Azure resource IDs, none of which
+these are. The one mechanism that *could* have caught them is `.pii-terms`, which ran and
+reported clean **because the names were never on the list**. The gate was working; its
+wordlist was incomplete. That distinction matters: nothing here needed building, only
+populating.
+
+**The worst instance was a documentation choice, not an omission.** `labs/05` published
+the mapping directly — a membership-rule row giving the real device prefix alongside its
+placeholder in the same cell, to be transparent about the substitution. That one
+parenthetical de-anonymized all 15 uses of `LAB-WIN11-01` elsewhere in the repository. A
+placeholder printed next to its real value is not a placeholder. Removed, along with a
+second, milder instance in `labs/17` describing what the placeholder stood for.
+
+**Section 2 and section 5 contradicted each other**, and this is the resolution. Section 5
+states hostnames of live endpoints are never published *in any form, including
+placeholdered*; section 2 assigns device names a placeholder. Both cannot hold. Section 5
+is now read as governing **real** hostnames, DNS names, and public IPs — never published
+in any form. Placeholders for devices are permitted and required, per section 2. Section 5
+is amended below to say so rather than leaving the reader to pick.
+
+**History was not rewritten, and that is a decision rather than an oversight.** The names
+were introduced between the Lab 04 and Lab 07 commits; a rewrite removing them would touch
+**45 of 47 commits**, invalidating every published SHA and every cross-reference in the
+commit log, on a repository whose whole premise is a dated, verifiable record. Weighed
+against a leak consisting of resource names in a disposable single-analyst tenant holding
+no real data — the same mitigating control named in Lab 00 §7 — the rewrite costs more
+than it buys. **Commits before `02737e7` therefore contain real resource names.** Stated
+here plainly so a reader finds it in the document that claims the repository is sanitized,
+rather than discovering it in `git log`.
+
+**Rejected alternative:** `git-filter-repo` plus a force push. Rejected on the ratio above,
+not on difficulty. It remains the correct answer if a *credential*, tenant GUID, or public
+IP is ever found in history — those are not resource names and the calculus inverts.
+
+**The sweep itself was scoped wrong first time, and the gate caught it.** The initial
+substitution pass walked `.md`, `.yml`, `.yaml` and `.toml` — a curated extension list,
+chosen by assuming documentation was where names live. `audit-pii.sh` then fired on
+`kql/sentinel/store-partition-diff.kql`, a query file carrying the workspace name in a
+navigation comment. Query files, scripts, and detection artifacts are all plausible
+carriers; the corrected pass walks every readable file except `.git`. Recorded because the
+error was in the search scope rather than the search terms, and a clean result from a
+narrow sweep reads identically to a clean result from a complete one.
+
+**The durable fix is the wordlist, not this edit.** All five names are added to
+`.pii-terms`, which is gitignored and therefore local-only and pre-commit-only — the layer
+section 1 lists as bypassable. That ceiling is unchanged and is the reason this took weeks
+to surface.
+
 **Therefore: a green hook result is not proof that an image is sanitized.** Every image requires manual visual review after cropping and redaction, even when the metadata hook, the gitleaks scan, and the OCR scan all pass. The automation exists to catch the screenshot committed at the end of a long session, not to replace the look.
 
 ---
@@ -122,7 +184,11 @@ The ceiling here is structural, not an implementation gap: `.pii-terms` is gitig
 
 Lab endpoints are deliberately weakened to generate telemetry. They are real, reachable, and owned by me.
 
-- Public IPs, DNS names, and hostnames of live endpoints are **never published**, in any form, including placeholdered.
+- **Real** public IPs, DNS names, and hostnames of live endpoints are **never published**,
+  in any form. Public IPs are omitted entirely rather than placeholdered; hostnames take
+  the section 2 placeholders. Amended 2026-08-06 — as originally written this line read
+  "including placeholdered", which contradicted section 2's device-name row. See the
+  third gap in section 4.
 - NSG rules and exposed port configurations are described in prose ("RDP exposed to the internet to farm authentication failures"), never as committable rule exports.
 - Weakened endpoints are deallocated when the lab is idle and rebuilt from `infra/` on demand.
 

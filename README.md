@@ -98,7 +98,7 @@ Product names are used precisely throughout. "Defender" alone is avoided whereve
 | Device management | Entra device join configured; **Intune auto-enrolment never fires** — every precondition verified (`POS-022`). Forecloses all Intune-managed paths |
 | Device groups | Rule-based group, Semi remediation, scoped to the analyst via an Entra group |
 | ASR | Two rules enforcing via local PowerShell (the only available path here) |
-| Sentinel | Workspace `law-soc-lab` (West US, PAYG); Sentinel enabled |
+| Sentinel | Workspace `law-lab-01` (West US, PAYG); Sentinel enabled |
 | Ingestion | Four paths, each a different tier of source: Defender XDR connector (same-platform, auto-connected, alerts/incidents only — raw `Device*` streaming OFF, cost-safe); Windows Security Events via AMA + a Common-tier DCR (`SecurityEvent`); Azure Activity via diagnostic setting (`AzureActivity`); Entra ID connector (`SigninLogs`/`AuditLogs`/risk) |
 
 **The environment is ephemeral, and four clocks bound its life:**

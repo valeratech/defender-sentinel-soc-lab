@@ -64,7 +64,7 @@ Registered before the build (pre-check 2026-08-05 and during assessment):
 |---|---|---|---|
 | Classification framework | Fixed in advance: TP if unexpected, Security testing if the tree shows Lab 03's artifacts, FP is the wrong answer | Decide at the page | Prevents the verdict from being fitted to the evidence after the fact |
 | Order of operations | Read every tab before the first write | Triage immediately | All seven fields were untouched across 19 incidents; every change had to be attributable |
-| Responder scope | **Resource group** (`rg-defender-lab`) | Workspace (`law-soc-lab`) | Sentinel is a resource family — playbooks, workbooks, automation live beside the workspace; G57's Playbook Operator composes at the same layer. Trade-off recorded in `POS-072`: least privilege argues workspace scope; the RG delta is LAW read/query visibility plus automatic inheritance by future resources |
+| Responder scope | **Resource group** (`rg-soc-lab`) | Workspace (`law-lab-01`) | Sentinel is a resource family — playbooks, workbooks, automation live beside the workspace; G57's Playbook Operator composes at the same layer. Trade-off recorded in `POS-072`: least privilege argues workspace scope; the RG delta is LAW read/query visibility plus automatic inheritance by future resources |
 | Assignment state | **Kept the accidental Eligible time-bound**, activated via PIM | Convert to Active permanent | The wizard's Assignment type tab silently produced the *production* pattern `POS-002` has named since Lab 00 — eligible, justified, time-boxed, audited. The richer demonstration, kept deliberately |
 | Boundary-test subject | ID 19, not incident 1 | Reuse incident 1 | Incident 1's triage state is the classification artifact; it stays clean |
 | The T+17 min refusal | **Parked 12 h and re-read** rather than shipped | Commit the headline same-day | The zero (a greyed button) had one read, minutes after activation, in a repo whose walls are covered in propagation lessons. The re-read killed the claim — see §6 |
@@ -162,7 +162,7 @@ The corrections ledger, recorded rather than edited away:
 ## 7. Evidence
 
 Sanitized per `SANITIZATION.md` — UPNs to `@contoso.com`, device to
-`LAB-WIN11-01` (portal renders the truncated real prefix), tenant GUIDs to the
+`LAB-WIN11-01`, tenant GUIDs to the
 nil UUID, public IPs omitted, the rule GUID and workspace GUID not reproduced.
 
 **Incident 1 chronology (UTC):**

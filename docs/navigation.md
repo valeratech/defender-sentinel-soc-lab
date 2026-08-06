@@ -114,10 +114,10 @@ being reached is stable even when its location is not.
 
 | Setting / view | Path | Confirmed |
 |---|---|---|
-| Azure Activity (Method B — worked) | Subscriptions → *(sub)* → Activity log → Export Activity Logs → + Add diagnostic setting → law-soc-lab | 2026-07-25 |
+| Azure Activity (Method B — worked) | Subscriptions → *(sub)* → Activity log → Export Activity Logs → + Add diagnostic setting → law-lab-01 | 2026-07-25 |
 | Azure Activity (Method A — failed) | Data connectors → Azure Activity → Launch Azure Policy Assignment wizard | failed x2 |
 | Entra ID connector | Data connectors → Microsoft Entra ID → Open connector page → select log types → Apply | 2026-07-25 |
-| Verify Entra diagnostic setting | Entra ID → Monitoring & health → Diagnostic settings (AzureSentinel_law-soc-lab) | 2026-07-25 |
+| Verify Entra diagnostic setting | Entra ID → Monitoring & health → Diagnostic settings (AzureSentinel_law-lab-01) | 2026-07-25 |
 
 **Method A vs B:** for a single subscription the manual diagnostic setting (B) is
 simpler and correct; the policy wizard (A) only earns its complexity across many

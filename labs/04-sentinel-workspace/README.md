@@ -50,7 +50,7 @@ costs nothing in practice — the environment ends with M365 first.
 1. **Permissions** — subscription **Owner** confirmed (plus Global Administrator).
    Directory role ≠ Azure RBAC (`POS-024`): GA alone would not satisfy the
    Defender-portal auto-onboard; Owner does.
-2. **Log Analytics workspace** — `law-soc-lab`, West US, PAYG, in the VM's resource
+2. **Log Analytics workspace** — `law-lab-01`, West US, PAYG, in the VM's resource
    group (so the whole lab is one deletable unit — teardown is one RG delete,
    which matters when spend is out-of-pocket).
 3. **Enable Sentinel** on the workspace — starts the 31-day trial.

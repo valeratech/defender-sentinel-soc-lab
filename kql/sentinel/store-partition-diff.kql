@@ -5,7 +5,7 @@
 //   Defender  (security.microsoft.com > Hunting > Advanced hunting)
 //       -> returns Defender XDR lake tables AND, once the workspace is onboarded to
 //          the unified platform, Log Analytics workspace tables. One pane, two stores.
-//   Azure     (Microsoft Sentinel > law-soc-lab > Logs, KQL mode)
+//   Azure     (Microsoft Sentinel > law-lab-01 > Logs, KQL mode)
 //       -> returns ONLY the Log Analytics workspace.
 //
 //   In the Azure list  = workspace-resident = METERED, counts against the daily cap.

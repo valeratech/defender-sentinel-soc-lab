@@ -1018,8 +1018,8 @@ entries:
   - id: POS-032
     lab: "04"
     setting: Microsoft Sentinel workspace and Defender XDR ingestion
-    location: Azure > Log Analytics workspace law-soc-lab; Microsoft Sentinel; Data connectors
-    state: Sentinel enabled on law-soc-lab (West US, PAYG). Defender XDR connector Connected/Primary, forwarding incidents and alerts only. Raw Device* event streaming OFF.
+    location: Azure > Log Analytics workspace law-lab-01; Microsoft Sentinel; Data connectors
+    state: Sentinel enabled on law-lab-01 (West US, PAYG). Defender XDR connector Connected/Primary, forwarding incidents and alerts only. Raw Device* event streaming OFF.
     baseline: No SIEM - Defender telemetry queryable only in Defender's own data lake
     kind: hardened
     production: SIEM with sources beyond Defender, ingestion budgeted against a commitment tier once volume is known, and retention set to policy
@@ -1060,8 +1060,8 @@ entries:
   - id: POS-033
     lab: "07"
     setting: Windows Security Events ingestion via Azure Monitor Agent
-    location: Azure > Monitor > Data Collection Rules (dcr-winsec-labsrv); VM WIN-SRV-DEFENDER-01 > Extensions (AzureMonitorWindowsAgent)
-    state: DCR dcr-winsec-labsrv collecting Common-tier Windows Security events from WIN-SRV-DEFENDER-01 into the SecurityEvent table. AMA auto-installed via the DCR association. Pipeline verified with live telemetry.
+    location: Azure > Monitor > Data Collection Rules (dcr-winsec-lab); VM LAB-SRV-DEFENDER-01 > Extensions (AzureMonitorWindowsAgent)
+    state: DCR dcr-winsec-lab collecting Common-tier Windows Security events from LAB-SRV-DEFENDER-01 into the SecurityEvent table. AMA auto-installed via the DCR association. Pipeline verified with live telemetry.
     baseline: No agent-based ingestion - only the Defender XDR connector (POS-032, alerts/incidents)
     kind: hardened
     production: DCR scoped by XPath to the exact event IDs detected on, across the managed fleet; Defender for Servers P2 enabled so SecurityEvent draws its 500 MB/day/server allowance; WEF/WEC for machines where per-machine AMA is impractical
@@ -1086,8 +1086,8 @@ entries:
       Four findings recorded in Lab 07. (1) Direct-AMA path confirmed via
       SCAgentChannel Direct, landing in SecurityEvent; the WindowsEvent/WEF half is
       documented but not observed (no collector topology). (2) Hostname truncation:
-      the Azure name WIN-SRV-DEFENDER-01 (19 chars) exceeds the 15-char Windows
-      NetBIOS limit, so the Computer field reads WIN-SRV-DEFENDE - an exact-match
+      the Azure name LAB-SRV-DEFENDER-01 (19 chars) exceeds the 15-char Windows
+      NetBIOS limit, so the Computer field reads LAB-SRV-DEFENDE - an exact-match
       filter on the full name returns nothing. (3) Machine-context events:
       WORKGROUP\ account, AccountType Machine, confirming the VM is WORKGROUP-joined
       (no AD, consistent with the Entra-only environment). (4) 4624 does not mean a
@@ -1111,7 +1111,7 @@ entries:
   - id: POS-034
     lab: "08"
     setting: Entra ID and Azure Activity connectors
-    location: Azure > Subscription > Activity log > diagnostic setting (activity-to-law-soc-lab); Entra ID > Monitoring & health > Diagnostic settings (AzureSentinel_law-soc-lab)
+    location: Azure > Subscription > Activity log > diagnostic setting (activity-to-law-lab-01); Entra ID > Monitoring & health > Diagnostic settings (AzureSentinel_law-lab-01)
     state: Both connectors configured and verified flowing. Azure Activity via a manual diagnostic setting (Method B) after the policy path (Method A) failed twice. Entra ID sign-in/audit/risk logs via the connector's diagnostic setting. AzureActivity and SigninLogs both populated in the workspace (re-verified 2026-07-26).
     baseline: No control-plane or identity ingestion - only Defender XDR (POS-032) and Windows events (POS-033)
     kind: hardened
@@ -1271,8 +1271,8 @@ entries:
       fits this tenant exactly, but that is a blog claim rather than Learn and is
       recorded as a candidate explanation only.
 
-      Cost: none. Audit data lives in the Microsoft 365 substrate, not in law-soc-
-      lab. The billable surface measured on 2026-07-26 (POS-034) is unchanged. It
+      Cost: none. Audit data lives in the Microsoft 365 substrate, not in law-lab-
+      01. The billable surface measured on 2026-07-26 (POS-034) is unchanged. It
       becomes an ingestion cost only if the Office 365 connector is later added to
       Sentinel, which is a separate decision.
   - id: POS-036
@@ -2832,8 +2832,8 @@ entries:
   - id: POS-072
     lab: "17"
     setting: Microsoft Sentinel Responder for the analyst identity
-    location: Azure > rg-defender-lab > Access control (IAM) > Role assignments; Entra PIM > My roles > Azure resources
-    state: Eligible time-bound assignment, scope rg-defender-lab (resource group), member analyst, end 2027-08-05. Not active standing access - activation via PIM per elevation (max 8 h, MFA on activation, reason required). Early self-deactivation observed in use 2026-08-06 - activation 2 held for ~21 minutes of its 8 h window, surrendered when the work finished
+    location: Azure > rg-soc-lab > Access control (IAM) > Role assignments; Entra PIM > My roles > Azure resources
+    state: Eligible time-bound assignment, scope rg-soc-lab (resource group), member analyst, end 2027-08-05. Not active standing access - activation via PIM per elevation (max 8 h, MFA on activation, reason required). Early self-deactivation observed in use 2026-08-06 - activation 2 held for ~21 minutes of its 8 h window, surrendered when the work finished
     baseline: n/a - not in source guidance; the course/guide model assumes a standing Active assignment
     kind: hardened
     production: Exactly this - PIM eligible assignment is POS-002's stated production pattern, now demonstrated live in this tenant for the first time
@@ -2877,7 +2877,7 @@ entries:
   - id: POS-074
     lab: "17"
     setting: Incident 19 triage state (the Responder boundary test artifact)
-    location: Defender > Incidents > ID 19; Azure > Microsoft Sentinel > law-soc-lab > Threat management > Incidents
+    location: Defender > Incidents > ID 19; Azure > Microsoft Sentinel > law-lab-01 > Threat management > Incidents
     state: Owner analyst (written via the Azure Sentinel blade 2026-08-05 21:12 PDT under activation 1); Status In Progress (written via the unified portal Manage incident pane 2026-08-06 07:06 PDT under activation 2). Member alert followed to In progress
     baseline: Active / Unassigned / New since 2026-07-31
     kind: default
@@ -2897,7 +2897,7 @@ entries:
     lab: "18"
     setting: Two Sentinel automation rules, both Standard, ordered
     location: Defender > Microsoft Sentinel > Configuration > Automation > Automation rules > Standard rules
-    state: Order 1 LAB-AutoTag-Bruteforce-Incidents (trigger When incident is created; condition Analytic rule name Contains LAB-Bruteforce-Failed-Signins; action Add tags auto-tagged-ruleA). Order 2 LAB-AutoAssign-Bruteforce-Analyst (same trigger; condition locked to Current rule via the analytics-rule entry point; action Assign owner analyst). Both Enabled, workspace law-soc-lab, expiration Indefinite. Built 2026-08-06
+    state: Order 1 LAB-AutoTag-Bruteforce-Incidents (trigger When incident is created; condition Analytic rule name Contains LAB-Bruteforce-Failed-Signins; action Add tags auto-tagged-ruleA). Order 2 LAB-AutoAssign-Bruteforce-Analyst (same trigger; condition locked to Current rule via the analytics-rule entry point; action Assign owner analyst). Both Enabled, workspace law-lab-01, expiration Indefinite. Built 2026-08-06
     baseline: 0 automation rules - the tenant had none before this lab (P79-1)
     kind: default
     production: A small set of ordered automation rules as the triage policy - suppression/close first, routing after - is the mature pattern; these two are a minimal demonstration of ordering and of the two creation surfaces

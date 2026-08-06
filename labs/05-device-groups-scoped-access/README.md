@@ -35,7 +35,7 @@ what made them right.
 | Decision | Chosen | Alternative | Rationale |
 |---|---|---|---|
 | Remediation level | **Semi — approval required for non-temporary folders** | Full remediation; No automated response | This tenant's only endpoint is also its detection-test rig. Full auto-remediation could quarantine a test artifact before it is observed (Lab 03's whole method depends on watching the chain). No-automated-response was rejected because it *also* removes the device from automatic attack disruption — too blunt. Semi lets Defender auto-clean transient temp-folder junk while gating everything persistent behind approval: response capability retained, evidence preserved. |
-| Membership rule | **Name starts with `WIN11-DEFENDER-`** (repo: `LAB-WIN11-`) | Full-hostname exact match | A prefix rule proves *dynamic* membership — a future second endpoint joins automatically. A full-hostname rule is a static assignment wearing a rule's clothing and demonstrates nothing about the mechanism. |
+| Membership rule | **Name starts with `LAB-WIN11-`** | Full-hostname exact match | A prefix rule proves *dynamic* membership — a future second endpoint joins automatically. A full-hostname rule is a static assignment wearing a rule's clothing and demonstrates nothing about the mechanism. |
 | Delegation | **Create an Entra security group (`SOC Device Admins`) even at n=1** | Skip delegation on a single-operator tenant | Exercising the full identity→group→device-group chain validates the whole RBAC model rather than leaving half of it theoretical. It also set up the lab's central test (below). |
 
 **The central prediction, and its resolution.** The scoped analyst (`POS-027`) draws
@@ -55,7 +55,7 @@ Two portals, by design — the access model has a *who* half and a *what* half:
 2. **What** — `security.microsoft.com` → Settings → Endpoints → Permissions →
    Device groups → Add device group:
    - Name `Lab Client Machines`; remediation **Semi — non-temporary folders**
-   - Rule: **Name starts with `WIN11-DEFENDER-`**
+   - Rule: **Name starts with `LAB-WIN11-`**
    - User access: **`SOC Device Admins`**
    - Submit → **Apply changes** (this is T0)
 

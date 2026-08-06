@@ -20,7 +20,7 @@ corrections: []
 
 ## What was configured
 
-Two Standard automation rules in `law-soc-lab` (`POS-075`): Order 1 tags
+Two Standard automation rules in `law-lab-01` (`POS-075`): Order 1 tags
 DET-004 incidents, Order 2 assigns them to the analyst. Both Enabled,
 Indefinite. The tenant had zero automation rules before this (P79-1).
 

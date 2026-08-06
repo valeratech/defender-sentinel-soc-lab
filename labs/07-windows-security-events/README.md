@@ -46,8 +46,8 @@ the point as much as the ingestion:
 | Patch orchestration | Manual | A deallocated lab VM does not want Azure powering it on to patch; the no-inbound posture neutralises the usual "manual patching is risky" concern |
 | Boot diagnostics | Disabled | Saves the diagnostics storage cost |
 
-Region **West US** (matching VM 1 and the `law-soc-lab` workspace) and resource
-group `rg-defender-lab` (so teardown stays one `az group delete`).
+Region **West US** (matching VM 1 and the `law-lab-01` workspace) and resource
+group `rg-soc-lab` (so teardown stays one `az group delete`).
 
 ## 3. Access: Bastion vs RDP — a deliberate choice
 
@@ -80,8 +80,8 @@ per-session teardown decision, not a leave-it-running one.
    Essentials* — see §7. The detection layer that solution provides is deferred to
    a later analytics-rule lab; ingestion does not need it.)
 2. **Data connectors** → *Windows Security Events via AMA* → **Create data
-   collection rule** (`dcr-winsec-labsrv`, in `rg-defender-lab`).
-3. **Resources** → selected `WIN-SRV-DEFENDER-01`. Selecting the VM here is what
+   collection rule** (`dcr-winsec-lab`, in `rg-soc-lab`).
+3. **Resources** → selected `LAB-SRV-DEFENDER-01`. Selecting the VM here is what
    **auto-installs the Azure Monitor Agent** — no separate agent step.
 4. **Collect** → **Common**, not All. This is the cost decision (§6).
 5. **Review + create.** AMA extension deployed to the VM in **under 5 minutes**.
@@ -101,7 +101,7 @@ post-install (the `Heartbeat` table did not yet exist — `KS204 table not found
 because a Log Analytics table is created on first write). Both populated shortly
 after. Empty-then-populates is propagation, not failure — the same discipline as
 every prior lab. The DCR-to-VM association was confirmed in the portal
-(`dcr-winsec-labsrv` → Resources → the VM) before concluding it was lag.
+(`dcr-winsec-lab` → Resources → the VM) before concluding it was lag.
 
 ## 6. The cost decision — Common, not All
 
@@ -134,14 +134,14 @@ machines, an on-prem topology this environment does not have. So `SecurityEvent`
 is *observed*; `WindowsEvent` is *documented, not observed*.
 
 **2. Hostname truncation — Azure name ≠ OS hostname.** The VM is named
-`WIN-SRV-DEFENDER-01` (19 characters) in Azure, but Windows caps the NetBIOS
+`LAB-SRV-DEFENDER-01` (19 characters) in Azure, but Windows caps the NetBIOS
 computer name at 15, so the `Computer` field in every event reads
-**`WIN-SRV-DEFENDE`**. A KQL filter of `Computer == "WIN-SRV-DEFENDER-01"` returns
+**`LAB-SRV-DEFENDE`**. A KQL filter of `Computer == "LAB-SRV-DEFENDER-01"` returns
 nothing; matching requires the truncated name or `startswith`. Flagged as a risk at
 VM creation, confirmed here in the data.
 
 **3. Machine-context events — the VM is WORKGROUP-joined.** The events show the
-account as `WORKGROUP\WIN-SRV-...` with AccountType `Machine`. This confirms the VM
+account as `WORKGROUP\LAB-SRV-...` with AccountType `Machine`. This confirms the VM
 is **WORKGROUP-joined, not domain-joined** (consistent with the Entra-only, no-AD
 environment), and the 4688 process-creation events are the machine running its own
 processes, not user activity.

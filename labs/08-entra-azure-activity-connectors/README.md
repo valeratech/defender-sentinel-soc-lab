@@ -49,7 +49,7 @@ Policy)** as the scalable path. In this environment it **failed twice**, and
 **Method B (manual diagnostic setting)** succeeded first try.
 
 **Method A attempts (both failed):** launched the Azure Policy Assignment wizard,
-configured it correctly (scope = the subscription, workspace = law-soc-lab,
+configured it correctly (scope = the subscription, workspace = law-lab-01,
 remediation task enabled, system-assigned managed identity in westus), and hit
 Create — twice. Both times the submission returned **"you need to log in"**, and
 **Policy → Assignments confirmed 0 policy assignments** afterward (only the
@@ -58,8 +58,8 @@ managed-identity creation needs a privileged token, and the session kept expirin
 submission.
 
 **Method B (succeeded):** Subscription → Activity log → Export Activity Logs → Add
-diagnostic setting `activity-to-law-soc-lab`, categories Administrative + Security,
-destination law-soc-lab. Saved first try. Verified: `AzureActivity` populated.
+diagnostic setting `activity-to-law-lab-01`, categories Administrative + Security,
+destination law-lab-01. Saved first try. Verified: `AzureActivity` populated.
 
 **The analysis — B was not merely a fallback, it was the appropriate choice.** For a
 **single subscription**, Method B is simpler and correct; Method A's machinery
@@ -82,8 +82,8 @@ The high-volume optional types (non-interactive, service-principal, Graph activi
 etc.) were left off — volume without proportional value in a lab, the connector-level
 cost lever in practice.
 
-Apply wrote an Entra diagnostic setting **`AzureSentinel_law-soc-lab`** →
-law-soc-lab (confirmed at Entra ID → Monitoring & health → Diagnostic settings),
+Apply wrote an Entra diagnostic setting **`AzureSentinel_law-lab-01`** →
+law-lab-01 (confirmed at Entra ID → Monitoring & health → Diagnostic settings),
 using the same diagnostic-setting mechanism that made Method B work for Azure
 Activity — and, unlike the Azure Activity *policy* path, it applied cleanly.
 

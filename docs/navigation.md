@@ -27,6 +27,11 @@ being reached is stable even when its location is not.
 | Device inventory | Assets → Devices | 2026-07-18 |
 | Device timeline | Assets → Devices → *(device)* → Timeline | 2026-07-19 |
 | Incidents & alerts | Incidents & alerts → Incidents / Alerts | 2026-07-18 |
+| Incident queue — time window & filters | Incidents → toolbar right: calendar dropdown (`Last update time`) · below toolbar: `Filter set:` chip row → **Add filter** *(capture the chips with every export — exports honor them silently, row 114)* | 2026-08-06 |
+| Manage incident (6 fields; no comments here) | Incidents → *(incident)* → **Manage incident** (top right) — name / severity / tags / assign / status / classification *(one picker, writes Classification + Determination)* | 2026-08-05 |
+| Incident comments + full audit trail | Incidents → *(incident)* → **Activities** tab → **Add comment** · grid = per-field change log with before/after values; **Refresh** before trusting the badge/grid pair (row 113) | 2026-08-05 |
+| Incident investigation flyout (AIR detail) | Incidents → *(incident)* → **Investigations** tab → *(row)* — `Generated on` here is the alert's birth timestamp (row 118) | 2026-08-05 |
+| Detection rules (unified, thin Sentinel view) | Hunting → **Detection rules** — analytics rules render read-only detail pane; run-status columns say `Not available for analytics rules` | 2026-08-05 |
 | Advanced hunting | Hunting → Advanced hunting | 2026-07-18 |
 | Threat policies (hub) | Email & collaboration → Policies & rules → Threat policies | 2026-08-01 |
 | Preset security policies | Threat policies → Templated policies → Preset security policies → Manage protection settings | 2026-08-01 |
@@ -82,6 +87,10 @@ being reached is stable even when its location is not.
 | VM Bastion session | Virtual machines → *(VM)* → Connect → Bastion | 2026-07-18 |
 | VM reset password | Virtual machines → *(VM)* → Help → Reset password | 2026-07-18 |
 | VM auto-shutdown | Virtual machines → *(VM)* → Operations → Auto-shutdown | 2026-07-17 |
+| RG role assignment (scope check!) | Resource groups → *(RG)* → Access control (IAM) → **+ Add → Add role assignment** — *read the breadcrumb before assigning: `(RG) \| Access control` vs `(workspace) \| Access control` are one click apart and produce different scopes* | 2026-08-05 |
+| Role assignment state (the truth surface) | *(scope)* → Access control (IAM) → **Role assignments** tab — State column: `Active Permanent` vs `Eligible time-bound`. **The RG wizard's Assignment type tab defaults to Eligible; the wizard summary does not surface it** (`POS-072`, row 122) | 2026-08-05 |
+| PIM — activate an Azure role (user side) | Search `Privileged Identity Management` *(listed as "Microsoft Entra Privileged Identity Management")* → **Tasks → My roles → Azure resources** → Eligible assignments → *(row)* → **Activate** — *not* Manage → Azure resources (admin config), *not* the Entra roles tab | 2026-08-06 |
+| PIM — active/expired elevations, early deactivate | Same blade → **Active assignments** / **Expired assignments** tabs; active rows carry **Deactivate** | 2026-08-06 |
 
 ### Microsoft Sentinel — Azure portal / Defender portal
 
@@ -92,6 +101,7 @@ being reached is stable even when its location is not.
 | Data connectors | Azure → Microsoft Sentinel → *(workspace)* → Data connectors | 2026-07-19 |
 | Store-partition census (run on BOTH portals, then diff) | Defender → Advanced hunting *and* Azure → Sentinel → Logs — same query, compare table lists | 2026-07-26 |
 | Sentinel Logs (KQL) | Azure → Microsoft Sentinel → *(workspace)* → Logs — **switch Simple mode → KQL mode to write queries** | 2026-07-19 |
+| Sentinel incidents (Azure side, full triage) | Azure → Microsoft Sentinel → *(workspace)* → Threat management → **Incidents** — *defaults to `Last 24 hours` + a 2-value status filter; widen before trusting "No incidents were found"* (row 114). Detail pane: Owner / Status / Severity dropdowns, comments, `+ Create incident (Preview)` | 2026-08-05 |
 | SIEM workspace status (unified) | security.microsoft.com → Settings → Microsoft Sentinel → SIEM workspaces | 2026-07-19 |
 | Content hub (solutions) | Azure → Microsoft Sentinel → *(workspace)* → Content hub | 2026-07-19 |
 

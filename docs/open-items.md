@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**21 open item(s) across 11 file(s).**
+**22 open item(s) across 12 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -104,3 +104,11 @@ Status: —
 | Line | Section | Item |
 |---|---|---|
 | 96 | What could not be tested | summarized result. *(pending)* |
+
+## `lessons/MOD-77-incident-investigation.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 60 | What could not be tested | until the admin-side comparison is read (tracked as *(pending)* in Lab 17). |

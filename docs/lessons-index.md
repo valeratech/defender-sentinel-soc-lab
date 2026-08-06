@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**14 module(s) recorded · 8 produced a lab · 24 correction(s) to previously committed content.**
+**15 module(s) recorded · 9 produced a lab · 28 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -26,6 +26,7 @@ than restates**: each finding has exactly one authoritative home.
 | [66](../lessons/MOD-66-dlp-policies.md) | Implement data loss prevention policies | 🔨 lab | `Lab 14` | `POS-059`, `POS-060`, `POS-061`, `POS-062` | `row 63`, `row 64`, `row 65`, `row 66`, `row 67`, `row 68`, `row 69`, `row 70`, `row 71`, `row 72`, `row 73`, `row 74`, `row 75`, `row 76`, `row 77`, `row 78`, `row 79`, `row 80`, `row 81`, `row 82` | 2 |
 | [71](../lessons/MOD-71-insider-risk-policy.md) | Generating an insider risk policy | 🔨 lab | `Lab 15` | `POS-063`, `POS-064`, `POS-065` | `row 83`, `row 84`, `row 85`, `row 86`, `row 87`, `row 88`, `row 89`, `row 90`, `row 91`, `row 92`, `row 93`, `row 94` | 2 |
 | [76](../lessons/MOD-76-mdca-file-policy.md) | Identify, investigate, and remediate security risks by using Defender for Cloud Apps | 🔨 lab | `Lab 16` | `POS-066`, `POS-067`, `POS-068`, `POS-069`, `POS-070` | `row 95`, `row 96`, `row 97`, `row 98`, `row 99`, `row 100`, `row 101`, `row 102`, `row 103`, `row 104`, `row 105`, `row 106`, `row 107`, `row 108` | 3 |
+| [77](../lessons/MOD-77-incident-investigation.md) | Investigate and remediate incidents in Microsoft Sentinel | 🔨 lab | `Lab 17` | `POS-071`, `POS-072`, `POS-073`, `POS-074` | `row 109`, `row 110`, `row 111`, `row 112`, `row 113`, `row 114`, `row 115`, `row 116`, `row 117`, `row 118`, `row 119`, `row 120`, `row 121`, `row 122` | 4 |
 
 ## Corrections to previously committed content
 
@@ -59,3 +60,7 @@ anything.
 | 76 | File monitoring was claimed to have been ON since provisioning. The MDCA Activity log showed all five of its events originate from Lab 14's DLP policy creation on 2026-08-02, including the monitoring toggle — our own action flipped it. Corrected before it reached a file. |
 | 76 | The 17:52 mirror-creation timestamp was read as approximately corresponding to DLP sync completion. Withdrawn: the DLP completion alert self-stamps 16:06 local, leaving 1 h 46 m the inference cannot cover. Mechanism reopened, not re-attributed. |
 | 76 | Divergence row 49 revised 'Defender local, Azure UTC' to 'Defender renders UTC'. MDCA's Activity log renders LOCAL inside the same portal, so that revision is itself amended to 'Defender UTC except MDCA'. |
+| 77 | The RunScript alert's 7 h 37 m gap was written up as correlation latency; the Investigation flyout's Generated-on timestamp showed the alert did not exist until then. XDR detection latency, correlated at birth. |
+| 77 | An activity timestamp was read as an auto-resolution timestamp; the real chain is generation + AIR at 13:10 PDT, resolution at 13:23. |
+| 77 | A missing comment on the Activities grid was attributed to a pre-seeded filter; the grid was stale and one Refresh reconciled it. Withdrawn before it reached a file. |
+| 77 | The unified portal refusing the Responder's write at T+17 min was provisionally framed as a permanent URBAC-only write path; the T+12 h re-read on a fresh token opened the pane and saved the write. Withdrawn; replaced by the bounded read-vs-write propagation finding (row 122). |

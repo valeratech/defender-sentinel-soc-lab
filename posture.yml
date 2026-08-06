@@ -2701,3 +2701,87 @@ entries:
 
       Open: the MDE-side discovery toggle was never read, so only one
       direction of this integration is measured.
+
+  # ---------- Lab 17 — incident investigation and the Responder boundary ----------
+  - id: POS-071
+    lab: "17"
+    setting: Incident 1 triage state
+    location: Defender > Investigation & response > Incidents & alerts > Incidents > ID 1 > Manage incident
+    state: Renamed LAB-Onboarding-Validation (Security testing); severity Medium lowered to Informational; 3 custom tags; assigned to admin; investigation comment logged; Resolved 2026-08-05 17:24 PDT; classification Informational, expected activity - Security testing (stored/exported as Benign Positive / Security testing)
+    baseline: Shipped untouched - Active / Unassigned / Not set across all seven fields since 2026-07-18
+    kind: hardened
+    production: Every incident carries an honest classification; deliberate tests are Security testing, never False positive, because classification feeds detection tuning
+    revisit: false
+    verified: 2026-08-06
+    note: >-
+      Module 77's trap sprung and sidestepped: all three alerts traced to
+      lab-controlled activity (MDE onboarding validation script twice; Azure
+      Run Command delivering the onboarding package itself), so True positive
+      and False positive were both wrong. The detections were accurate; the
+      activity was ours. Resolving the incident zeroed its member alerts
+      (Related alerts 2/3 to 0/3) - incident-to-alert propagation observed
+      downward, having earlier been observed absent upward (AIR resolving an
+      alert never touched the incident header).
+
+  - id: POS-072
+    lab: "17"
+    setting: Microsoft Sentinel Responder for the analyst identity
+    location: Azure > rg-defender-lab > Access control (IAM) > Role assignments; Entra PIM > My roles > Azure resources
+    state: Eligible time-bound assignment, scope rg-defender-lab (resource group), member analyst, end 2027-08-05. Not active standing access - activation via PIM per elevation (max 8 h, MFA on activation, reason required). Early self-deactivation observed in use 2026-08-06 - activation 2 held for ~21 minutes of its 8 h window, surrendered when the work finished
+    baseline: n/a - not in source guidance; the course/guide model assumes a standing Active assignment
+    kind: hardened
+    production: Exactly this - PIM eligible assignment is POS-002's stated production pattern, now demonstrated live in this tenant for the first time
+    revisit: true
+    verified: 2026-08-06
+    note: >-
+      Scope was a recorded decision: RG rather than workspace, because Sentinel
+      is a resource family - playbooks (Logic Apps), workbooks, and automation
+      artifacts live beside the workspace, and G57's Playbook Operator grant
+      composes at the same layer. The trade-off is stated, not hidden: least
+      privilege argues workspace scope; against non-Sentinel resources in the
+      group the role's Sentinel-shaped actions grant almost nothing useful, and
+      the practical delta is workspace read/query visibility on any LAW in the
+      group plus automatic inheritance by future resources - convenience and
+      risk being the same property. A workspace-scoped attempt was caught by
+      reading the breadcrumb and backed out; the two wizards differ (the RG
+      wizard carries an Assignment type tab the workspace wizard lacks), and
+      that tab silently produced Eligible time-bound where the plan assumed
+      Active permanent. The IAM Role assignments grid, not the wizard summary,
+      is the state surface. Eligibility does not close POS-002 - the Global
+      Administrator still does the work - but the mechanism its production
+      column has named since Lab 00 now exists and runs here.
+
+  - id: POS-073
+    lab: "17"
+    setting: MFA method registered on the analyst account
+    location: Entra ID > Users > analyst > Authentication methods
+    state: Authenticator-app method registered 2026-08-05, forced by PIM activation flow ("On activation, require Azure MFA" ships enabled for Azure resource roles). Method type confirmed as TOTP code entry, not push approval, by the post-deactivation re-auth prompt 2026-08-06
+    baseline: No methods - POS-027 created the account deliberately minimal; tenant has Security Defaults off (POS-001) and no Conditional Access (POS-003)
+    kind: hardened
+    production: MFA on all accounts via tenant policy, not discovered per-elevation
+    revisit: false
+    verified: 2026-08-05
+    note: >-
+      Required by the flow, not chosen - recorded per the no-silent-state-change
+      rule. The observation worth keeping: the privilege-elevation path enforced
+      stronger authentication than the tenant baseline does. Nothing tenant-wide
+      requires MFA here; activating a PIM role did. PIM compensated,
+      per-elevation, for controls the tenant never deployed.
+
+  - id: POS-074
+    lab: "17"
+    setting: Incident 19 triage state (the Responder boundary test artifact)
+    location: Defender > Incidents > ID 19; Azure > Microsoft Sentinel > law-soc-lab > Threat management > Incidents
+    state: Owner analyst (written via the Azure Sentinel blade 2026-08-05 21:12 PDT under activation 1); Status In Progress (written via the unified portal Manage incident pane 2026-08-06 07:06 PDT under activation 2). Member alert followed to In progress
+    baseline: Active / Unassigned / New since 2026-07-31
+    kind: default
+    production: Triage state changes are made by scoped responder identities, not the Global Administrator - which is exactly what happened here
+    revisit: false
+    verified: 2026-08-06
+    note: >-
+      A deliberate, attributed state change: both writes were made as analyst
+      under an activated Sentinel Responder role and are the lab's evidence
+      that the role performs its documented function on both surfaces. The
+      unified portal refused the same write at T+17 min post-activation with
+      "You're missing permissions to manage this incident" - a claim about the
+      identity that was only true of the cache; see the divergence table.

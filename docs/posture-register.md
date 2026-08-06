@@ -31,15 +31,15 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 70 |
-| Verified by direct observation | 69 |
+| Settings tracked | 74 |
+| Verified by direct observation | 73 |
 | Asserted but unverified | 1 |
-| Flagged to revisit | 48 |
+| Flagged to revisit | 49 |
 
 | Kind | Count |
 |---|---|
-| hardened | 22 |
-| default | 25 |
+| hardened | 25 |
+| default | 26 |
 | **weakening** | 8 |
 | **gap** | 15 |
 
@@ -99,6 +99,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-061` | 14 | Purview role group membership | 70 built-in role groups, zero users and zero security groups in every one; no custom role groups | **gap** | Scoped role-group membership per function (Security Reader for triage, Compliance Administrator for policy work); no standing Global Administrator use for Purview operations | 2026-08-01 |
 | `POS-068` | 16 | Microsoft 365 app connector - Connected, and silent | Microsoft 365 connector present and Connected. "Was connected on Jul 15 2026 5:18 AM" (suspected UTC, no wall-clock anchor - would place it Jul 14 22:18 PDT, provisioning-adjacent). Last activity - . Zero user telemetry as of 2026-08-05 | **gap** | A connector reporting Connected with no activity is a monitoring gap that no dashboard raises. Production needs an alert on connector inactivity, not a periodic human glance at a status column | 2026-08-04 |
 | `POS-070` | 16 | MDCA to Defender for Endpoint integration - enforcement off, alerting pre-armed | Observed 2026-08-04. "Enforce app access" UNCHECKED. "Generate alert for blocked app access" ON at Informational severity. The reciprocal discovery-feed toggle lives MDE-side (Settings > Endpoints > Advanced features) and was NOT read | default | Either enable enforcement and keep the alert, or disable both. An alert armed for an action that cannot occur is a control that will never fire and will read as healthy indefinitely | 2026-08-04 |
+| `POS-072` | 17 | Microsoft Sentinel Responder for the analyst identity | Eligible time-bound assignment, scope rg-defender-lab (resource group), member analyst, end 2027-08-05. Not active standing access - activation via PIM per elevation (max 8 h, MFA on activation, reason required). Early self-deactivation observed in use 2026-08-06 - activation 2 held for ~21 minutes of its 8 h window, surrendered when the work finished | hardened | Exactly this - PIM eligible assignment is POS-002's stated production pattern, now demonstrated live in this tenant for the first time | 2026-08-06 |
 
 ## All tracked settings
 
@@ -388,6 +389,23 @@ it is an oversight. Closing an item means recording which one it was.
 **`POS-069` — Lab MDCA file policy - DCS inspection against the Lab 14 SITs, advanced settings untouched.** Built as a cross-product calibration experiment. Advanced settings were deliberately untouched so that defaults-as-shipped IS the measurement: Purview's DCS and MDCA's DCS, same engine family, same three SITs, same file. OUTCOME: Purview matched the file at Medium confidence (U.S. Bank Account 2 Medium / 2 Low, ABA Routing 1 Medium / 1 Low, High confidence absent on both) and surfaced it within minutes. MDCA read 0 at +3 h 30 m and again at +27 h. Two-read rule satisfied; MDCA file scans carry no published SLA, so a zero is a claim about the scan or the index, not about the file. The zero CANNOT be resolved into "scanned and below threshold" versus "never scanned", and POS-068 makes the second live. Recorded as DIVERGENCE WITH MECHANISM OPEN, not as a calibration verdict. The operator-facing fact stands regardless: content Purview flags at Medium is invisible to an MDCA default file policy at 27 hours. Defaults worth recording from the build: the wizard pre-seeds Access level = Public/External plus a last-modified cutoff, so the DEFAULT SCOPE EXCLUDES PRIVATE FILES - a default-accepting operator builds a policy blind to internal-only content. Both were removed here. "Inspect protected files" is greyed pending an Entra permission grant to the MDCA application (application-consent, not GA-insufficiency). The SIT picker offers 325 where Purview twice reported 327.
 
 **`POS-070` — MDCA to Defender for Endpoint integration - enforcement off, alerting pre-armed.** The reverse of the enabled-but-inert pattern this repository usually records: here the ENFORCEMENT is off and the ALERTING for it is on. A notification is pre-armed for an event the configuration makes impossible. Completes an asymmetry taxonomy visible across the whole MDCA surface - data-plane visibility ON by default (the connector, POS-068), endpoint and third-party integration OFF by default, enforcement OFF by default. The defaults are consistently permissive about seeing and consistently conservative about acting, which is defensible; the alert toggle is the one element that does not fit either half. Open: the MDE-side discovery toggle was never read, so only one direction of this integration is measured.
+
+### Lab 17
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-071` | Incident 1 triage state | `Defender > Investigation & response > Incidents & alerts > Incidents > ID 1 > Manage incident` | Renamed LAB-Onboarding-Validation (Security testing); severity Medium lowered to Informational; 3 custom tags; assigned to admin; investigation comment logged; Resolved 2026-08-05 17:24 PDT; classification Informational, expected activity - Security testing (stored/exported as Benign Positive / Security testing) | hardened | no | 2026-08-06 |
+| `POS-072` | Microsoft Sentinel Responder for the analyst identity | `Azure > rg-defender-lab > Access control (IAM) > Role assignments; Entra PIM > My roles > Azure resources` | Eligible time-bound assignment, scope rg-defender-lab (resource group), member analyst, end 2027-08-05. Not active standing access - activation via PIM per elevation (max 8 h, MFA on activation, reason required). Early self-deactivation observed in use 2026-08-06 - activation 2 held for ~21 minutes of its 8 h window, surrendered when the work finished | hardened | yes | 2026-08-06 |
+| `POS-073` | MFA method registered on the analyst account | `Entra ID > Users > analyst > Authentication methods` | Authenticator-app method registered 2026-08-05, forced by PIM activation flow ("On activation, require Azure MFA" ships enabled for Azure resource roles). Method type confirmed as TOTP code entry, not push approval, by the post-deactivation re-auth prompt 2026-08-06 | hardened | no | 2026-08-05 |
+| `POS-074` | Incident 19 triage state (the Responder boundary test artifact) | `Defender > Incidents > ID 19; Azure > Microsoft Sentinel > law-soc-lab > Threat management > Incidents` | Owner analyst (written via the Azure Sentinel blade 2026-08-05 21:12 PDT under activation 1); Status In Progress (written via the unified portal Manage incident pane 2026-08-06 07:06 PDT under activation 2). Member alert followed to In progress | default | no | 2026-08-06 |
+
+**`POS-071` — Incident 1 triage state.** Module 77's trap sprung and sidestepped: all three alerts traced to lab-controlled activity (MDE onboarding validation script twice; Azure Run Command delivering the onboarding package itself), so True positive and False positive were both wrong. The detections were accurate; the activity was ours. Resolving the incident zeroed its member alerts (Related alerts 2/3 to 0/3) - incident-to-alert propagation observed downward, having earlier been observed absent upward (AIR resolving an alert never touched the incident header).
+
+**`POS-072` — Microsoft Sentinel Responder for the analyst identity.** Scope was a recorded decision: RG rather than workspace, because Sentinel is a resource family - playbooks (Logic Apps), workbooks, and automation artifacts live beside the workspace, and G57's Playbook Operator grant composes at the same layer. The trade-off is stated, not hidden: least privilege argues workspace scope; against non-Sentinel resources in the group the role's Sentinel-shaped actions grant almost nothing useful, and the practical delta is workspace read/query visibility on any LAW in the group plus automatic inheritance by future resources - convenience and risk being the same property. A workspace-scoped attempt was caught by reading the breadcrumb and backed out; the two wizards differ (the RG wizard carries an Assignment type tab the workspace wizard lacks), and that tab silently produced Eligible time-bound where the plan assumed Active permanent. The IAM Role assignments grid, not the wizard summary, is the state surface. Eligibility does not close POS-002 - the Global Administrator still does the work - but the mechanism its production column has named since Lab 00 now exists and runs here.
+
+**`POS-073` — MFA method registered on the analyst account.** Required by the flow, not chosen - recorded per the no-silent-state-change rule. The observation worth keeping: the privilege-elevation path enforced stronger authentication than the tenant baseline does. Nothing tenant-wide requires MFA here; activating a PIM role did. PIM compensated, per-elevation, for controls the tenant never deployed.
+
+**`POS-074` — Incident 19 triage state (the Responder boundary test artifact).** A deliberate, attributed state change: both writes were made as analyst under an activated Sentinel Responder role and are the lab's evidence that the role performs its documented function on both surfaces. The unified portal refused the same write at T+17 min post-activation with "You're missing permissions to manage this incident" - a claim about the identity that was only true of the cache; see the divergence table.
 
 ## Asserted but not observed
 

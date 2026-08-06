@@ -31,15 +31,15 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 74 |
-| Verified by direct observation | 73 |
+| Settings tracked | 76 |
+| Verified by direct observation | 75 |
 | Asserted but unverified | 1 |
 | Flagged to revisit | 49 |
 
 | Kind | Count |
 |---|---|
 | hardened | 25 |
-| default | 26 |
+| default | 28 |
 | **weakening** | 8 |
 | **gap** | 15 |
 
@@ -406,6 +406,17 @@ it is an oversight. Closing an item means recording which one it was.
 **`POS-073` — MFA method registered on the analyst account.** Required by the flow, not chosen - recorded per the no-silent-state-change rule. The observation worth keeping: the privilege-elevation path enforced stronger authentication than the tenant baseline does. Nothing tenant-wide requires MFA here; activating a PIM role did. PIM compensated, per-elevation, for controls the tenant never deployed.
 
 **`POS-074` — Incident 19 triage state (the Responder boundary test artifact).** A deliberate, attributed state change: both writes were made as analyst under an activated Sentinel Responder role and are the lab's evidence that the role performs its documented function on both surfaces. The unified portal refused the same write at T+17 min post-activation with "You're missing permissions to manage this incident" - a claim about the identity that was only true of the cache; see the divergence table.
+
+### Lab 18
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-075` | Two Sentinel automation rules, both Standard, ordered | `Defender > Microsoft Sentinel > Configuration > Automation > Automation rules > Standard rules` | Order 1 LAB-AutoTag-Bruteforce-Incidents (trigger When incident is created; condition Analytic rule name Contains LAB-Bruteforce-Failed-Signins; action Add tags auto-tagged-ruleA). Order 2 LAB-AutoAssign-Bruteforce-Analyst (same trigger; condition locked to Current rule via the analytics-rule entry point; action Assign owner analyst). Both Enabled, workspace law-soc-lab, expiration Indefinite. Built 2026-08-06 | default | no | 2026-08-06 |
+| `POS-076` | Both automation rules fire on one incident, in order, ~11 s after creation | `Incident 23 > Activities (audit log)` | Trigger 7 failed labuser sign-ins 2026-08-06 11:00 PDT. Incident 23 created 18:12:16Z; Rule A tag applied 18:12:25Z; Rule B owner assigned 18:12:27.983Z. Result incident carries tag auto-tagged-ruleA AND owner analyst - both rules on one trigger, serial, lowest order first | default | no | 2026-08-06 |
+
+**`POS-075` — Two Sentinel automation rules, both Standard, ordered.** The two rules were built from the two different entry points on purpose, to observe the constraint models: the Automation-page builder arrives empty and free (the value picker enumerated three analytic rules - including Fusion / Advanced Multistage Attack Detection, which the Analytics management list does not show - and let you choose), while the analytics-rule path arrives with the condition pre-populated and LOCKED to a late-bound Current rule token, operator and value both greyed. Same feature, two surfaces, two binding semantics: enumerated-at-creation vs resolved-at-runtime (rename-safe). Both rules are Standard; the Automation page's Create path and the analytics-rule path both produce Standard, while the Enhanced kind (alert-trigger only, tenant-wide) is a separate engine the source guide never mentions.
+
+**`POS-076` — Both automation rules fire on one incident, in order, ~11 s after creation.** Retroactivity (P79-2) confirmed by diff: the 22 pre-existing incidents were byte-identical after the rules fired, save incident 19's Lab-17 In-Progress write already in the baseline. Nothing retroactive - the rules touched only the incident created after they existed, as Microsoft claims. The audit log surfaced an anomaly invisible everywhere else: at 18:12:27.986Z - 3 ms after its assignment - Rule B logged a second Tags changed to auto-tagged-ruleA under its own identity, though its only action is Assign owner. The likeliest mechanism is that a second-in-order rule re-commits the incident's full managed-state post-image (which by then includes Rule A's tag) and the audit records the write under B. The tag is idempotent so the outcome is correct and the queue, header, and chip all read clean; the duplicate exists only at millisecond resolution in the audit log. Outcome correct, record shows work that did not happen, visible only where no one looks - the repository's recurring shape, now inside its own automation.
 
 ## Asserted but not observed
 

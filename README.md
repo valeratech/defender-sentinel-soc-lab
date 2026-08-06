@@ -142,6 +142,7 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [15](labs/15-insider-risk-policy/) | Insider Risk Management — a trigger the selector accepts and the runtime ignores | Data protection | 🔨 Built, documenting |
 | [16](labs/16-mdca-file-policy/) | Defender for Cloud Apps — two products, one engine, one file | Data protection | 🔨 Built, documenting |
 | [17](labs/17-incident-investigation/) | Incident investigation — the classification trap, and a role whose grant, activation, and honoring were three separate events | Response | 🔨 Built, documenting |
+| [18](labs/18-sentinel-automation-rules/) | Sentinel automation rules — two creation doors, serial execution, and a duplicate only the audit log saw | Response | 🔨 Built, documenting |
 
 Lab numbers are opaque, append-only handles — `04` is Sentinel because that folder existed as a stub before device groups were built, and renumbering corrupts cross-references. Course-module order and repo lab order diverge by design; the number is a filing handle, not a sequence claim.
 
@@ -174,7 +175,7 @@ python3 scripts/build-attack-matrix.py --check  # CI staleness check
 
 A lab accumulates weakenings. Each is defensible when made and invisible three weeks later.
 
-[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **74 entries** (73 verified) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
+[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **76 entries** (75 verified) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
 
 The register separates **verified** (observed in a portal view) from **asserted** (recorded on the operator's word), because blurring that is how a register becomes decoration.
 

@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**15 module(s) recorded · 9 produced a lab · 28 correction(s) to previously committed content.**
+**17 module(s) recorded · 10 produced a lab · 28 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -27,6 +27,8 @@ than restates**: each finding has exactly one authoritative home.
 | [71](../lessons/MOD-71-insider-risk-policy.md) | Generating an insider risk policy | 🔨 lab | `Lab 15` | `POS-063`, `POS-064`, `POS-065` | `row 83`, `row 84`, `row 85`, `row 86`, `row 87`, `row 88`, `row 89`, `row 90`, `row 91`, `row 92`, `row 93`, `row 94` | 2 |
 | [76](../lessons/MOD-76-mdca-file-policy.md) | Identify, investigate, and remediate security risks by using Defender for Cloud Apps | 🔨 lab | `Lab 16` | `POS-066`, `POS-067`, `POS-068`, `POS-069`, `POS-070` | `row 95`, `row 96`, `row 97`, `row 98`, `row 99`, `row 100`, `row 101`, `row 102`, `row 103`, `row 104`, `row 105`, `row 106`, `row 107`, `row 108` | 3 |
 | [77](../lessons/MOD-77-incident-investigation.md) | Investigate and remediate incidents in Microsoft Sentinel | 🔨 lab | `Lab 17` | `POS-071`, `POS-072`, `POS-073`, `POS-074` | `row 109`, `row 110`, `row 111`, `row 112`, `row 113`, `row 114`, `row 115`, `row 116`, `row 117`, `row 118`, `row 119`, `row 120`, `row 121`, `row 122` | 4 |
+| [78](../lessons/MOD-78-automation-rules-and-playbooks.md) | Understanding automation rules and Microsoft Sentinel playbooks | 📖 concept | `Lab 18` | — | `row 123` | — |
+| [79](../lessons/MOD-79-create-automation-rules.md) | Create and configure automation rules | 🔨 lab | `Lab 18` | `POS-075`, `POS-076` | `row 123`, `row 124`, `row 125`, `row 126`, `row 127`, `row 128`, `row 129`, `row 130`, `row 131` | — |
 
 ## Corrections to previously committed content
 

@@ -108,6 +108,10 @@ renamed **Marketplace** under Billing.
   if the trial route is unavailable. G1 also names E3 and Business Premium as regional
   fallbacks.
 - **What we did:** Both trials exist, in that order. Term 2026-07-14 → 2026-08-13.
+  **Amended 2026-08-06:** the M365 E5 trial was extended once (`POS-077`) and now runs
+  to **2026-09-14**. Office 365 E5 was deliberately *not* extended and still lapses
+  **2026-08-13**, which is what makes the acquisition-dependency question testable in
+  isolation.
 - **Note:** G1 cites an external blog post as the source for the prerequisite. That post
   covers the O365 E5 trial only and never mentions M365 E5 — so the prerequisite is
   asserted by G1 itself, not by the source it cites. The sequence was followed
@@ -141,8 +145,10 @@ renamed **Marketplace** under Billing.
 - [ ] **Path:** Billing → Your products → *(subscription)* → Trial subscription →
       Edit recurring billing
 - **What it is:** Whether a trial converts to a paid subscription at term end.
-- **Why:** Both trials took a payment method and both were configured to convert on
-  2026-08-13.
+- **Why:** Both trials took a payment method and both were, as first recorded on
+  2026-07-16, configured to convert on 2026-08-13. Neither statement holds now: O365 E5's
+  recurring billing is off, and M365 E5's conversion moved to 2026-09-15 with the
+  extension.
 - **Source guidance (G1):** Cancel the subscription before the trial ends — Billing →
   Your products → select subscription → Cancel subscription.
 - **What we did instead (2026-07-16):** Turned recurring billing **off** on Office 365
@@ -152,13 +158,19 @@ renamed **Marketplace** under Billing.
   access.
 - **Verified:** the panel now reads *Expires on August 14, 2026* in place of *changes to
   paid subscription* — the documented indication that recurring billing is off.
-- **Left on deliberately:** Microsoft 365 E5, converting 2026-08-13 at 1 licence,
-  1 month, pay monthly. That was Microsoft's own default for the conversion and matches
+- **Corrected 2026-08-06:** that August 14 is **not the O365 expiry date**, and this
+  document read it as one. The O365 E5 product page carries three banners and an
+  Expiration date field all reading **2026-08-13**. The Recurring billing field renders
+  the *transition day* — when the consequence of the setting lands — not the trial end.
+  See divergence row 134 and `POS-078`.
+- **Left on deliberately:** Microsoft 365 E5, converting **2026-09-15** at 1 licence,
+  1 month, pay monthly (was 2026-08-14 before the `POS-077` extension). That was Microsoft's own default for the conversion and matches
   what the lab needs — month-to-month, cancellable at any renewal.
 - **Divergence from G1:** G1's cancel-based advice is not wrong, but it costs the
   remainder of the trial. Turning off recurring billing is strictly better for a lab,
   and G1 does not mention it.
-- **Open, tested live 2026-08-13:** whether M365 E5 minds O365 E5 lapsing. G1 makes
+- **Open, tested live 2026-08-13** — unchanged by the extension, because O365 E5 was not
+  extended: whether M365 E5 minds O365 E5 lapsing. G1 makes
   O365 E5 a prerequisite for *acquisition*. An acquisition path is not normally an
   ongoing dependency, but that is a vendor expectation, not an observation. Reversible
   until then.
@@ -1335,6 +1347,10 @@ this environment's).
 | 129 | Alert grouping / incident correlation is one setting | Three vocabularies: the **unified pane** said `Incident correlation: Disabled`; the **Azure pane** showed `Alert grouping: Disabled`; the **wizard Review** distinguishes **two** fields — `Alert grouping: Disabled` *and* `Incident correlation: Tenant default` | The classification-field pattern (row 109) recurring on rule configuration: adjacent-but-distinct settings collapsed differently per surface, so "is correlation on?" gets a different-shaped answer depending on where you read it | **live, 2026-08-06** |
 | 130 | Ordered automation rules execute in sequence | Incident 23's audit log, millisecond resolution: alert correlated `18:12:16.543Z`; **Rule A** (Order 1) tag `18:12:25.140Z`; **Rule B** (Order 2) assign `18:12:27.983Z` — strict lowest-order-first, ~2 s apart, both `Automated`, both performer `Automation rule-<name>`. Then at `18:12:27.986Z`, 3 ms after its own assignment, **Rule B logged a second `Tags changed to auto-tagged-ruleA` under its own identity** — though Rule B has no tag action | Ordering, serial spacing, and per-rule attribution all confirmed against the guide. The anomaly is the finding: the likeliest mechanism is a second-in-order rule re-committing the incident's full managed-state post-image (by then carrying Rule A's tag), recorded under B. The tag is idempotent, so the queue, header, and chip all read one clean tag — the duplicate write exists **only** at millisecond resolution in the audit log. Outcome correct, record shows work that did not happen, visible only where no one looks (`POS-076`) | **live, 2026-08-06** |
 | 131 | `Priority score` tracks the detection | Incident 23 scored **1**; the eighteen historical `LAB-Bruteforce-Failed-Signins` incidents all scored **3**; incident 1 scored **72** and held 72 through resolution as benign (row from Lab 17). Same rule, same account, three scores | The automation rules touched only tags and owner, so something independent shifted the score between 7/31 and today. Mechanism unchased across two labs now; recorded as an open oddity, not a claim | **live, 2026-08-06** |
+| 132 | An extension dialog stating "30 days" adds 30 days | **Extend trial end date** on Microsoft 365 E5, clicked 2026-08-06. Dialog verbatim: extendable **once, for 30 days**. Resulting Expiration date **2026-09-14** — **32 days** after the previous 2026-08-13 expiry, and not 30 days from the extension date either (that would be 2026-09-05) | Five of six elements of prediction P77-1 held (one extension, once only, no payment method, no duration choice, allocation still 25). The arithmetic did not. The anchor the +30 is measured from is **not identified and not asserted** — what is recorded is a dialog promising 30 and a field moving 32. Two extra days in the lab's favour, but a number that cannot be derived from the dialog is a number that cannot be planned against (`POS-077`) | **live, 2026-08-06** |
+| 133 | Fields on one panel describe one subscription's state | Same panel, post-extension: **Expiration date** moved 8/13→**9/14** and **Recurring billing** moved 8/14→**9/15**, both by exactly 32 days with the +1 offset preserved. **Next invoice available did not move at all** — still **8/15/2026**, now thirty days *before* the paid subscription it invoices for begins | The two that moved are a **derived pair**, not independent values — useful negative result for row 134. The third is stale with **no indication that it is stale**, sitting alongside two correct fields on one screen. Also confirms the write is asynchronous: "request accepted and pending processing", and nothing moved until a refresh. Receipt is not effect (`POS-077`) | **live, 2026-08-06** |
+| 134 | A trial has an end date | Two trials expiring on one date produced **four dates across five surfaces**, all inside `admin.microsoft.com`, all pre-extension on 2026-08-06: **8/12** (admin's Licences and apps banner), **8/13** (O365 product page ×4, Your products ×2, and arithmetically — the dialog states the M365 E5 was created 7/14, +30 = 8/13), **8/14** (both products' Recurring billing lines and the Renew or cancel panel), **8/15** (Next invoice available) | Three of the four describe genuinely different events — expiry, conversion, invoice — that a reader collapses into "when does the trial end". **This register collapsed two of them for three weeks**: POS-017 recorded the Recurring billing field's *transition day* as the O365 expiry date, and O365 does not expire on the 14th. The 8/12 banner is unexplained, appears on one surface, and was read once; recorded unresolved rather than reconciled (`POS-078`) | **live, 2026-08-06** |
+| 135 | The Licences page inventories the tenant's licences | Three surfaces, three different inventories of four SKUs: **Active users** lists M365 E5, **Power Automate Free**, O365 E5. **Your products** lists M365 E5, **Entra ID Free**, O365 E5. **Billing → Licences** lists two. No surface shows all four; no two agree | Power Automate Free appears only where licences are assigned to *people*; Entra ID Free only where products are *billed*; the page whose stated job is licence inventory shows the fewest. Two hypotheses withdrawn getting here — the `+2` filter chip was called a pre-seeded filter (**Reset all** changed nothing; the chip is the default inclusive view) and Billing → Licences was predicted to surface the SKU because its own filter reads `Account type: Organization, Self-service`. The two-read rule decided the direction: the SKU read **checked**, 9999/10000 seats, so billing is omitting a real assignment rather than the grid being stale (`POS-079`, `POS-080`) | **live, 2026-08-06** |
 
 ---
 

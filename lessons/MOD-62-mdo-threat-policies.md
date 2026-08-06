@@ -185,4 +185,5 @@ that it is not characteristic; nothing established what it was.
 ## Cost
 
 Zero. Both VMs stayed deallocated. Every capability exercised in this module is
-covered by the E5 trial, which ends 2026-08-13.
+covered by the E5 trial, which ends 2026-09-14 (extended once on 2026-08-06 from
+2026-08-13).

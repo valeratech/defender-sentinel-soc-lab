@@ -285,9 +285,12 @@ controls do not, and both are defaults rather than decisions.
 Worth recording while it is still observable: AIR ceases to be a separate,
 manually-triggerable investigation experience for Defender for Endpoint on
 **2026-09-01** (Microsoft Learn; Defender for Office 365 AIR is unaffected).
-This tenant expires 2026-08-13, so everything above is necessarily a
-pre-retirement observation and cannot be re-checked here against the
-after-state.
+This tenant expires **2026-09-14** (extended once on 2026-08-06 from 2026-08-13,
+`POS-077`), so everything above is necessarily a pre-retirement observation and
+cannot be re-checked here against the after-state. The extension does not change
+that: 2026-09-01 still falls inside the tenant's life, so the retirement itself
+is now *observable* here where it previously was not — but the after-state window
+is a fortnight, and no second onboarded device exists to observe it with.
 
 ## 8. References
 

@@ -35,7 +35,7 @@ questions:
 
 Cost: none for this lab. The metered DLP path is non-M365 data sources
 (pay-as-you-go banner investigated, usage report read: 0 items, nothing linked,
-nothing accruing). E5-trial-bound: everything here dies 2026-08-13.
+nothing accruing). E5-trial-bound: everything here dies **2026-09-14** (was 2026-08-13; extended once on 2026-08-06, `POS-077`).
 
 ## 2. Predictions
 
@@ -64,7 +64,7 @@ Recorded before building (P1–P5) and before triggering (P-C1–P-C4):
 | Template | **U.S. Financial Data** | 3 other U.S.-specific financial templates | Assignment names it; the existence of four overlapping U.S. regimes is itself recorded |
 | Name | `Lab14-USFinancial-Simulation` | template default (identical to template name) | This tenant already holds four policies nobody named; a fifth called "U.S. Financial Data" would be indistinguishable from provisioning |
 | Every other wizard value | **template default, untouched** | — | The defaults are the observation |
-| The one override held ready | uncheck 15-day auto-enable | — | Not needed — ships unchecked. Would have fired 2026-08-17, past trial death |
+| The one override held ready | uncheck 15-day auto-enable | — | Not needed — ships unchecked, and verified unchecked. Would have fired 2026-08-17, which was then past trial death. **Amended 2026-08-06:** the trial now runs to 2026-09-14 (`POS-077`), so that date falls *inside* the tenant's life and the clock no longer forecloses the timer. Nothing is running — but if this policy ever leaves simulation mode, re-read the checkbox rather than assuming it harmless |
 | Test values | **published/public** — a real institutional routing number + arbitrary digits with published keywords | generated realistic values | Public routing numbers identify banks, not people; nothing synthetic needs to look real |
 | Content validation | **SIT Test function before seeding** | seed and wait | Decouples content-validity from policy activation; an empty report tomorrow is then provably policy-side |
 | Seeding order | OneDrive pre-activation, email post-activation | both at once | The OneDrive file carries the retroactivity test (P-C2); the email tests transit cleanly without confounding it |

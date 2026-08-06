@@ -93,7 +93,7 @@ Product names are used precisely throughout. "Defender" alone is avoided whereve
 |---|---|
 | Tenant | Single Entra tenant, lab-only, created 2026-07-14 |
 | Licensing | M365 E5 trial + Defender for Endpoint Plan 2 / Vulnerability Management. E5 also carries the Purview (DLP, Insider Risk), Defender for Cloud Apps, and Defender for Office 365 surfaces exercised in Labs 12–16 — all of which expire with it |
-| Identity | Global Administrator + subscription Owner; scoped read-only `analyst` identity created and unlicensed by design (`POS-027`); `labuser` non-admin endpoint identity (`POS-021`). `POS-002` stays open — the second identity exists but is not the one doing the work |
+| Identity | Global Administrator + subscription Owner; scoped read-only `analyst` identity created and unlicensed by design (`POS-027`); `labuser` non-admin endpoint identity (`POS-021`). `POS-002` verified and narrowed 2026-08-06 — the second identity exists but is not the one doing the work, and the standing Global Administrator is now an observed finding rather than an asserted one |
 | Endpoints | Windows 11 VM onboarded to Defender (local script, sensor Active); Windows Server VM added for agent-based ingestion (inbound None + no public IP, Bastion access — a tighter posture than the Win11 box) |
 | Device management | Entra device join configured; **Intune auto-enrolment never fires** — every precondition verified (`POS-022`). Forecloses all Intune-managed paths |
 | Device groups | Rule-based group, Semi remediation, scoped to the analyst via an Entra group |
@@ -101,11 +101,12 @@ Product names are used precisely throughout. "Defender" alone is avoided whereve
 | Sentinel | Workspace `law-soc-lab` (West US, PAYG); Sentinel enabled |
 | Ingestion | Four paths, each a different tier of source: Defender XDR connector (same-platform, auto-connected, alerts/incidents only — raw `Device*` streaming OFF, cost-safe); Windows Security Events via AMA + a Common-tier DCR (`SecurityEvent`); Azure Activity via diagnostic setting (`AzureActivity`); Entra ID connector (`SigninLogs`/`AuditLogs`/risk) |
 
-**The environment is ephemeral, and three clocks bound its life:**
+**The environment is ephemeral, and four clocks bound its life:**
 
 | Clock | Behavior at expiry |
 |---|---|
-| **M365 Defender trial** | 2026-07-14 → **2026-08-13** — **the binding constraint**; ends the telemetry source |
+| **M365 E5 trial** | 2026-07-14 → **2026-09-14** — **the binding constraint**; ends the telemetry source. Extended once on 2026-08-06 from 2026-08-13; the extension is one-time and now spent, so this date is a hard floor (`POS-077`) |
+| **Office 365 E5 trial** | 2026-07-14 → **2026-08-13** — deliberately not extended. Lapses on `admin`, the only holder, who also holds M365 E5; no workload in this lab depends on it (`POS-017`) |
 | **Azure pay-as-you-go** | Never expires, never stops — bills continuously for whatever runs (no free-credit safety net; the offer was unavailable) |
 | **Sentinel 31-day trial** | 2026-07-19 → 2026-08-19, 10 GB/day free on both Sentinel and Log Analytics |
 
@@ -175,7 +176,7 @@ python3 scripts/build-attack-matrix.py --check  # CI staleness check
 
 A lab accumulates weakenings. Each is defensible when made and invisible three weeks later.
 
-[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **76 entries** (75 verified) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
+[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **80 entries** (all 80 verified — `POS-002`, the register's last unverified entry, was closed on a portal read 2026-08-06) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
 
 The register separates **verified** (observed in a portal view) from **asserted** (recorded on the operator's word), because blurring that is how a register becomes decoration.
 

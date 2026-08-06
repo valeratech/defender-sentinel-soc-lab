@@ -151,7 +151,9 @@ Three modes at creation: simulation (preselected), on immediately, off.
 Simulation evaluates and reports without enforcing. Sub-options, both default
 unchecked: policy tips during simulation, and **auto-enable after fifteen days
 unedited** — the one wizard default this lab was prepared to override (it would
-have fired 2026-08-17, four days after the E5 trial's death) and did not need
+have fired 2026-08-17 — then four days after the E5 trial's death, though the
+trial was extended to 2026-09-14 on 2026-08-06, which places that date back
+inside the tenant's life) and did not need
 to. The policy-list Mode column encodes the tips sub-option in its label:
 `In simulation with notifications` vs `without`.
 

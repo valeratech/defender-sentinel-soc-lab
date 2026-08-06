@@ -11,11 +11,11 @@ finding that landed in the filing system and never reached the document it
 belongs to. It fails no gate: the generators verify generated docs against
 their sources, and prose is neither.
 
-**55 of 76 entries cited in their own lab.**
+**60 of 80 entries cited in their own lab.**
 
 | Lab | Status | Cited | Uncited |
 |---|---|---|---|
-| 00 | 🔨 | 2/11 | `POS-001`, `POS-002`, `POS-003`, `POS-004`, `POS-005`, `POS-016`, `POS-026`, `POS-027`, `POS-058` |
+| 00 | 🔨 | 7/15 | `POS-001`, `POS-003`, `POS-004`, `POS-005`, `POS-016`, `POS-026`, `POS-027`, `POS-058` |
 | 01 | 🔨 | 8/11 | `POS-019`, `POS-020`, `POS-024` |
 | 02 | 🔨 | 1/6 | `POS-009`, `POS-010`, `POS-012`, `POS-013`, `POS-014` |
 | 03 | 🔨 | 3/3 | — |

@@ -83,13 +83,70 @@ The third is the one that surprises people: an intentionally weakened box left r
 
 | Tracked | Value |
 |---|---|
-| M365 trial term | **2026-07-14 to 2026-08-13** (25 licenses) |
+| M365 E5 trial term | **2026-07-14 to 2026-09-14** (25 licenses; extended once on 2026-08-06 from 2026-08-13 — `POS-077`) |
+| O365 E5 trial term | **2026-07-14 to 2026-08-13** — deliberately not extended (`POS-017`) |
 | M365 recurring billing | *(pending — see `POS-017`)* |
 | Azure budget, resource-group scope | Configured — `$15/month`, actual alerts at 50/80/100% |
 | Azure budget, subscription scope | *(pending — see `POS-015`)* |
 | Azure budget, forecasted alert | *(pending — see `POS-015`)* |
 
-**The tenant expires 2026-08-13.** That is the project's clock, not merely a billing date. Labs 03 through 13 must be built and their evidence committed before it, because a lapsed trial takes every incident, timeline and query result with it. Nothing here is reconstructable afterwards.
+**The tenant expires 2026-09-14.** That is the project's clock, not merely a billing date. Evidence must be committed before it, because a lapsed trial takes every incident, timeline and query result with it. Nothing here is reconstructable afterwards. The extension was one-time and is now spent, so this date is a floor rather than a target.
+
+### 3.1 Licensing audit — 2026-08-06
+
+The extension was taken deliberately, to remove schedule pressure from the remaining
+build rather than to avoid cost: the conversion was already configured at one licence,
+month-to-month, cancellable at any renewal. Auditing the billing surfaces *before*
+clicking — because the write is irreversible and overwrites the fields being read —
+produced more findings than the extension itself.
+
+**Prediction P77-1, recorded before the click:** one 30-day extension, once only, no
+payment method demanded, no duration choice, allocation unchanged at 25, resulting
+expiry 2026-09-12. **Five of six held. The arithmetic did not** — the dialog states
+*30 days* and the Expiration date moved **32**, from 2026-08-13 to 2026-09-14. The
+anchor is not identified and is not guessed at here (`POS-077`, divergence row 132).
+
+Three findings came out of the pre-click audit, none of them the thing being looked for:
+
+- **Four dates for two trials, across five surfaces** — 8/12, 8/13, 8/14, 8/15, all
+  inside one admin center, all describing the same pair of expiries. Three of them name
+  genuinely different events (expiry, conversion, invoice availability) that a reader
+  collapses into "when does the trial end". **This repository collapsed two of them for
+  three weeks** — `POS-017` recorded the Recurring billing field's *transition day* as
+  the O365 expiry date, and O365 does not expire on the 14th. Corrected. The 8/12 banner
+  is still unexplained (`POS-078`, row 134).
+- **No portal surface lists all four SKUs in this tenant.** Active users shows three,
+  Your products shows a different three, Billing → Licences shows two. Power Automate
+  Free appears only where licences are assigned to people; Entra ID Free only where
+  products are billed (`POS-079`, row 135).
+- **Two SKUs the register had never recorded** after eighteen labs — Power Automate Free,
+  assigned to `admin`, and Entra ID Free. Both inherited rather than chosen, which is the
+  case the `default` kind exists for (`POS-080`).
+
+**Post-extension, one field did not propagate.** Expiration and the conversion line both
+moved 32 days in lockstep, preserving their +1 offset — so they are a derived pair, not
+independent values. **Next invoice available did not move at all**, and still reads
+8/15/2026: thirty days before the subscription it invoices for begins, stale with no
+indication that it is stale, on the same panel as the two that updated correctly
+(`POS-077`, row 133).
+
+**Identity, verified rather than asserted.** The same audit closed `POS-002`, the
+register's last unverified entry, standing open since 2026-07-16. Users → Active users →
+`admin` → Account renders **Roles: Global Administrator**; `labuser` renders *No
+administrator access*; `analyst` is unlicensed with no directory role. Three active
+member accounts, one standing GA, no PIM and no eligible alternative — corroborated the
+same day on a second surface (Entra ID → Users → All users, *3 users found*, all Member,
+no guests). The entry was **narrowed** in the course of closing it: the original state
+line claimed "across all portals", which a role read can neither confirm nor deny, so
+the phrase is dropped rather than left as an unfalsifiable flourish. `revisit` stays
+true — verifying a weakening does not remediate it.
+
+**What the 2026-08-13 O365 lapse now costs: nothing that matters.** `admin` is the only
+holder of an Office 365 E5 licence (1/25) and also holds M365 E5; `labuser` holds M365 E5
+alone. Every Office 365 workload this lab exercises — Exchange, OneDrive, SharePoint,
+MDO Plan 2, Purview DLP, Insider Risk — is carried by M365 E5 independently. Not
+extending O365 E5 therefore leaves `POS-017`'s open acquisition-dependency question
+testable in isolation, on a date when nothing else happens.
 
 ## 4. Build
 

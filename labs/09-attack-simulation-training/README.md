@@ -26,7 +26,7 @@ an analyst is entitled to conclude from a clean result.
 
 | Decision | Chosen | Alternative | Rationale |
 |---|---|---|---|
-| Simulation vs automation | **Single simulation** | Simulation automation | Automation fires on conditions and can carry multiple techniques; a first observation needs a deterministic technique, payload, and send time. A standing schedule is also pointless in a tenant expiring 2026-08-13 |
+| Simulation vs automation | **Single simulation** | Simulation automation | Automation fires on conditions and can carry multiple techniques; a first observation needs a deterministic technique, payload, and send time. A standing schedule is also pointless in a tenant then expiring 2026-08-13 (extended to 2026-09-14 on 2026-08-06, `POS-077`; the design decision stands on the determinism argument, not the clock) |
 | Technique | **Credential Harvest** | Six others | The most common real starting point, MITRE-curated, and the only technique available even in the reduced E3 trial — so least likely to surprise on entitlement |
 | Targeting | **All users, admin excluded** | Select `labuser` directly | One extra click tests two mechanics instead of one: whether all-users resolves, and whether the exclusion excludes. Mirrors the production shape of targeting broadly and carving out |
 | Training | **Assign for me (recommended)** | No training / manual selection | Half the feature is the training arc; skipping it observes delivery only |

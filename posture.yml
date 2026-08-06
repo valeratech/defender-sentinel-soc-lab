@@ -40,11 +40,39 @@ entries:
     kind: weakening
     production: Role-scoped admin accounts; PIM eligible assignment
     revisit: true
-    verified: null
+    verified: 2026-08-06
     note: >-
-      Asserted by the operator, not observed in a portal view. One credential
-      holds total authority; audit trail cannot distinguish this identity's
-      actions from any other's because there is no other.
+      VERIFIED 2026-08-06, AND NARROWED TO WHAT THE READ SUPPORTS. This entry
+      carried verified: null from 2026-07-16 to 2026-08-06 as the register's
+      sole unverified gap. Closed on a direct portal read: Users > Active users
+      > admin > Account renders Roles: Global Administrator, and the same grid
+      renders labuser as "No administrator access" and analyst as unlicensed
+      with no directory role. Three active member accounts, one of which holds
+      GA, standing - no PIM, no eligibility, no second admin. Corroborated on a
+      second surface the same day (Entra ID > Users > All users, "3 users
+      found", all Member, no guests).
+
+      NARROWED: the original state line read "across all portals". A single
+      directory role assignment is tenant-wide by construction, so the phrase
+      added nothing a role read could confirm or deny and is dropped rather
+      than left as an unfalsifiable flourish. What is verified is the role, its
+      standing (not eligible) character, and the absence of any alternative
+      admin identity. What is NOT claimed: that every portal was individually
+      exercised with this credential.
+
+      SCOPE OF THE READ: Active users lists active member accounts. Guests
+      (Users > Guest users) and soft-deleted accounts (Users > Deleted users)
+      are separate views and were not enumerated in the admin center; the Entra
+      cross-check shows guests inline and found none. The claim is therefore
+      "three active accounts, one standing GA", not "three accounts have ever
+      existed".
+
+      revisit stays TRUE. Verifying a weakening does not remediate it - the
+      entry is now an observed finding rather than an asserted one, and the
+      production answer is unchanged.
+
+      One credential holds total authority; audit trail cannot distinguish this
+      identity's actions from any other's because there is no other.
 
       POS-027 creates a scoped analyst identity for the Defender portal. That
       does not close this entry and the state above is unchanged: analyst holds
@@ -209,7 +237,7 @@ entries:
     lab: "00"
     setting: M365 trial recurring billing
     location: M365 admin center > Billing > Your products
-    state: O365 E5 recurring OFF (expires 2026-08-14); M365 E5 recurring ON, converts 2026-08-13
+    state: O365 E5 recurring OFF, expires 2026-08-13; M365 E5 recurring ON, trial extended 2026-08-06 to 2026-09-14, converts 2026-09-15 at 1 paid licence
     baseline: "On"
     kind: hardened
     production: n/a
@@ -221,7 +249,10 @@ entries:
       be added — and each carries its own recurring billing setting, so turning
       one off does nothing for the other. Both are configured 1 license, 1
       month, pay monthly: O365 E5 at $49.20/mo, M365 E5 rate not yet displayed
-      while in trial. Left alone, BOTH convert on 2026-08-13.
+      while in trial. Left alone, BOTH would have converted on 2026-08-13 - the
+      state as first recorded 2026-07-16, before O365's recurring billing was
+      turned off and before the M365 extension moved its conversion to
+      2026-09-15.
 
       Microsoft 365 E5 is a superset of Office 365 E5 and is the license
       actually assigned to the admin account, so O365 E5 contributes nothing
@@ -231,11 +262,31 @@ entries:
       recurring billing is off. Turning it off did not cancel — the trial still
       runs its full term.
 
-      Microsoft 365 E5 recurring billing remains ON deliberately. It converts
-      on 2026-08-13 at 1 license, 1 month, pay monthly unless extended or
-      turned off. That is a decision point, not a deadline: month-to-month is
-      cancellable at any renewal, so the lab need not be compressed to fit the
-      trial window.
+      CORRECTED 2026-08-06 — THIS ENTRY READ THE WRONG FIELD AS AN EXPIRY DATE.
+      From 2026-07-16 to 2026-08-06 the state line above read "O365 E5
+      recurring OFF (expires 2026-08-14)". It does not expire on the 14th. The
+      Office 365 E5 product page carries THREE banners and an Expiration date
+      field all reading 2026-08-13; the only surface saying August 14 is the
+      Recurring billing field itself. That field renders the TRANSITION day -
+      the day the consequence of the recurring-billing setting lands - not the
+      trial end. Mechanism labelled as inference; what is observed is that
+      recurring-OFF renders "Expires on August 14" and recurring-ON renders
+      "changes to paid subscription on August 14" in the same slot, both one
+      day after a shared 2026-08-13 expiry. Corroborated by Next invoice
+      available, which reads a date on the recurring-ON subscription and "Date
+      not available" on the recurring-OFF one. See POS-078 for the full
+      cross-surface date spread; this correction is one instance of it.
+
+      Microsoft 365 E5 recurring billing remains ON deliberately. The trial was
+      EXTENDED on 2026-08-06 (POS-077): expiry moved 2026-08-13 to 2026-09-14
+      and conversion moved 2026-08-14 to 2026-09-15, still at 1 license, 1
+      month, pay monthly unless turned off. That is a decision point, not a
+      deadline: month-to-month is cancellable at any renewal, so the lab need
+      not be compressed to fit the trial window.
+
+      O365 E5 WAS NOT EXTENDED, deliberately. It still lapses 2026-08-13,
+      which leaves the dependency question below testable in isolation rather
+      than simultaneously with a conversion event.
 
       SURFACE DISAGREEMENT, recorded 2026-08-01 because stating only the
       resolution caused a misreading: THREE surfaces report 25 licenses (the
@@ -249,6 +300,17 @@ entries:
       another surface. The disagreement is the durable fact; the resolution is
       one surface's answer to one question.
 
+      RE-READ 2026-08-06, THIRTEEN DAYS ON, UNCHANGED — and now on four
+      surfaces rather than one. The 1-license answer was found on: the Renew or
+      cancel panel ("bought on August 14, 2026 with 1 licenses"), the Your
+      products grid ("Renews on 8/13/2026 with 1 paid license"), and - new
+      after the extension - a Paid subscription panel that appeared on the
+      product page itself stating Licenses 1, Subscription length 1 month,
+      Billing frequency Pay monthly. That panel sits on the same page as
+      "Your trial of this product includes only 25 licenses" and "2 / 25
+      Licenses assigned". The disagreement did not resolve; it became legible
+      on one screen.
+
       UNVERIFIED, AND TESTED LIVE ON 2026-08-13: whether Microsoft 365 E5
       survives Office 365 E5 lapsing. If O365 E5 was structurally required to
       obtain M365 E5, it may or may not be required to retain it. An
@@ -258,6 +320,15 @@ entries:
       point of this register. Mitigation is free: recurring billing can be
       turned back on at any point before 2026-08-13 if M365 E5 shows any sign
       of depending on it.
+
+      WHAT THE 2026-08-13 TEST NOW COSTS, re-assessed 2026-08-06: nothing that
+      matters. Verified the same day that admin is the ONLY holder of an O365
+      E5 licence (1/25 assigned) and also holds M365 E5, while labuser holds
+      M365 E5 alone and analyst is unlicensed. No mailbox, OneDrive, or
+      workload in this lab is provisioned by the lapsing subscription - every
+      Office 365 workload exercised in labs 09 and 12-16 is also carried by
+      M365 E5. The lapse is therefore a clean dependency test rather than a
+      capability risk.
 
   - id: POS-006
     lab: "01"
@@ -1228,7 +1299,9 @@ entries:
       state, and the tenant had already crossed it before this lab read the value.
       In a tenant expiring 2026-08-13 the irreversibility costs nothing, which is
       why it was accepted without hesitation - that is a judgement about this
-      environment, not a general one.
+      environment, not a general one. (Expiry moved to 2026-09-14 on 2026-08-06,
+      POS-077. Thirty-two more days does not make an irreversible change
+      reversible; the judgement is unchanged.)
 
       THE FINDING - a property read is not a capability test. Within one
       PowerShell session, three tests disagreed. Get-OrganizationConfig returned
@@ -1326,6 +1399,14 @@ entries:
       consecutive compromises), and training-threshold reassignment at 90 days.
       Recorded as foreclosed rather than untested. A 100% compromise rate with one
       target is arithmetic, not a measurement.
+
+      FORECLOSURE PARTIALLY LIFTED 2026-08-06 (POS-077). The expiry moved to
+      2026-09-14, so trend-across-campaigns and repeat-offender behaviour are no
+      longer foreclosed by the clock - they are now merely UNTESTED, which is a
+      different status and the register distinguishes them deliberately. The
+      90-day training-threshold reassignment stays foreclosed: 90 days from the
+      2026-07-27 campaign lands well past 2026-09-14, and the extension is spent.
+      The n=1 limitation is unaffected by any date.
   - id: POS-038
     lab: "09"
     setting: End-user notification delivery preferences (simulation-scoped)
@@ -1779,7 +1860,9 @@ entries:
       overlapped with the authored rule (POS-046) so one trigger tests both.
 
       TUNING 1, frequency. Shipped at "run every 1 day", which against a tenant
-      expiring 2026-08-13 means up to 24 hours per test attempt. Reduced to 1 HOUR
+      then expiring 2026-08-13 (extended 2026-08-06 to 2026-09-14, POS-077 - the
+      tuning decision stands on the wizard's own floor, not on the clock) means
+      up to 24 hours per test attempt. Reduced to 1 HOUR
       - not the 5 minutes intended, because the wizard rejects it: with a lookback
       of 2 days or more the frequency must be 1 hour or greater. The lookback
       cannot be shortened either, since the query's own avgFailures baseline joins
@@ -2296,6 +2379,19 @@ entries:
       enforcement-scope test is a test OF. The credit expires unspent on
       2026-08-13 by choice.
 
+      RE-EXAMINED 2026-08-06 - DECISION STANDS, ITS PRIMARY REASON DOES NOT.
+      The M365 E5 trial extension (POS-077) moved the project clock to
+      2026-09-14, so the "11-day budget" that made rebuilding unaffordable no
+      longer describes the schedule. THE CREDIT'S OWN DATE DID NOT MOVE: it is
+      an Azure MCA artifact on billing profile A, structurally unrelated to a
+      Microsoft 365 trial, and still expires 2026-08-13 - now SEVEN days out
+      rather than the extended horizon. The decision is unchanged and the
+      remaining reasons are sufficient on their own: the credit still cannot
+      reach profile B's invoice without migration, and the VMs still carry the
+      ASR state POS-031 tests. Recorded because a decision whose stated reason
+      has expired is a decision that will be re-litigated by the next reader if
+      the change is not written down.
+
       RELATED HAZARD: the two subscriptions are BOTH named "Azure subscription
       1". Every subscription picker in every portal shows the name, and the
       name does not disambiguate — a deployment aimed at the wrong one would
@@ -2405,9 +2501,19 @@ entries:
       mode); notify-and-report on (tips, threshold 10, incident reports,
       alerts) with the only enforcement action OFF; the entire device-action
       section off, so Devices is in scope and uninstrumented; 15-day
-      auto-enable unchecked (verified - it would have fired 2026-08-17, past
-      the trial's 2026-08-13 death). Incident reports cover four of the seven
-      in-scope locations.
+      auto-enable unchecked (verified - it would have fired 2026-08-17, which
+      at the time was past the trial's 2026-08-13 death). Incident reports
+      cover four of the seven in-scope locations.
+
+      AMENDED 2026-08-06 - THIS PARENTHETICAL IS NOW FALSE AND THE CONCLUSION
+      SURVIVES ON DIFFERENT GROUNDS. The trial was extended to 2026-09-14
+      (POS-077), so 2026-08-17 now falls INSIDE the tenant's life rather than
+      past its end. The 15-day auto-enable timer is no longer foreclosed by
+      expiry. Nothing changes operationally - the checkbox ships unchecked and
+      was verified unchecked, so no timer is running - but the reason the
+      override was "not needed" was partly that the tenant would be dead first,
+      and that reason is void. If the policy is ever moved off simulation mode,
+      the auto-enable state must be re-read rather than assumed harmless.
 
       PHASE D OUTCOME (2026-08-03): EFFECTIVE for the covered paths, measured.
       Detected the pre-validated content at rest (OneDrive, including content
@@ -2837,3 +2943,193 @@ entries:
       in the audit log. Outcome correct, record shows work that did not happen,
       visible only where no one looks - the repository's recurring shape, now
       inside its own automation.
+
+  # ---------- Lab 00 — trial extension audit, 2026-08-06 ----------
+  - id: POS-077
+    lab: "00"
+    setting: Microsoft 365 E5 trial extension (one-time, consumed)
+    location: M365 admin center > Billing > Your products > Microsoft 365 E5 > Extend trial end date
+    state: Extended 2026-08-06. Expiration 2026-08-13 to 2026-09-14; conversion 2026-08-14 to 2026-09-15. Extension control now greyed and inert. Next invoice available did NOT move - still reads 8/15/2026
+    baseline: Trial runs its original 30-day term and converts
+    kind: hardened
+    production: n/a - trial mechanics do not exist on a paid tenant
+    revisit: true
+    verified: 2026-08-06
+    note: >-
+      Taken deliberately to remove schedule pressure from the remaining work
+      (G57 playbooks and the section-7 queue), not to avoid cost - the
+      conversion was already configured at 1 licence, month-to-month, and
+      cancellable at any renewal.
+
+      PREDICTION P77-1, recorded before clicking: one 30-day extension, once
+      only, no payment method demanded, no choice of duration, 25-licence
+      allocation unchanged, resulting expiry 2026-09-12 (8/13 + 30).
+
+      OUTCOME: five of six correct, and the arithmetic wrong. The dialog states
+      verbatim that the trial can be extended once, for 30 days, and that the
+      licences extended today associate with the Microsoft 365 E5 created
+      7/14/2026. No card, no duration picker, allocation still 25 (2 assigned).
+      But the resulting Expiration date reads 2026-09-14 - THIRTY-TWO days
+      after the previous expiry, not thirty. Nor is it thirty days from the
+      extension date (that would be 2026-09-05). The anchor is not identified
+      and is NOT asserted here; what is observed is a dialog promising 30 and a
+      field moving 32.
+
+      WHAT PROPAGATED AND WHAT DID NOT. Expiration (8/13 to 9/14) and the
+      Recurring billing conversion line (8/14 to 9/15) both moved by exactly 32
+      days, preserving the +1 offset intact - so those two fields are a derived
+      pair, not independent values, which is a useful negative result for
+      POS-078. Next invoice available did NOT move: it still reads 8/15/2026,
+      now thirty days BEFORE the paid subscription it invoices for begins. A
+      stale field with no indication that it is stale, on the same panel as the
+      two that updated correctly.
+
+      EXTENSION CONSUMED - verified by observation, not by the dialog's claim.
+      The Extend trial end date control renders greyed and inert after the
+      operation. The dialog said once-only; the control's state is what
+      confirms it. There is no second extension available, so 2026-09-14 is a
+      hard floor.
+
+      ASYNCHRONOUS WRITE. Confirmation was two-stage - "Your request is being
+      verified" then "Your request is accepted and pending processing. It will
+      be processed within a minute." The confirmation confirms RECEIPT, not
+      EFFECT; the product page had to be refreshed before any field moved. A
+      read taken immediately after the click would have shown the old dates and
+      proved nothing. Same shape as every other propagation delay in this repo.
+
+      revisit TRUE: the stale invoice date should be re-read closer to
+      2026-09-15 to see whether it self-corrects or persists to the actual
+      first invoice.
+
+  - id: POS-078
+    lab: "00"
+    setting: Trial expiry and conversion dates disagree across portal surfaces
+    location: M365 admin center - five surfaces across Billing and Users
+    state: Before extension, two trials expiring on one date produced FOUR distinct dates across five surfaces - 8/12, 8/13, 8/14, 8/15
+    baseline: n/a - no baseline; the disagreement is the observation
+    kind: gap
+    production: A billing date is an input to renewal planning; a four-way spread means no single surface can be quoted
+    revisit: true
+    verified: 2026-08-06
+    note: >-
+      Captured in one sitting on 2026-08-06, pre-extension, all five surfaces
+      inside admin.microsoft.com and all describing the same pair of trials.
+
+      8/12 - Users > Active users > admin > Licences and apps, banner: the
+      Office 365 E5 trial expires on 8/12/2026.
+      8/13 - Office 365 E5 product page: three separate banners plus the
+      Expiration date field. Also Billing > Your products for O365 E5. Also
+      Your products for M365 E5, worded "Renews on 8/13/2026 with 1 paid
+      licence".
+      8/14 - Microsoft 365 E5 product page Recurring billing line ("changes to
+      paid subscription on August 14, 2026") and the Renew or cancel panel
+      ("bought on August 14, 2026"). Also the O365 E5 Recurring billing line,
+      worded "Expires on August 14, 2026".
+      8/15 - Microsoft 365 E5 product page, Next invoice available.
+
+      A fifth datum constrains it: the Extend trial dialog states the M365 E5
+      was created 7/14/2026, and 30 days from creation is 8/13 - arithmetically
+      consistent with the Expiration fields and inconsistent with both the 8/12
+      banner and the 8/14 conversion language.
+
+      MECHANISM PARTLY IDENTIFIED, PARTLY NOT. The 8/13-vs-8/14 pair is
+      explained: expiry and conversion are consecutive by construction, and
+      POS-077 confirmed it by moving both 32 days with the offset preserved.
+      8/15 is invoice availability, a third real event. 8/12 is NOT explained
+      and is not guessed at - it is the earliest date any Microsoft surface
+      claims for a trial ending, it appears on exactly one surface, and it was
+      read once. Recorded as unresolved.
+
+      WHY THIS IS AN ENTRY AND NOT A FOOTNOTE. Three of the four dates describe
+      genuinely different events (expiry, conversion, invoice) that a reader
+      naturally collapses into "when does the trial end". The register itself
+      collapsed two of them for three weeks - see the correction inside
+      POS-017, where the Recurring billing field's transition day was recorded
+      as the O365 expiry date. The repo's recurring instruction applies exactly:
+      identify which question a surface answers before trusting its number.
+
+  - id: POS-079
+    lab: "00"
+    setting: Licence inventory differs by surface - no surface lists all SKUs
+    location: Users > Active users; Billing > Your products; Billing > Licences
+    state: Four SKUs exist. Active users shows 3, Your products shows 3, Billing > Licences shows 2. No surface shows all four, and no two surfaces agree
+    baseline: n/a
+    kind: gap
+    production: Licence inventory drives entitlement review and cost attribution; a per-surface answer means neither can be done from one page
+    revisit: true
+    verified: 2026-08-06
+    note: >-
+      Verified 2026-08-06 across three surfaces in one sitting.
+
+      Users > Active users, Licences column and its filter dropdown:
+      Microsoft 365 E5, Microsoft Power Automate Free, Office 365 E5.
+      Billing > Your products (3 items): Microsoft 365 E5, Microsoft Entra ID
+      Free, Office 365 E5.
+      Billing > Licences > Subscriptions (2 items): Microsoft 365 E5,
+      Office 365 E5.
+
+      Power Automate Free appears only where licences are assigned to people.
+      Entra ID Free appears only where products are billed. The Licences page -
+      whose stated job is licence inventory - shows the fewest of the three.
+
+      TWO-READ RULE APPLIED, AND IT MATTERED. Power Automate Free was first
+      seen once, in the Active users grid, and the working hypothesis was that
+      the grid was stale. The confirming read (admin > Licences and apps)
+      returned it CHECKED, with "9999 of 10000 licences available" - a real
+      10,000-seat SKU with one seat consumed. So the assignment is genuine and
+      the billing surfaces are the ones omitting it. Had the finding been
+      written from the single read it would have pointed the wrong way.
+
+      TWO HYPOTHESES WITHDRAWN in reaching this. (1) The Your products filter
+      chip reading "Subscription status: Active, Pending, Scheduled, +2" was
+      called a pre-seeded filter hiding rows - Reset all changed nothing and
+      the Add filter panel renders Subscription status and Billing profile
+      greyed, i.e. it is the default inclusive view. (2) Billing > Licences was
+      predicted to surface the SKU because its own filter reads "Account type:
+      Organization, Self-service" - self-service SKUs are explicitly in scope
+      there and it still is not listed. Both were inference, both disproven by
+      reading.
+
+      NOT CHASED, recorded as open: the Licences page carries Requests and
+      Auto-claim policy tabs, neither examined. Whether tenant self-service
+      sign-up is enabled remains unanswered - see POS-080.
+
+  - id: POS-080
+    lab: "00"
+    setting: Two SKUs present in the tenant that this register never recorded
+    location: Users > Active users > admin > Licences and apps; Billing > Your products
+    state: Microsoft Power Automate Free assigned to admin (1 of 10000 seats). Microsoft Entra ID Free present, quantity 1, Subscription status Active, Pricing model Paid, assigned licences "Not available"
+    baseline: n/a - neither was requested
+    kind: default
+    production: Inventory every SKU in the tenant; a licence nobody chose is a licence nobody reviews
+    revisit: true
+    verified: 2026-08-06
+    note: >-
+      Recorded as kind default precisely because neither was a decision. Both
+      surfaced only during the 2026-08-06 licensing audit, after eighteen labs.
+
+      POWER AUTOMATE FREE - assigned to admin, checkbox confirmed on the
+      Licences and apps tab. How it arrived is NOT established. The working
+      hypothesis is self-service auto-provisioning on first contact with a
+      Power Platform surface, which would mean tenant self-service sign-up is
+      enabled and any licensed user can provision SKUs without an admin - a
+      posture setting in its own right. That hypothesis is UNTESTED: the field
+      that would answer it (Purchase channel) is on the Your products page, and
+      Power Automate Free is not listed there (POS-079). Not asserted.
+
+      ENTRA ID FREE - Purchased quantity 1, Purchase channel Commercial direct,
+      Product type License-based, and Pricing model PAID on a SKU whose name is
+      Free. Assigned licences reads "Not available". Almost certainly the
+      baseline directory SKU every tenant carries, surfaced by the billing
+      view rather than provisioned by anyone; the Paid pricing model on a free
+      product is unexplained and not explained away here.
+
+      NO COST EXPOSURE at lab volume for either, and neither bears on G57:
+      Sentinel playbooks bill as Logic Apps consumption, a different meter from
+      Power Automate.
+
+      WHY IT MATTERS ANYWAY. The register's purpose is that inherited state is
+      recorded so it is not later mistaken for a decision. Two SKUs sat in this
+      tenant for over three weeks, one of them assigned to the account that
+      operates every lab, and the register had no entry for either. They were
+      found by auditing licensing for an unrelated reason.

@@ -159,4 +159,4 @@ test the Sentinel-native branch, per the decision recorded in module 62.
 ## Cost
 
 Zero. Both VMs stayed deallocated. Everything here is E5-trial capability,
-expiring 2026-08-13.
+expiring 2026-09-14 (extended once on 2026-08-06 from 2026-08-13).

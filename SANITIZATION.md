@@ -36,6 +36,41 @@ Replacements are visibly synthetic and internally consistent. Values are drawn f
 | IPv6 | `2001:db8::/32` | RFC 3849 |
 | Public IP of lab endpoint | **Omitted entirely — not placeholdered** | — |
 
+**Terms added to `.pii-terms` on 2026-08-08** (the file is gitignored; this is
+the record that they were added, not the values). Lab 19 surfaced three classes
+of real value the wordlist did not cover: the **tenant GUID**, the **lab
+endpoint's public IPv4**, and a **business phone number** returned by Graph and
+persisted into Logic Apps run history. The list stands at 16 terms, one of them
+a GUID.
+
+Two values were considered and **deliberately not added**: the subscription
+GUID and the administrator's object ID. Both were exposed in working sessions
+and both are attributable; the judgement was that the tenant GUID is the value
+whose presence in history would force a rewrite, and that a wordlist earns its
+usefulness by every line mattering. Recorded so the omission reads as a
+decision rather than an oversight.
+
+**The phone number is the one worth dwelling on.** It reached a log because a
+workflow read one field from an object Graph returned whole, and no `$select`
+narrowed it (`POS-084`). No placeholder convention would have caught it — the
+value was never authored, only logged.
+
+**Two corrections to this section's own first draft**, kept rather than edited
+away. It originally claimed five classes were added and named the tenant's
+technical-contact address among them; that address was already covered by an
+existing token, so the true count is three. And the check used to verify the
+additions tested for `@domain`-shaped entries when the file's convention is
+bare distinctive tokens — an instrument that reported ABSENT for a term that
+was present. Both errors were of the same kind this document exists to catch:
+a claim about a control, stated before the control was read.
+
+**Lab 19's new resource names need no placeholder, and this is stated rather
+than left implicit.** The playbook/logic app name and both
+`Microsoft.Web/connections` names are Microsoft template-derived — they are
+what the gallery produces for anyone who deploys that template, carry no
+information about this environment, and are non-attributable. They are
+committed as-is.
+
 Distinct real values map to distinct placeholders (`analyst@`, `admin@`, `svc-ama@`) so relationships in the data survive redaction and queries remain readable.
 
 ### Public constants — allowlisted by exact value, not redacted
@@ -242,6 +277,46 @@ Adding IOCs to `.gitleaks.toml` permanently would erode the rule until a lab IP 
 
 ---
 
+## 7a. Transport — how the working copy is moved
+
+The repository is authored in a container and delivered as a tarball for the
+operator to verify, extract, gate, and commit. That transport is part of the
+sanitization system, because one of the files it carries is the thing that
+keeps `.pii-terms` out of history.
+
+**Build tarballs with `--exclude=.git`. Never `--exclude-vcs`.**
+
+GNU tar's VCS-exclusion list is not a `.git*` wildcard. It removes `.git/`,
+**`.gitignore`**, **`.gitattributes`** and `.gitmodules`, while leaving
+everything else beginning with `.git` in place. Measured against this working
+tree on 2026-08-08:
+
+| Invocation | `.gitleaks.toml` | `.gitleaks-ocr.toml` | `.github/` | `.gitignore` | `.gitattributes` |
+|---|---|---|---|---|---|
+| `--exclude-vcs` | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `--exclude=.git` | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+**Why it stayed invisible.** Every tarball in this project was built with
+`--exclude-vcs`, and none of them ever surfaced the defect, because they are
+always extracted *over an existing working tree* where both files survive from
+the prior state. A spot-check of "did the security tooling make it across"
+passes every time — both gitleaks configs and the workflow directory are
+present. The one file that keeps `.pii-terms` uncommitted is the one silently
+dropped.
+
+**Why it matters here specifically.** `.pii-terms` is the wordlist gate. It is
+deliberately gitignored, because a list of the exact strings that must never
+appear in this repository is the worst possible file to publish. On a clean
+extract with no `.gitignore`, the next `git add -A` stages it. The failure
+chain is: a tar flag drops an ignore file, an ignore file stops excluding a
+wordlist, and a wordlist of real values enters history — from a command whose
+stated purpose is to *exclude* version-control metadata.
+
+**This is `d5d3d3d`'s shape applied to the delivery mechanism.** The check and
+the gap did not overlap: everything an operator would think to verify was
+present, and the mechanism reported healthy while the specific thing that
+mattered was gone. *Configured ≠ effective*, one layer below the tenant.
+
 ## 8. Enforcement
 
 **Pre-commit** — `gitleaks` with the custom Azure/Sentinel rule set in `.gitleaks.toml`. Blocks the commit.
@@ -255,6 +330,24 @@ Adding IOCs to `.gitleaks.toml` permanently would erode the rule until a lab IP 
 **Ignored by default** — see `.gitignore`: `.azure/`, `*.tfstate*`, `*.parameters.json`, `*.publishsettings`, `.env`, `*.pfx`, `*.key`.
 
 ---
+
+### `gitleaks dir` reports a standing 2 — and it is correct to
+
+Scanning the working directory rather than the index, `gitleaks dir` reads
+gitignored files. `.pii-terms` holds real values by design, so as of
+2026-08-08 it produces exactly two findings — `azure-guid-any` and
+`public-ipv4-review`, both on the wordlist's own lines.
+
+**These are true positives on a file that is out of scope.** The rules fired
+correctly; the file will never enter history. Verified 2026-08-08: findings
+intersected against `git ls-files` gives **0 in tracked files**, and
+`git check-ignore` confirms the exclusion.
+
+Recorded because a check that always reports the same non-finding is a check
+people learn to skim — the same reasoning that keeps the OCR IP heuristic at
+warning tier (§4). The number to read is not gitleaks' total; it is the
+intersection with tracked files. If that is ever non-zero, it is real.
+
 
 ## 9. If Something Leaks
 

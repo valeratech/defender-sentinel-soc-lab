@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**17 module(s) recorded · 10 produced a lab · 28 correction(s) to previously committed content.**
+**18 module(s) recorded · 11 produced a lab · 33 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -29,6 +29,7 @@ than restates**: each finding has exactly one authoritative home.
 | [77](../lessons/MOD-77-incident-investigation.md) | Investigate and remediate incidents in Microsoft Sentinel | 🔨 lab | `Lab 17` | `POS-071`, `POS-072`, `POS-073`, `POS-074` | `row 109`, `row 110`, `row 111`, `row 112`, `row 113`, `row 114`, `row 115`, `row 116`, `row 117`, `row 118`, `row 119`, `row 120`, `row 121`, `row 122` | 4 |
 | [78](../lessons/MOD-78-automation-rules-and-playbooks.md) | Understanding automation rules and Microsoft Sentinel playbooks | 📖 concept | `Lab 18` | — | `row 123` | — |
 | [79](../lessons/MOD-79-create-automation-rules.md) | Create and configure automation rules | 🔨 lab | `Lab 18` | `POS-075`, `POS-076` | `row 123`, `row 124`, `row 125`, `row 126`, `row 127`, `row 128`, `row 129`, `row 130`, `row 131` | — |
+| [80](../lessons/MOD-80-sentinel-playbooks.md) | Sentinel playbooks — deploy, authorize, and trigger | 🔨 lab | `Lab 19` | `POS-081`, `POS-082`, `POS-083`, `POS-084`, `POS-085`, `POS-086` | `row 136`, `row 137`, `row 138`, `row 139`, `row 140`, `row 141`, `row 142`, `row 143`, `row 144`, `row 145`, `row 146`, `row 147`, `row 148`, `row 149`, `row 150`, `row 151`, `row 152`, `row 153` | 5 |
 
 ## Corrections to previously committed content
 
@@ -66,3 +67,8 @@ anything.
 | 77 | An activity timestamp was read as an auto-resolution timestamp; the real chain is generation + AIR at 13:10 PDT, resolution at 13:23. |
 | 77 | A missing comment on the Activities grid was attributed to a pre-seeded filter; the grid was stale and one Refresh reconciled it. Withdrawn before it reached a file. |
 | 77 | The unified portal refusing the Responder's write at T+17 min was provisionally framed as a permanent URBAC-only write path; the T+12 h re-read on a fresh token opened the pane and saved the write. Withdrawn; replaced by the bounded read-vs-write propagation finding (row 122). |
+| 80 | P19-1 predicted the automation rule would create cleanly and the playbook would silently never run. Sentinel refuses to create the rule at all — the permission is validated at authoring time (row 136). |
+| 80 | P19-10 predicted Security Defaults were enabled and were what demanded MFA registration. They are Disabled and no Conditional Access exists; the requirement came from a Microsoft-managed registration campaign (row 149, POS-085). Reasoned from plausibility rather than read from the tenant. |
+| 80 | Claimed the playbook's SAS-signed callback URL could not be reached from the portal because it lives inside the Sentinel connection. It is two clicks away in Trigger history under a read-scoped link (row 139). |
+| 80 | Claimed the pre-reset password still authenticated after the playbook's reset, and built a grace-behaviour finding on it. The old password was correctly rejected (50126). The real finding is that the forced-change ceremony accepted that same value as the new password (row 148). |
+| 80 | Attributed a transient Client Error modal to an MDI/UEBA sub-component failing behind a generic handler. It did not reproduce on a second read; recorded as transient, cause unknown. |

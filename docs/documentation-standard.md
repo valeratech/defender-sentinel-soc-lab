@@ -34,6 +34,33 @@ Labs are numbered in **actual build order**, not exam-blueprint order. Dependenc
 
 Numbers are mutable until a lab is published, and stable afterward. Links are cheaper to keep than to fix.
 
+### 4.1 Four counters, none nested inside another
+
+This repository consumes a course and produces its own artifacts. That is two numbering systems meeting, and they have been conflated at three separate handoffs — always in the same direction, always by inferring a hierarchy that does not exist. The rule is written here rather than in a transfer document because transfer documents are regenerated and this survives in the tree.
+
+| Counter | Labels | Ordered by |
+|---|---|---|
+| **G{n}** | One course lecture. The handle used when a lecture is discussed, because knowledge-base guide files are renamed from their content and the module number does not survive into the filename | Course order |
+| **MOD-{n}** | The *same* lecture, by the instructor's content number. `lessons/MOD-NN-*.md` files by this | Course order |
+| **Lab {n}** | One build-measure-commit unit **in this repository**. Exists only where a guide changed portal state | Build order (§4) |
+| **`POS-{n}` / divergence rows** | Findings. Continuous across the whole project, never reset, never renumbered | Discovery order |
+
+**G and MOD are the same object under two names**, offset `module = guide + 23`. The mapping was ratified from the course navigation on 2026-08-04 and is not derived by arithmetic:
+
+| G54 | G55 | G56 | G57 | G58 | … | G65 |
+|---|---|---|---|---|---|---|
+| 77 | 78 | 79 | 80 | 81 | … | 88 |
+
+So **a guide is finished when its module is finished** — there is no remainder. A guide does not *contain* modules, and a course section is a range of modules rather than a property of any one guide. Section 7 (Sentinel automation) runs to module 88 / G65.
+
+**Labs are not 1:1 with modules.** A conceptual guide produces a `lessons/MOD-NN` file with `verdict: concept` and no lab, riding into the next lab's commit. A portal-changing guide produces both. Lab 18 therefore absorbed modules 78 and 79; Lab 19 is module 80 alone. **Lab 19 ≠ module 19 ≠ guide 19.**
+
+### 4.2 Absence of a lessons file means uncommitted, not unassessed
+
+`ls lessons/` answers one question: what has been committed. It cannot answer whether a module exists, whether it has been assessed, or what follows the highest number present. Reading a gap as "unknown" and reporting it as an open item manufactures work out of a filing convention.
+
+Assessment status lives in the course outline, which is outside this repository. The correct response to "what comes after module N" is to ask, not to infer from the tree — the same rule §1 applies to the environment, applied to the project's own metadata.
+
 ## 5. Definition of done
 
 A lab is not `✅` until:

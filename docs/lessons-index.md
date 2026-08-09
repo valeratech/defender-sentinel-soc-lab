@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**18 module(s) recorded · 11 produced a lab · 33 correction(s) to previously committed content.**
+**22 module(s) recorded · 11 produced a lab · 33 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -30,6 +30,10 @@ than restates**: each finding has exactly one authoritative home.
 | [78](../lessons/MOD-78-automation-rules-and-playbooks.md) | Understanding automation rules and Microsoft Sentinel playbooks | 📖 concept | `Lab 18` | — | `row 123` | — |
 | [79](../lessons/MOD-79-create-automation-rules.md) | Create and configure automation rules | 🔨 lab | `Lab 18` | `POS-075`, `POS-076` | `row 123`, `row 124`, `row 125`, `row 126`, `row 127`, `row 128`, `row 129`, `row 130`, `row 131` | — |
 | [80](../lessons/MOD-80-sentinel-playbooks.md) | Sentinel playbooks — deploy, authorize, and trigger | 🔨 lab | `Lab 19` | `POS-081`, `POS-082`, `POS-083`, `POS-084`, `POS-085`, `POS-086` | `row 136`, `row 137`, `row 138`, `row 139`, `row 140`, `row 141`, `row 142`, `row 143`, `row 144`, `row 145`, `row 146`, `row 147`, `row 148`, `row 149`, `row 150`, `row 151`, `row 152`, `row 153` | 5 |
+| [81](../lessons/MOD-81-on-premises-playbook-actions.md) | Run playbooks on on-premises resources | 📖 concept | — | — | — | — |
+| [82](../lessons/MOD-82-security-copilot-overview.md) | What is Microsoft Security Copilot | 📖 concept | — | — | — | — |
+| [83](../lessons/MOD-83-security-compute-units-capacity.md) | Security compute units and Security Copilot capacity | 📖 concept | — | — | — | — |
+| [84](../lessons/MOD-84-before-allocating-scus.md) | Warning before allocating SCUs — prerequisites and cost discipline | 📖 concept | — | — | — | — |
 
 ## Corrections to previously committed content
 

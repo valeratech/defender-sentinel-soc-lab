@@ -235,6 +235,11 @@ recorded "Simulation launched" event. The launched event anchors nothing — Lab
 
 
 
+| Security Copilot capacity — list | Search **`Microsoft Security compute capacities`** *(the blade renders sentence case; Microsoft's docs use Title Case, so a search on the documented string still resolves)* → the list. `Showing 1 - 0 of 0` with `Type equals all` is the unfiltered no-capacity read | 2026-08-09 |
+| Security Copilot capacity — create | Same blade → **+ Create** → blade titled **`Set up your Copilot capacity`**. Fields: Subscription, Resource group, Capacity name *(lowercase letters and numbers only — **no hyphens**)*, Prompt evaluation location, cross-geo checkbox, **Capacity region (static text, not selectable)**, Provisioned SCUs, Overage Capacity Setup, Terms and Conditions | 2026-08-09 |
+| The submitted configuration (ground truth for the form) | Create blade → **Review + Create** → **`View automation template`** → **Parameters** tab — the ARM values actually posted (`crossGeoCompute`, `overageState`, `overageAmount`, `geo`, `location`). *The only surface not subject to the form's label rewording* | 2026-08-09 |
+| Resource group — delete | Resource groups → **click the group name** → Overview toolbar → **Delete resource group**. *The list-level toolbar has **no** Delete; ticking a row's checkbox enables nothing* (row 167) | 2026-08-09 |
+
 ## Microsoft Purview — `purview.microsoft.com`
 
 | Task | Path | Confirmed |
@@ -246,6 +251,18 @@ recorded "Simulation launched" event. The launched event anchors nothing — Lab
 | DLP metered-features usage | Data Loss Prevention → Pay-as-you-go usage report — readable without linking a subscription | 2026-08-01 |
 | Role group membership | Settings → Roles and scopes → Role groups (Export for the CSV; contains no PII) | 2026-08-01 |
 | IRM alerts | Insider Risk Management → Users → **Alerts (preview)** (an Alerts (classic) coexists; Agents has a third Alerts) | 2026-08-03 |
+
+## Microsoft Security Copilot — `securitycopilot.microsoft.com`
+
+| Task | Path | Confirmed |
+|---|---|---|
+| Pre-provisioning state | Portal root — `Welcome to Microsoft Security Copilot` / *Let's get your workspace set up.* / **Get started**. **The rail is empty at this stage** — no Settings, no capacity entry. *This surface cannot confirm whether capacity exists; it only implies it. Read the Azure capacities blade for a direct answer* | 2026-08-09 |
+| First-run setup (nine screens) | **Get started** → `Workspace info` (Workspace name + **Data storage location**, a fourth location field no guide names) → `Getting ready for you…` → **Select the capacity you'd like to use** → `Help improve Copilot` → M365 service-data notice → `Logging audit data in Microsoft Purview` → `Assign roles` → `You're all set` (carries the Azure resource links and the **bare subscription GUID**) | 2026-08-09 |
+| Run a starter prompt | Home → **Prompts to try** → `Prompts` tab → **`Defender incident summary`** *(row 2, tagged `Incident Analysis` — not a product plugin, unlike its neighbours)* → fill `Incident ID` → submit | 2026-08-09 |
+| Which capability answered | Any response → expand **`N steps completed`** → `Chose …` row. *Prompts 1–2 read `Chose Incident Analysis`; prompt 3 read `Chose Microsoft Defender XDR`. The usage dashboard's `Plugins used` is a **session-level rollup** and does not match per-prompt attribution* (row 161) | 2026-08-09 |
+| SCU consumption | Left rail → **Owner → Usage monitoring** — `Provisioned units used`, `Overage units used`, per-session table with `Units used`, `Category`, `Type`, `Copilot experience`, `Plugins used`. **Hover the capacity-tab warning triangle** for the at-capacity explanation — it renders no tooltip until after the capacity is deleted (row 157) | 2026-08-09 |
+| Session transcripts (survive teardown) | Left rail → **History → All history** → `My sessions`. *Workspace, transcripts and the usage record all persist after the capacity resource is deleted* (row 162) | 2026-08-09 |
+| Where the relocated opt-outs live | Left rail → **Owner → Owner settings** — named by both the M365 service-data screen and the Purview logging screen as the place their setting is actually administered. *Not walked in Lab 20* | inherited, unverified |
 
 ## Which surface answers which question
 

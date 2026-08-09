@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**22 module(s) recorded · 11 produced a lab · 33 correction(s) to previously committed content.**
+**26 module(s) recorded · 14 produced a lab · 43 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -34,6 +34,10 @@ than restates**: each finding has exactly one authoritative home.
 | [82](../lessons/MOD-82-security-copilot-overview.md) | What is Microsoft Security Copilot | 📖 concept | — | — | — | — |
 | [83](../lessons/MOD-83-security-compute-units-capacity.md) | Security compute units and Security Copilot capacity | 📖 concept | — | — | — | — |
 | [84](../lessons/MOD-84-before-allocating-scus.md) | Warning before allocating SCUs — prerequisites and cost discipline | 📖 concept | — | — | — | — |
+| [85](../lessons/MOD-85-creating-security-copilot-capacity.md) | Creating a Security Copilot capacity | 🔨 lab | `Lab 20` | `POS-087`, `POS-088`, `POS-089` | `row 154`, `row 155`, `row 163`, `row 164`, `row 166`, `row 167` | 3 |
+| [86](../lessons/MOD-86-sample-alerts-skipped.md) | Sample alerts for Copilot testing — foreclosed, not declined | 📖 concept | `Lab 20` | — | — | — |
+| [87](../lessons/MOD-87-investigating-an-incident-with-copilot.md) | Investigating an incident with a Security Copilot prompt | 🔨 lab | `Lab 20` | — | `row 158`, `row 159`, `row 160`, `row 161` | 3 |
+| [88](../lessons/MOD-88-tearing-down-copilot-capacity.md) | Tearing down Security Copilot capacity | 🔨 lab | `Lab 20` | `POS-087` | `row 157`, `row 162`, `row 165`, `row 167` | 4 |
 
 ## Corrections to previously committed content
 
@@ -76,3 +80,13 @@ anything.
 | 80 | Claimed the playbook's SAS-signed callback URL could not be reached from the portal because it lives inside the Sentinel connection. It is two clicks away in Trigger history under a read-scoped link (row 139). |
 | 80 | Claimed the pre-reset password still authenticated after the playbook's reset, and built a grace-behaviour finding on it. The old password was correctly rejected (50126). The real finding is that the forced-change ceremony accepted that same value as the new password (row 148). |
 | 80 | Attributed a transient Client Error modal to an MDI/UEBA sub-component failing behind a generic handler. It did not reproduce on a second read; recorded as transient, cause unknown. |
+| 85 | P20-2 withdrawn. The blade renders `Microsoft Security compute capacities` in sentence case, not the Title Case used by the guide and by Microsoft's own documentation. |
+| 85 | The guide's example capacity name `copilot-demo` is invalid. The field accepts lowercase letters and numbers only - no hyphens, no spaces. |
+| 85 | The guide instructs picking the closest capacity region. `Capacity region` renders as static text with no control, while ARM accepts `location` as a parameter - the platform allows the choice, the portal does not expose it. |
+| 87 | P20-5 confirmed and exceeded. Copilot returned four typed identifiers for one entity - Account Name, Azure AD User ID, User Principal Name, and a User SID that appears on no portal surface documented in twenty labs - where four Defender surfaces render the single string `labuser`. |
+| 87 | P20-6 inverted. Predicted Copilot would inherit the portal's `Trigger: Manual` misfiling. It read past the defect and described the playbook correctly, then asserted no other automated actions existed while four `Automated`/`Completed` rows sat in the Activities tab. |
+| 87 | Withdrawn: the claim that `Plugins used: Microsoft Defender XDR` in usage monitoring confirmed the data source for all three prompts. It is a session-level rollup. Per-prompt expansion shows `Chose Incident Analysis` on prompts 1-2 and `Chose Microsoft Defender XDR` on prompt 3 - so the data path behind the four identifiers is not established. |
+| 88 | P20-8 wrong. Predicted session consumption well under 1 SCU-hour; measured 1.5 units against 1 provisioned. |
+| 88 | P20-9 wrong. Predicted the usage dashboard would lag; it read near-live, within a minute of the session. |
+| 88 | Withdrawn: the claim that the unlimited-overage default would have billed $6 for the 0.5-unit excess. The at-capacity tooltip states Microsoft absorbs the extra units needed to finish an in-flight operation, so what the cap prevented on this session is unknown. The MOD-83 decision to bound overage stands on its own reasoning, not on this evidence. |
+| 88 | P20-11 remains OPEN, not confirmed. The $4 figure is inferred from the billing model and the 11:00-12:00 clock-hour window; cost analysis reported nothing on the day. POS-016 was forced by a 43% gap between tracked and actual spend, so the amount is not asserted until an invoice confirms it. |

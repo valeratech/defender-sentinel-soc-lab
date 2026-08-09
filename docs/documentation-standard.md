@@ -34,7 +34,7 @@ Labs are numbered in **actual build order**, not exam-blueprint order. Dependenc
 
 Numbers are mutable until a lab is published, and stable afterward. Links are cheaper to keep than to fix.
 
-### 4.1 Four counters, none nested inside another
+### 4.1 Five counters, none nested inside another
 
 This repository consumes a course and produces its own artifacts. That is two numbering systems meeting, and they have been conflated at three separate handoffs — always in the same direction, always by inferring a hierarchy that does not exist. The rule is written here rather than in a transfer document because transfer documents are regenerated and this survives in the tree.
 
@@ -44,6 +44,7 @@ This repository consumes a course and produces its own artifacts. That is two nu
 | **MOD-{n}** | The *same* lecture, by the instructor's content number. `lessons/MOD-NN-*.md` files by this | Course order |
 | **Lab {n}** | One build-measure-commit unit **in this repository**. Exists only where a guide changed portal state | Build order (§4) |
 | **`POS-{n}` / divergence rows** | Findings. Continuous across the whole project, never reset, never renumbered | Discovery order |
+| **Incident {n}** | A tenant object, assigned by Defender/Sentinel. **Not ours, not the course's** — the only counter this repo neither sets nor controls | Tenant creation order |
 
 **G and MOD are the same object under two names**, offset `module = guide + 23`. The mapping was ratified from the course navigation on 2026-08-04 and is not derived by arithmetic:
 
@@ -54,6 +55,10 @@ This repository consumes a course and produces its own artifacts. That is two nu
 So **a guide is finished when its module is finished** — there is no remainder. A guide does not *contain* modules, and a course section is a range of modules rather than a property of any one guide. Section 7 (Sentinel automation) runs to module 88 / G65.
 
 **Labs are not 1:1 with modules.** A conceptual guide produces a `lessons/MOD-NN` file with `verdict: concept` and no lab, riding into the next lab's commit. A portal-changing guide produces both. Lab 18 therefore absorbed modules 78 and 79; Lab 19 is module 80 alone. **Lab 19 ≠ module 19 ≠ guide 19.**
+
+**Incident IDs collide with lab numbers, and the collision has already misfired.** Lab 20 §6 records it: a run sheet step named its target as "a Lab 19 incident" rather than by ID, and the first navigation landed on **incident 19** — which is Lab 17's Responder boundary-test artifact (`POS-074`). Lab 19's incident is **24**. Both exist, both are real, and the wrong one carries the matching number.
+
+Incident IDs are the most dangerous of the five because they are the only counter that **renders in a portal**, where a misread aims a measurement at the wrong evidence rather than merely producing a wrong sentence. **Always name a tenant object by its ID, never by the lab that produced it** — and grep the repo for the ID before navigating.
 
 ### 4.2 Absence of a lessons file means uncommitted, not unassessed
 

@@ -32,9 +32,20 @@ Replacements are visibly synthetic and internally consistent. Values are drawn f
 | Resource group | `rg-soc-lab` | Generic |
 | Log Analytics workspace | `law-lab-01` | Generic. Deliberately *not* in the `-soc-lab` family, which the real workspace name resembled closely enough to read as a placeholder |
 | Data collection rule | `dcr-winsec-lab` | Generic |
+| Resource group (Copilot lab) | `rg-copilot-lab` | Generic. **Keeps the `rg-` prefix by design** — Lab 20 §6's near-miss depends on `NetworkWatcherRG` being the alphabetically first group in the tenant; a placeholder sorting ahead of it would silently erase the finding, the same failure mode as shortening `LAB-SRV-DEFENDER-01` |
+| Security Copilot capacity | `copilotlab` | Generic. **Hyphen-free by design** — the Create form accepts lowercase letters and numbers only (Lab 20 §5, MOD-85); a hyphenated placeholder would contradict the finding recorded beside it |
+| Security Copilot workspace | `copilotlab-ws` | Generic, derived from the capacity placeholder. The hyphen constraint applies to the capacity name field only, not to workspaces |
 | IPv4 (external) | `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24` | RFC 5737 TEST-NET-1/2/3 |
 | IPv6 | `2001:db8::/32` | RFC 3849 |
 | Public IP of lab endpoint | **Omitted entirely — not placeholdered** | — |
+
+**Rows added 2026-08-09** for the three resource-name classes Lab 20
+introduced. The placeholders were applied in content before the Lab 20 commit
+— `0ffbc7d` carries them uniformly — but this table gained no rows, so the
+convention existed in content and not in policy. Closed here as the first item
+of the completion audit, ahead of everything else, because both placeholders
+carry shape constraints (noted in their rows) that a future rename would break
+without any gate firing.
 
 **Terms added to `.pii-terms` on 2026-08-08** (the file is gitignored; this is
 the record that they were added, not the values). Lab 19 surfaced three classes
@@ -49,6 +60,40 @@ and both are attributable; the judgement was that the tenant GUID is the value
 whose presence in history would force a rewrite, and that a wordlist earns its
 usefulness by every line mattering. Recorded so the omission reads as a
 decision rather than an oversight.
+
+**Terms added 2026-08-09, and two exclusions reaffirmed.** Four candidates
+surfaced by Lab 20 were decided together, and the decision doubles as the
+wordlist's admission policy:
+
+- **Lab 20's three real resource names — added.** This is the exact failure
+  mode the wordlist exists for, and it is now measured rather than argued: a
+  sanitized name re-entered through freshly authored prose while every
+  shape-based gate stayed green, and the wordlist caught it (see §4, the
+  2026-08-09 reintroduction event). Names of this class have demonstrated
+  both the leak path and the control that closes it.
+- **The Entra User SID — added.** Attributable to a real tenant identity, and
+  returned by a surface (Security Copilot, divergence row 158) that no portal
+  blade renders, so it can reappear in transcribed output without ever having
+  been authored. No scanner in the chain has a rule for the `S-1-*` shape —
+  verified against `audit-pii.sh` and both gitleaks configs on 2026-08-09 —
+  so this wordlist line is currently the *only* control on the class, not a
+  second layer. A structural SID rule is a candidate for the permanent
+  scanners; until one exists, the exact value on the list is what stands.
+- **Subscription GUID and admin object ID — exclusion reaffirmed.** Both are
+  GUID-class values the structural gate already catches by shape, in
+  `audit-pii.sh` and CI alike. Adding their exact values would duplicate a
+  class under permanent enforcement, and no measurement shows the GUID gate
+  being bypassed. The 2026-08-08 rationale stands, now with a sharper rule
+  attached.
+
+**The admission policy that falls out:** each layer holds what only it can
+hold. Structural scanners own everything with an invariant to grip — GUIDs,
+IP shapes, emails, known identifier formats. Exact-value allowlists own
+intentional public constants. `.pii-terms` owns attributable values structural
+rules cannot know — real resource names and identity-specific strings — and
+exact identifiers already under structural enforcement stay off it unless
+measurement demonstrates a bypass. The list stands at **20 terms** after these
+additions.
 
 **The phone number is the one worth dwelling on.** It reached a log because a
 workflow read one field from an object Graph returned whole, and no `$select`
@@ -210,6 +255,24 @@ narrow sweep reads identically to a clean result from a complete one.
 `.pii-terms`, which is gitignored and therefore local-only and pre-commit-only — the layer
 section 1 lists as bypassable. That ceiling is unchanged and is the reason this took weeks
 to surface.
+
+### The wordlist firing on a reintroduction — 2026-08-09
+
+The paragraph above asserted the wordlist is the durable fix. During Lab 20 it
+was measured. Writing MOD-88's teardown prose, a resource-group name already
+on `.pii-terms` was reintroduced into new content — not copied from an old
+file, authored fresh, which is the path no substitution sweep revisits. Every
+shape-based gate passed, for the reasons this section already records: gitleaks
+has no invariant to grip on an arbitrary name, and `audit-pii.sh`'s structural
+checks (emails, GUIDs, IPs, domains, resource IDs) do not cover one. The
+`Personal terms` check caught it — twice, independently, on the build container
+and on the WSL working copy — before the content reached the tree.
+
+Two things follow. The third gap's closing claim is no longer an assertion:
+the wordlist is the only control in the chain that fires on this class, and it
+has now fired on it. And sanitized names are not removed once — they are
+removed continuously, because the documentation keeps naming its subjects.
+The leaks come from documenting the leaks.
 
 **Therefore: a green hook result is not proof that an image is sanitized.** Every image requires manual visual review after cropping and redaction, even when the metadata hook, the gitleaks scan, and the OCR scan all pass. The automation exists to catch the screenshot committed at the end of a long session, not to replace the look.
 

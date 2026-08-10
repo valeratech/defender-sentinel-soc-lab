@@ -3440,3 +3440,33 @@ entries:
       default favours Microsoft's access - is falsified inside its own lab.
       The accurate statement is narrower: the defaults that ship ON govern
       Microsoft's own collection.
+  - id: POS-090
+    lab: "21"
+    setting: Sentinel anomaly rule Flighting/Production lifecycle
+    location: security.microsoft.com > Microsoft Sentinel > Configuration > Analytics > Anomalies
+    state: Built-in configuration not editable - portal directs to Duplicate. Duplicate lands FLGT/Disabled. Promotion of the copy demotes the original to Flighting atomically. Deleting the promoted copy does NOT restore the original, leaving no Production version. Edit wizard renders Mode at a Production default rather than the stored value, so opening a rule and saving silently writes Production. Mode has no grid column - the FLGT badge is the only honest surface. Status and Mode are orthogonal - Disabled + Production validates clean with no warning
+    baseline: Built-in rule Enabled, Production, Score 0.7 - restored to this state at teardown
+    kind: gap
+    production: Anomaly rule mode changes require a change-control read of the grid badge, never the Edit form. Treat any Edit-and-save on an anomaly rule as a write to Mode regardless of intent
+    revisit: true
+    verified: 2026-08-10
+    note: >-
+      Each behaviour is individually defensible; composed, a routine edit can
+      take a production detection offline while every field on every surface
+      reads normal. Measured on two independent trials. A propagation
+      explanation was proposed and disproved on timestamp evidence.
+  - id: POS-091
+    lab: "21"
+    setting: NRT analytics rule alert visibility with incident creation disabled
+    location: security.microsoft.com > Microsoft Sentinel > Configuration > Analytics > Create > NRT query rule > Incident settings
+    state: Incidents disabled on LAB-NRT-4625-Window-Test. A confirmed-firing alert is PRESENT in the SecurityAlert workspace table and ABSENT from both the Defender alerts queue and the AlertInfo hunting table. AlertInfo held 21 rows with ServiceSource Microsoft Sentinel at the time of the read, so the absence is configuration and not a broken path
+    baseline: Incident creation ships Enabled; the portal recommends keeping it on and warns about both surfaces on the Incident settings step
+    kind: default
+    production: Alerts-only rules are a deliberate trade. Where used, the workspace table must be named as the authoritative alert surface in the runbook, or an analyst checking Defender will conclude the rule never fired
+    revisit: false
+    verified: 2026-08-10
+    note: >-
+      The Review + create summary does not restate the consequence. The last
+      screen before commit is silent about the most consequential setting on
+      the rule. Extends MOD-57's store-partition finding - two stores
+      disagreeing about one alert, by configuration rather than fault.

@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**26 module(s) recorded · 14 produced a lab · 43 correction(s) to previously committed content.**
+**27 module(s) recorded · 15 produced a lab · 49 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -38,6 +38,7 @@ than restates**: each finding has exactly one authoritative home.
 | [86](../lessons/MOD-86-sample-alerts-skipped.md) | Sample alerts for Copilot testing — foreclosed, not declined | 📖 concept | `Lab 20` | — | — | — |
 | [87](../lessons/MOD-87-investigating-an-incident-with-copilot.md) | Investigating an incident with a Security Copilot prompt | 🔨 lab | `Lab 20` | — | `row 158`, `row 159`, `row 160`, `row 161` | 3 |
 | [88](../lessons/MOD-88-tearing-down-copilot-capacity.md) | Tearing down Security Copilot capacity | 🔨 lab | `Lab 20` | `POS-087` | `row 157`, `row 162`, `row 165`, `row 167` | 4 |
+| [89](../lessons/MOD-89-nrt-execution-semantics.md) | Anomaly rules and NRT execution semantics | 🔨 lab | `Lab 21` | `POS-090`, `POS-091` | `row 168`, `row 169`, `row 170`, `row 171`, `row 172` | 6 |
 
 ## Corrections to previously committed content
 
@@ -90,3 +91,9 @@ anything.
 | 88 | P20-9 wrong. Predicted the usage dashboard would lag; it read near-live, within a minute of the session. |
 | 88 | Withdrawn: the claim that the unlimited-overage default would have billed $6 for the 0.5-unit excess. The at-capacity tooltip states Microsoft absorbs the extra units needed to finish an in-flight operation, so what the cap prevented on this session is unknown. The MOD-83 decision to bound overage stands on its own reasoning, not on this evidence. |
 | 88 | P20-11 remains OPEN, not confirmed. The $4 figure is inferred from the billing model and the 11:00-12:00 clock-hour window; cost analysis reported nothing on the day. POS-016 was forced by a 43% gap between tracked and actual spend, so the amount is not asserted until an invoice confirms it. |
+| 89 | Guide: 'each anomaly rule can be edited — thresholds and parameters are adjustable through the standard analytics-rule interface.' False for built-ins: the portal refuses and directs the user to duplicate first. |
+| 89 | Guide: 'both versions write to the Anomalies table so you can compare over a 24-hour sample.' Incomplete: the duplicate arrives Disabled and must be enabled explicitly. The distinguishing mechanism is also a Flighting tag, not only the rule id. |
+| 89 | Guide: promoting the customized rule demotes the original. Confirmed — but the guide stops there. Deleting the promoted rule leaves the original demoted, with nothing to restore it. |
+| 89 | Guide: 'zero results with zero errors is the expected outcome in a quiet lab.' Half right. The guide anticipates a null; it does not anticipate a positive result produced by a history-scoped validation surface, which is what any lab with prior 4625 activity will see. |
+| 89 | Guide teaches the baseline × threshold NRT rule as a working brute-force detector, noting only that it is static-threshold rather than ML. The deeper defect is unstated: bin(TimeGenerated, 1h) cannot span an hour in a rule that sees one minute of ingestion per execution. |
+| 89 | Guide's NRT limits section does not mention that incident settings govern alert visibility across two Defender surfaces — the difference between finding your alert and concluding your rule is broken. |

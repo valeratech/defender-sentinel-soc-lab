@@ -31,17 +31,17 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 89 |
-| Verified by direct observation | 89 |
+| Settings tracked | 91 |
+| Verified by direct observation | 91 |
 | Asserted but unverified | 0 |
-| Flagged to revisit | 62 |
+| Flagged to revisit | 63 |
 
 | Kind | Count |
 |---|---|
 | hardened | 28 |
-| default | 31 |
+| default | 32 |
 | **weakening** | 12 |
-| **gap** | 18 |
+| **gap** | 19 |
 
 ## Flagged to revisit
 
@@ -113,6 +113,7 @@ it is an oversight. Closing an item means recording which one it was.
 | `POS-087` | 20 | Security Copilot capacity - 1 provisioned SCU, overage limited to 0 | Provisioned 2026-08-09 11:00:07 PDT, 1 SCU, geo US, crossGeoCompute NotAllowed, overageState Limited, overageAmount 0, capacity region East US (not selectable). Deleted 11:23 same clock hour. Session consumed 1.5 units against 1 provisioned; overage read 0 of 0 | default | Capacity sized from measured consumption, not from a lab minimum; overage bounded deliberately rather than left at the unlimited default; deletion automated rather than left to operator memory | 2026-08-09 |
 | `POS-088` | 20 | Security Copilot ownership granted to seven Entra directory roles by default | Owners by default - Global Administrator, Security Administrator, Intune Administrator, Conditional Access Administrator, Purview Compliance Admin, Purview Organization Management, Purview Data Governance Administrator. No control on the screen to remove any. Contributors set to None - add later (default was Select from recommended, with an Entra roles group pre-ticked) | **weakening** | Copilot ownership scoped to the security function that operates it; Intune and Conditional Access administrators have no role in Copilot plugin management or role assignment and should not inherit it by directory role | 2026-08-09 |
 | `POS-089` | 20 | Security Copilot data-sharing and audit-logging defaults at first run | Two telemetry toggles shipped ON - product-performance capture with human review, and capture plus human review to build and validate Microsoft's security AI model. Both switched OFF before any prompt ran. M365 service-data access presented with no control, single Continue, opt-out relocated to Owner settings. Purview logging of Customer Data shipped OFF and was left off | hardened | Telemetry and model-training participation decided by policy before deployment, not at a wizard; the Purview logging trade-off resolved toward retention where an audit trail is required | 2026-08-09 |
+| `POS-090` | 21 | Sentinel anomaly rule Flighting/Production lifecycle | Built-in configuration not editable - portal directs to Duplicate. Duplicate lands FLGT/Disabled. Promotion of the copy demotes the original to Flighting atomically. Deleting the promoted copy does NOT restore the original, leaving no Production version. Edit wizard renders Mode at a Production default rather than the stored value, so opening a rule and saving silently writes Production. Mode has no grid column - the FLGT badge is the only honest surface. Status and Mode are orthogonal - Disabled + Production validates clean with no warning | **gap** | Anomaly rule mode changes require a change-control read of the grid badge, never the Edit form. Treat any Edit-and-save on an anomaly rule as a write to Mode regardless of intent | 2026-08-10 |
 
 ## All tracked settings
 
@@ -479,3 +480,14 @@ it is an oversight. Closing an item means recording which one it was.
 **`POS-088` — Security Copilot ownership granted to seven Entra directory roles by default.** Owner rights cover usage monitoring, owner settings, plugin management and role assignment. The grant is to ROLES, not to named principals, so any future holder of Intune Administrator inherits Copilot ownership with no action taken and no notification. THIS QUALIFIES MOD-82. The committed claim is that Copilot inherits the analyst's permissions and cannot reach past a boundary the user could not cross. That holds for DATA. It does not hold for CONTROL: ownership of the Copilot service is Copilot-native, assigned at setup, and was assigned to seven directory roles by default. Two permission models on one product, and the guide describes one. Contributors were changed from the default. The wizard pre-selected Select from recommended Microsoft Security contributor roles with a Microsoft Entra roles group already ticked. Set to No one - add them later, because only admin uses this tenant and an unused access grant is still an access grant in a repo that documents every one.
 
 **`POS-089` — Security Copilot data-sharing and audit-logging defaults at first run.** The payload matters here. Prompts in this tenant carry labuser's UPN, the tenant domain, and the lab public IPv4 - three .pii-terms entries - plus an Entra object ID and a User SID that are not in the wordlist. Shipped defaults would have routed that to human review. THE MODEL-TRAINING TOGGLE QUALIFIES MOD-82's assurance that customer data is not used to train foundation models. Not necessarily a contradiction - a security AI model may be a different object from a foundation model, and the control is opt-out rather than silent - but a flat assurance does not survive a screen that ships both switches on. PURVIEW LOGGING OFF IS NOT FREE. Off means prompt and response content does not reach Purview's audit store, so these sessions leave no Purview record. Same shape as POS-084 inverted: there the control was absent and a credential persisted; here the control is present, set safe, and the evidence trail thins. Both are real; neither is costless. ONE DEFAULT RAN THE CUSTOMER'S WAY. Purview access to Customer Data shipped off. Recorded because the easy generalisation - that every default favours Microsoft's access - is falsified inside its own lab. The accurate statement is narrower: the defaults that ship ON govern Microsoft's own collection.
+
+### Lab 21
+
+| ID | Setting | Location | State | Kind | Revisit | Verified |
+|---|---|---|---|---|---|---|
+| `POS-090` | Sentinel anomaly rule Flighting/Production lifecycle | `security.microsoft.com > Microsoft Sentinel > Configuration > Analytics > Anomalies` | Built-in configuration not editable - portal directs to Duplicate. Duplicate lands FLGT/Disabled. Promotion of the copy demotes the original to Flighting atomically. Deleting the promoted copy does NOT restore the original, leaving no Production version. Edit wizard renders Mode at a Production default rather than the stored value, so opening a rule and saving silently writes Production. Mode has no grid column - the FLGT badge is the only honest surface. Status and Mode are orthogonal - Disabled + Production validates clean with no warning | **gap** | yes | 2026-08-10 |
+| `POS-091` | NRT analytics rule alert visibility with incident creation disabled | `security.microsoft.com > Microsoft Sentinel > Configuration > Analytics > Create > NRT query rule > Incident settings` | Incidents disabled on LAB-NRT-4625-Window-Test. A confirmed-firing alert is PRESENT in the SecurityAlert workspace table and ABSENT from both the Defender alerts queue and the AlertInfo hunting table. AlertInfo held 21 rows with ServiceSource Microsoft Sentinel at the time of the read, so the absence is configuration and not a broken path | default | no | 2026-08-10 |
+
+**`POS-090` — Sentinel anomaly rule Flighting/Production lifecycle.** Each behaviour is individually defensible; composed, a routine edit can take a production detection offline while every field on every surface reads normal. Measured on two independent trials. A propagation explanation was proposed and disproved on timestamp evidence.
+
+**`POS-091` — NRT analytics rule alert visibility with incident creation disabled.** The Review + create summary does not restate the consequence. The last screen before commit is silent about the most consequential setting on the rule. Extends MOD-57's store-partition finding - two stores disagreeing about one alert, by configuration rather than fault.

@@ -301,3 +301,28 @@ question." For endpoint activity, the surfaces are not interchangeable (Lab 06 �
 | Did the playbook actually **execute**? | **Not `Trigger history`, and not the incident's `Trigger` column.** Trigger history logs the webhook *registration* as `Succeeded` (row 140); the incident audit trail files the playbook's own action as `Manual` (row 146). The one field that answers it is Logic apps → *(app)* → Overview → **`Runs last 24 hours`** |
 | What did Sentinel actually hand the playbook? | **Not any portal rendering of the entity** — four of them truncate it to `Name` (row 152). Query the store: `SecurityAlert \| project Entities` in Defender → Advanced hunting |
 | Where has a playbook-handled **credential** come to rest? | **Three places, and rotation cleans one.** Run history action inputs (90-day default), the sending mailbox's Inbox **and** Sent Items, and the account itself (`POS-084`) |
+
+### Sentinel anomaly rules — Anomalies tab (verified 2026-08-10)
+
+`security.microsoft.com` → **Microsoft Sentinel** → **Configuration** →
+**Analytics** → **Anomalies** tab.
+
+Supersedes the 2026-07-30/31 Azure-portal path recorded above; that path is
+superseded and dated, not deleted. **This tab is a configuration and inventory
+surface, not an output surface** — it reports rule state, while output lives in
+the `Anomalies` table and nothing downstream happens unless a rule queries it.
+
+**Mode is read from the `FLGT` badge on the Name, not from a column and not from
+the Edit form** — the Edit wizard renders Mode at a Production default rather
+than the stored value (`POS-090`, divergence row 169).
+
+### NRT analytics rule creation (verified 2026-08-10)
+
+`security.microsoft.com` → **Microsoft Sentinel** → **Configuration** →
+**Analytics** → **+ Create** → **NRT query rule**.
+
+Wizard steps: General → Set rule logic → Incident settings → Automated response
+→ Review + create. **Pre-save validation runs against Log Analytics over the
+panel's range, not against NRT execution semantics** (divergence row 168).
+Incident settings govern alert visibility across the Defender alerts queue and
+the `AlertInfo` table (`POS-091`, divergence row 172).

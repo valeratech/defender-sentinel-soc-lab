@@ -80,6 +80,33 @@ A lab is not `✅` until:
 
 `scripts/open-items.py` reports outstanding markers, and CI fails if the report drifts from the writeups. Documentation debt is tracked, not remembered.
 
+### 5.1 Executive summary — by request, not by default
+
+A lab README may carry an unnumbered **Executive summary** section between the
+thesis blockquote and `§1 Objective`. It is a plain-language account of what the
+lab did and found, written for a reader returning cold rather than for an
+analyst reading for precision.
+
+**It is optional and exceptional.** The thesis blockquote is the default summary
+surface and remains sufficient for almost every lab. An executive summary is
+warranted only where a lab's density would otherwise make its own record hard to
+re-enter — multiple independent investigations in one lab, a result that depends
+on several interacting measurements, or a finding whose significance is not
+apparent from the numbers alone.
+
+Rules:
+
+- The section states, in its first line, that most labs do not have one.
+- It ends with a short **"Why this lab has one"** subsection giving the specific
+  reason. A summary without that justification is a convention forming by
+  accident.
+- It introduces no findings, numbers, or claims absent from the lab body. It is
+  a re-presentation, never a source.
+- It is **not** backfilled into existing labs and does not become part of §5's
+  definition of done.
+
+As of this writing, **Lab 21 is the only lab carrying one.**
+
 ## 6. Status vocabulary
 
 | Marker | Meaning |

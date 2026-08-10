@@ -161,7 +161,12 @@ tags = ["operational", "review"]
     '''^169\.254\.''',
     '''^0\.0\.0\.0$''',
     '''^255\.255\.255\.''',
-    # Common version strings misread as IPs are handled by path allowlist below
+    # Four-octet agent build numbers, shape-identical to IPv4 and public
+    # constants. Mirrored in scripts/audit-pii.sh - the two scanners keep
+    # independent exception lists and neither reads the other.
+    '''^1\.43\.0\.0$''',
+    # Three-octet version strings never match this rule; four-octet ones do.
+    # Other common version strings are handled by the path allowlist below.
   ]
   paths = ['''(?i)(package-lock\.json|yarn\.lock|requirements\.txt|CHANGELOG\.md)''']
 

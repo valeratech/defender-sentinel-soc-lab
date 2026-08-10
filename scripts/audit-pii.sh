@@ -82,8 +82,12 @@ else hit "non-placeholder GUIDs:"; echo "$guids" | sed 's/^/       /'; fi
 
 # ── 5. Routable IPv4 ─────────────────────────────────────────
 hdr "Routable IPv4 (outside RFC 5737 / RFC 1918)"
-# The extractor only yields four-octet strings, so version numbers like
-# "8.28.0" never reach this filter and need no exclusion. An earlier attempt to
+# Three-octet version strings like "8.28.0" never reach this filter. FOUR-octet
+# version strings do: AMA reports its build as 1.43.0.0, shape-identical to an
+# IPv4 address, flagged 2026-08-10 (Lab 21). The earlier claim that version
+# numbers cannot reach this filter was wrong and is corrected here. Agent build
+# numbers are public constants, identical in every tenant running that version,
+# and are allowlisted by exact value. An earlier attempt to
 # exclude them used ^([0-9]{1,3}\.){3}[0-9]{1,3}$ with grep -v, which silently
 # excluded EVERY address and reported a planted routable IP as clean.
 # 168.63.129.16 is the Azure WireServer — a fixed virtual platform IP, identical
@@ -92,6 +96,7 @@ hdr "Routable IPv4 (outside RFC 5737 / RFC 1918)"
 ips=$(grep "${GREP_OPTS[@]}" "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" . 2>/dev/null \
       | grep -vE "^(192\.0\.2\.|198\.51\.100\.|203\.0\.113\.|10\.|192\.168\.|127\.|169\.254\.|0\.0\.0\.0|255\.|172\.(1[6-9]|2[0-9]|3[01])\.)" \
       | grep -vE "^168\.63\.129\.16$" \
+      | grep -vE "^1\.43\.0\.0$" \
       | sort -u)
 if [ -z "$ips" ]; then ok "only documentation/private ranges"
 else hit "routable addresses — confirm each is attacker-side, not lab-side:"; echo "$ips" | sed 's/^/       /'; fi

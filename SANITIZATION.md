@@ -12,8 +12,8 @@ This document defines what must be redacted, how, and how it is enforced.
 |---|---|---|
 | **Secrets** | Workspace primary/secondary keys, service principal client secrets, Logic App callback URLs, automation webhook URLs, API keys, connection strings, `*.tfstate`, `*.parameters.json` | Direct authentication material. Immediate compromise. |
 | **Identifiers** | Tenant ID, subscription ID, workspace ID, resource IDs, DCR immutable IDs, application/object IDs | Not secrets. Real coordinates of the tenant — enable targeted enumeration and phishing. |
-| **Attributable** | UPNs, email addresses, display names, device names, resource group names, MAC addresses | PII, and links the lab to a person or organization. |
-| **Operational** | Public IPs of lab resources, DNS names, NSG rules, open ports, admin usernames | Describes a reachable, intentionally weak attack surface. |
+| **Attributable** | UPNs, email addresses, display names, device names, resource group names, MAC addresses, **the public IP of the operating workstation** | PII, and links the lab to a person or organization. |
+| **Operational** | Public IPs of lab *resources*, DNS names, NSG rules, open ports, admin usernames | Describes a reachable, intentionally weak attack surface. |
 | **Indirect** | Offensive tooling binaries, C2 configuration, malware samples, payload scripts | Weaponizable regardless of intent. |
 
 ---
@@ -27,7 +27,9 @@ Replacements are visibly synthetic and internally consistent. Values are drawn f
 | Tenant / subscription / workspace / object GUID | `00000000-0000-0000-0000-000000000000` | Nil UUID |
 | Domain | `contoso.onmicrosoft.com` | Microsoft doc convention |
 | User principal name | `analyst@contoso.com` | — |
-| Device name (client) | `LAB-WIN11-01` | Generic, non-attributable |
+| User display name | `Lab Administrator`, `Lab User`, `Lab Analyst` | Generic, non-attributable role labels. **Use the same placeholder for the same tenant identity in every field** — findings frequently turn on whether two fields resolve to one identity (`POS-083`: sender and recipient are the same principal), and inconsistent substitution destroys that. The class was listed as Attributable in §1 from the beginning; this row closes the gap where no convention existed for it (see the 2026-08-11 note below) |
+| Device name (client) | `LAB-WIN11-01` | Generic, non-attributable. **Canonical** for every client-device reference in the repository |
+| Device name (client, truncated rendering) | `LAB-WIN11-DEFEN` | Synthetic, display-only. **15 characters by design** — preserves the observed truncation behaviour; use *only* where the truncation itself is part of the finding. Observed in `AuditData.DeviceProperties.DisplayName` during MOD-94. Unlike the server placeholder this is **not derivable** from the canonical name — `LAB-WIN11-01` is 12 characters and never truncates — so this is an explicit alias for a rendered form, **not** evidence that `LAB-WIN11-01` is truncated by Windows or NetBIOS. It must not replace the canonical name anywhere else |
 | Device name (server) | `LAB-SRV-DEFENDER-01` | Generic. **19 characters by design** — the NetBIOS-truncation finding (`POS-033`, divergence row 13) depends on the name exceeding 15 chars and truncating to `LAB-SRV-DEFENDE`. A shorter placeholder destroys the finding silently |
 | Resource group | `rg-soc-lab` | Generic |
 | Log Analytics workspace | `law-lab-01` | Generic. Deliberately *not* in the `-soc-lab` family, which the real workspace name resembled closely enough to read as a placeholder |
@@ -38,6 +40,7 @@ Replacements are visibly synthetic and internally consistent. Values are drawn f
 | IPv4 (external) | `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24` | RFC 5737 TEST-NET-1/2/3 |
 | IPv6 | `2001:db8::/32` | RFC 3849 |
 | Public IP of lab endpoint | **Omitted entirely — not placeholdered** | — |
+| Public IP of the operating workstation | **Omitted entirely — not placeholdered** | Distinct from the row above. Classed **Attributable**, not Operational: it identifies a person rather than describing a reachable lab surface. Rendered on the Purview Audit results grid and in every exported `AuditData` payload as both `ClientIP` and `ActorIpAddress` (MOD-93) |
 
 **Rows added 2026-08-09** for the three resource-name classes Lab 20
 introduced. The placeholders were applied in content before the Lab 20 commit
@@ -95,6 +98,64 @@ exact identifiers already under structural enforcement stay off it unless
 measurement demonstrates a bypass. The list stands at **20 terms** after these
 additions.
 
+**Terms decided 2026-08-11 — one added, three deliberately excluded.** Lab 23
+surfaced four candidate value classes across the Purview Audit and eDiscovery
+surfaces. The wordlist stands at **22 terms** afterwards (21 before, plus the
+MDE MachineId added earlier the same day).
+
+- **Operator display name — added.** Arbitrary attributable text with no
+  structural invariant to grip, rendered on five distinct surfaces in one
+  session: the role-group member list, the tenant-wide Members tab, the case
+  membership avatars, the `Case settings → Permissions` user list, and the
+  `Created by` column of a content search. Exactly the class `.pii-terms`
+  exists for, and the class no scanner can infer.
+- **Device GUID — considered and deliberately excluded.** Stable and
+  attributable to a real device, and therefore a genuine candidate. Excluded
+  because both scanners already own the GUID shape — `azure-guid-any` in
+  `.gitleaks.toml` and the §4 grep in `audit-pii.sh`, verified 2026-08-11 —
+  and no measurement shows either being bypassed. Recorded so the omission
+  reads as a decision, not an oversight. Contrast the Entra User SID, admitted
+  2026-08-09 precisely *because* no structural rule covered `S-1-*`: same
+  policy, opposite outcome, and the difference is verifiable rather than
+  judged.
+- **Compliance case GUID — excluded.** Same structural coverage, and the case
+  was created on 2026-08-11 for this lab; it will not recur.
+- **`SessionId` — excluded.** Per-session and high-cardinality. Exact-value
+  wordlisting does not scale to a class that produces a new value on every
+  sign-in. Sanitize at the capture boundary instead of growing a permanent
+  list around transient values.
+
+**The operator display name was already committed — sanitized forward, history
+left intact.** Adding the term to `.pii-terms` on 2026-08-11 immediately caused
+the personal-terms check to fire on three tracked files: `posture.yml`,
+`labs/19-sentinel-playbooks/README.md`, and the generated
+`docs/posture-register.md`. All three carried a live tenant display name inside
+`POS-083`, committed with Lab 19 on 2026-08-08. The class had been listed as
+**Attributable** in §1 since the beginning, but §2 defined no display-name
+placeholder, so nothing was ever substituted and no gate could know to look.
+
+The current tree was sanitized to `Lab Administrator` and §2 gained the
+convention row above. **Git history was not rewritten.** The repository is
+already intentionally attributed to the operator by legal name in `LICENSE`,
+so the incremental privacy benefit of rewriting 57 commits and invalidating
+every published SHA is disproportionate to the exposure. That reasoning bounds
+the remediation only — it is **not** an exception to the policy. Display names
+remain Attributable, and a value being historically present does not license
+leaving it in the working tree. Recording the distinction explicitly because
+the tempting simplification — *the name is public in `LICENSE`, therefore this
+class needs no placeholder* — would replace a clean rule with a subjective,
+case-by-case judgement.
+
+**This is the second measured validation of the wordlist layer**, and the entry
+path differs from the first. On 2026-08-09 a sanitized resource name re-entered
+through freshly authored prose while every shape-based gate stayed green, and
+the wordlist caught it at the boundary. Here a value was committed before any
+convention existed for its class, and the wordlist surfaced it retrospectively
+the moment the term was admitted. Two different failure modes — reintroduction
+forward, and a policy gap backward — caught by the same control. Neither was
+reachable by a structural rule, because an arbitrary display name has no
+invariant to grip.
+
 **The phone number is the one worth dwelling on.** It reached a log because a
 workflow read one field from an object Graph returned whole, and no `$select`
 narrowed it (`POS-084`). No placeholder convention would have caught it — the
@@ -131,6 +192,8 @@ a real public IP is still caught; only these specific published values pass.
 | `d1e49aac-8f56-4280-b9ba-993a6d77406c` | Public ASR rule GUID — block process creations from PSExec/WMI |
 | `e6db77e5-3df2-4cf1-b95a-636979351e5b` | Public ASR rule GUID — block WMI event-subscription persistence |
 | `168.63.129.16` | Azure WireServer — fixed virtual platform IP, same in every Azure VNet |
+| `1.43.0.0` | Azure Monitor Agent build number (Lab 21). Four-octet version string, shape-identical to IPv4. Allowlisted in **both** `audit-pii.sh` and `.gitleaks.toml` |
+| `1.455.332.0` | Defender AV security intelligence version (Lab 22). Allowlisted in `audit-pii.sh` **only** — the gitleaks IPv4 rule is octet-bounded and 455/332 exceed 255, so it never matches there. Verified against both regexes plus a routable control, 2026-08-10. "Both scanners always need it" is not a rule |
 
 The gate flagged all three on first commit (Lab 06) as REVIEW items — correctly,
 since they share the shape of the private values it guards. Clearing them was a

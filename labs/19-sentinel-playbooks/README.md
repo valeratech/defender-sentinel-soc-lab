@@ -199,8 +199,9 @@ full user object — display name, mail, and the account holder's **phone
 number** — all persisted for the same 90 days to satisfy a workflow that reads
 one field.
 
-**The delegated connection makes the tenant owner the sender.** `From: Ryan
-Ryan` → `To: Ryan Ryan`. Security notification mail arrives from its own
+**The delegated connection makes the tenant owner the sender.**
+`From: Lab Administrator` → `To: Lab Administrator`. Security notification mail
+arrives from its own
 recipient, lands in Sent Items, passes SPF/DKIM/DMARC as a legitimate internal
 send, and attributes the action to a human in the audit trail. The Office 365
 connector offers no managed-identity option, so this is not a design choice in

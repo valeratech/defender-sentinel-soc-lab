@@ -3214,7 +3214,8 @@ entries:
     verified: 2026-08-08
     note: >-
       Observed at runtime 2026-08-08: the security notification arrived From
-      Ryan Ryan To Ryan Ryan - the recipient is also the apparent sender. A
+      Lab Administrator To Lab Administrator - the recipient is also the
+      apparent sender. A
       copy lands in the sending mailbox's Sent Items, doubling the plaintext
       credential's mail footprint (see POS-084).
 

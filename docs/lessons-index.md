@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**27 module(s) recorded · 15 produced a lab · 49 correction(s) to previously committed content.**
+**29 module(s) recorded · 17 produced a lab · 62 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -39,6 +39,8 @@ than restates**: each finding has exactly one authoritative home.
 | [87](../lessons/MOD-87-investigating-an-incident-with-copilot.md) | Investigating an incident with a Security Copilot prompt | 🔨 lab | `Lab 20` | — | `row 158`, `row 159`, `row 160`, `row 161` | 3 |
 | [88](../lessons/MOD-88-tearing-down-copilot-capacity.md) | Tearing down Security Copilot capacity | 🔨 lab | `Lab 20` | `POS-087` | `row 157`, `row 162`, `row 165`, `row 167` | 4 |
 | [89](../lessons/MOD-89-nrt-execution-semantics.md) | Anomaly rules and NRT execution semantics | 🔨 lab | `Lab 21` | `POS-090`, `POS-091` | `row 168`, `row 169`, `row 170`, `row 171`, `row 172` | 6 |
+| [90](../lessons/MOD-90-endpoint-prevention-controls.md) | Endpoint prevention controls — PUA protection, EICAR, and script execution | 🔨 lab | `Lab 22` | `POS-092` | `row 173`, `row 174`, `row 175`, `row 182` | 5 |
+| [91](../lessons/MOD-91-investigating-endpoint-detections.md) | Investigating endpoint detections — automated investigation and response | 🔨 lab | `Lab 22` | `POS-093`, `POS-094` | `row 176`, `row 177`, `row 178`, `row 179`, `row 180`, `row 181`, `row 183` | 8 |
 
 ## Corrections to previously committed content
 
@@ -97,3 +99,16 @@ anything.
 | 89 | Guide: 'zero results with zero errors is the expected outcome in a quiet lab.' Half right. The guide anticipates a null; it does not anticipate a positive result produced by a history-scoped validation surface, which is what any lab with prior 4625 activity will see. |
 | 89 | Guide teaches the baseline × threshold NRT rule as a working brute-force detector, noting only that it is static-threshold rather than ML. The deeper defect is unstated: bin(TimeGenerated, 1h) cannot span an hour in a rule that sees one minute of ingestion per execution. |
 | 89 | Guide's NRT limits section does not mention that incident settings govern alert visibility across two Defender surfaces — the difference between finding your alert and concluding your rule is broken. |
+| 90 | Guide: PUA protection is enabled and blocking by default. This tenant ships PUAProtection = 2 (audit), not 1 (block). The value must be read, never assumed. |
+| 90 | Guide: audit mode detects and logs without blocking, so the file downloads and the detection appears in the logs. The download happened; the detection did not. No threat object, no event 1116, no event 1117, with real-time protection, MAPS reporting and sample submission all on. |
+| 90 | Guide follows AMTSO's test logic — if the file downloads, the configuration is wrong. That test cannot distinguish three different outcomes: PUA blocking the file, the browser blocking the save, and audit mode allowing it while recording nothing. |
+| 90 | Guide treats the browser download attempt and a command-line retrieval as equivalent ways to fetch the test file. Edge refused the download and left the complete payload on disk as an orphaned .crdownload; Invoke-WebRequest succeeded silently. The two methods test different things. |
+| 90 | Guide does not mention that on an Entra-joined device the Entra identity is a standard user, so the natural RDP session cannot run Set-MpPreference. Changing PUA protection requires the local administrator account. |
+| 91 | Guide: clicking Initiate Automated Investigation starts an automated investigation. On this tenant the investigation had already been created automatically 53 seconds after the antivirus detection, three minutes before the manual click. The click registered as its own alert and joined a run already in flight. |
+| 91 | Guide treats the alert title 'Automated investigation started manually' as a description of why the investigation exists. It describes the analyst action only; the investigation's own triggering alert is the antivirus detection, detection source DetectionEngine. |
+| 91 | Guide directs the reader to a standalone automated-investigations page in the left navigation. No such entry exists in the Investigation & response subtree at this read; the investigation page is reachable only through an incident or through Action center. |
+| 91 | Guide: the incident's Evidence and Response tab shows the incident's evidence. It shows a narrower set than the incident's own investigation — 1 entity against 2 — and the omitted entity is the one awaiting approval. Nothing on the narrower surface signals the omission. |
+| 91 | Guide: investigation duration reports how long the investigation took. It reports elapsed wall time including time spent waiting for human approval. Ten minutes of analysis read as 2:31h. |
+| 91 | Guide: the Action Center is where pending approvals are found. A pending approval was absent from the Pending tab while the investigation rendered it; a later read with no filters set showed it present. The first null was propagation, and is indistinguishable from an empty queue. |
+| 91 | Guide: pivot to VirusTotal for third-party reputation. No pivot is needed — the VirusTotal detection ratio is rendered inside the Defender entity flyout, alongside tenant-scoped and worldwide prevalence for the same object. |
+| 91 | Guide: deallocating the VM ends the charges for the lab. A Standard, statically assigned public IP continues to bill for as long as the resource exists, regardless of VM power state. |

@@ -3470,3 +3470,53 @@ entries:
       screen before commit is silent about the most consequential setting on
       the rule. Extends MOD-57's store-partition finding - two stores
       disagreeing about one alert, by configuration rather than fault.
+  - id: POS-092
+    lab: "22"
+    setting: Defender Antivirus potentially unwanted application (PUA) protection
+    location: PowerShell Get-MpPreference PUAProtection on the onboarded client; Defender AV settings
+    state: PUAProtection reads 2 (audit) rather than 1 (block). A PUA test file retrieved over HTTPS downloaded, persisted on disk, and produced NO threat object, NO event 1116 and NO event 1117 - with DisableRealtimeMonitoring False, MAPSReporting 2 and SubmitSamplesConsent 1. An EICAR positive control on the same machine in the same session minutes later produced toast, 1116, 1117, a threat object and file removal, establishing the pipeline works. The same artefact was later adjudicated Malicious by cloud automated investigation, which found it by enumeration rather than detection
+    baseline: PUAProtection 2 as shipped on this image - read, not set. Value deliberately left unchanged so the finding rests on the shipped state
+    kind: gap
+    production: Never infer PUA coverage from the setting being present. Read the value, and validate audit mode by confirming a detection reaches the log - an audit control that fails silently is indistinguishable from an environment with nothing to audit. Where PUA handling matters, set 1 (block) and verify, or treat the endpoint as uncovered
+    revisit: true
+    verified: 2026-08-10
+    note: >-
+      Audit mode's only deliverable is the record. A blocking control that
+      fails silently still sometimes blocks; an auditing control that fails
+      silently produces exactly the evidence of a clean environment. The
+      finding exists only because an unrelated EICAR test triggered an
+      investigation that swept the disk - without it the file would remain
+      unrecorded on every local surface.
+  - id: POS-093
+    lab: "22"
+    setting: Defender for Endpoint automated investigation and response (AIR), standalone experience
+    location: security.microsoft.com > Incidents > (incident) > Investigations > (investigation); device page > Initiate Automated Investigation
+    state: Manual triggering functional and a standalone investigation page present as of 2026-08-10. One investigation on one quiet client analysed 2713 entities (1516 files, 439 drivers, 295 services, 277 persistence methods, 173 processes, 13 IP addresses) across 30 log steps to find and remediate one malicious file. From 2026-09-01 this no longer runs as a separate investigation experience and no longer supports manual triggering per message center MC1411577; detection and remediation remain embedded in the antivirus stack, on-demand investigation becomes a full antivirus scan, and results consolidate into the unified investigation page. APPLIES TO DEFENDER FOR ENDPOINT ONLY - AIR for Defender for Office 365 remains available, so Lab 13 is unaffected
+    baseline: Standalone MDE AIR as shipped, captured 22 days before retirement
+    kind: default
+    production: Any runbook step that says trigger an automated investigation from the device page stops working on 2026-09-01 and must be rewritten to a full antivirus scan. Audit runbooks and playbooks for the manual-trigger step before that date. Do not assume the MDO equivalent is affected
+    revisit: true
+    verified: 2026-08-10
+    note: >-
+      Verified against four Microsoft Learn pages and message center MC1411577
+      on 2026-08-10. Checked negative: labs/18, labs/19 and detections/ were
+      grepped and no committed playbook or automation invokes MDE AIR, so the
+      change has no known automation dependency in this repository. The
+      evidence captured here is unrepeatable after 2026-09-01.
+  - id: POS-094
+    lab: "22"
+    setting: Public IP address resource on the lab client VM
+    location: portal.azure.com > Public IP addresses > (client VM IP) > Overview > Essentials, and Configuration
+    state: SKU Standard, Tier Regional, Assignment Static, associated to the VM NIC. Both lab VMs read Stopped (deallocated) at the same moment and the IP remains provisioned and associated. Standard static public IP billing is continuous for as long as the resource exists and is independent of VM power state - approximately 0.005 USD per hour, about 3.65 USD per month
+    baseline: Standard static public IP created with the VM and retained across teardown; POS-019 source-restricts it to the operator IP and POS-020 records NLA disabled
+    kind: default
+    production: Deallocating a VM is not a teardown of its cost. Read the public IP resource itself - SKU and Assignment - rather than trusting the VM blade's Stopped (deallocated) label. Where a VM is parked between sessions, deleting the IP or moving access to Bastion removes the standing charge
+    revisit: true
+    verified: 2026-08-10
+    note: >-
+      This is MOD-84's mechanism, caught from configuration before the invoice
+      rather than inferred from billing afterwards. The VM list renders the IP
+      address in its own column beside Stopped (deallocated), which reads as
+      informational rather than as a live meter. Decision on keeping or
+      deleting the IP is deferred to the 2026-08-12 cost read and depends on
+      P89-10.

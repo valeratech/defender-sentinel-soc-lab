@@ -90,6 +90,14 @@ hdr "Routable IPv4 (outside RFC 5737 / RFC 1918)"
 # and are allowlisted by exact value. An earlier attempt to
 # exclude them used ^([0-9]{1,3}\.){3}[0-9]{1,3}$ with grep -v, which silently
 # excluded EVERY address and reported a planted routable IP as clean.
+# Defender AV security intelligence versions are the same class: this repo
+# carries 1.455.332.0 (Lab 22). Unlike 1.43.0.0 it needs NO gitleaks
+# counterpart — that rule is octet-bounded (25[0-5]|2[0-4][0-9]|...) and
+# 455/332 exceed 255, so it never matches there. Verified both regexes
+# against 1.43.0.0, 1.455.332.0 and a routable control on 2026-08-10.
+# "Both scanners always need it" is not a rule. Watch for the FIRST build
+# number with every octet <= 255 that needs adding to both files again --
+# that is the signal to bound this regex properly, not the line count.
 # 168.63.129.16 is the Azure WireServer — a fixed virtual platform IP, identical
 # in every Azure VNet, not a routable lab or attacker address. Allowlisted by
 # exact value; every other public IP is still reported for review.
@@ -97,6 +105,7 @@ ips=$(grep "${GREP_OPTS[@]}" "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" . 2>/dev/null \
       | grep -vE "^(192\.0\.2\.|198\.51\.100\.|203\.0\.113\.|10\.|192\.168\.|127\.|169\.254\.|0\.0\.0\.0|255\.|172\.(1[6-9]|2[0-9]|3[01])\.)" \
       | grep -vE "^168\.63\.129\.16$" \
       | grep -vE "^1\.43\.0\.0$" \
+      | grep -vE "^1\.455\.332\.0$" \
       | sort -u)
 if [ -z "$ips" ]; then ok "only documentation/private ranges"
 else hit "routable addresses — confirm each is attacker-side, not lab-side:"; echo "$ips" | sed 's/^/       /'; fi

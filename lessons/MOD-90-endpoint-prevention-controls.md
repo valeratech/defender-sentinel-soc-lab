@@ -67,7 +67,8 @@ consistent with Lab 06 having enabled only the WMI-persistence and PSExec/WMI
 ASR rules. A behavioural surface, not an ASR surface. What the endpoint did not
 do, the cloud did; that half belongs to MOD-91.
 
-**Truncation is carried as data** (Lab 22 §8.8, `POS-033`). `LAB-WIN11-` at 15
+**Truncation is carried as data** (Lab 22 §8.8; cf. `POS-033` for the
+separately measured server-hostname truncation). `LAB-WIN11-DEFEN` at 15
 characters on six surfaces, including the machine-readable Action Center CSV
 export. The export is not rendering a display name.
 

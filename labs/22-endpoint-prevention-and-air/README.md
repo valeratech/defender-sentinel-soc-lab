@@ -480,13 +480,17 @@ renders normally and the pane is not on it. `P91-1` confirmed.
 EICAR remediation complete and an investigation in flight. Two reads,
 hypothesis not supported.
 
-**Truncation is data, not display.** `LAB-WIN11-` — 15 characters — appears on
+**Truncation is data, not display.** `LAB-WIN11-DEFEN` — 15 characters —
+appears on
 six surfaces: the device page, the alert queue's Impacted assets column, the
 investigation graph's device node, the Pending actions tab, the incident
 flyout, and the **Action Center CSV export**. The export is machine-readable;
 it is not rendering a display name, it is carrying the truncated value as data.
 `P90-5` confirmed and extended: at minimum, this is the device identity MDE
-holds. `POS-033`.
+holds. Cf. `POS-033` for the separately measured server-hostname truncation —
+that one is natural NetBIOS truncation of a 19-character name, and this client
+placeholder is a synthetic evidence-preserving alias per `SANITIZATION.md` §2,
+not evidence of the same mechanism.
 
 **UTC and local, one labelled.** The VM clock runs UTC; the portal renders
 Pacific. The Action Center CSV export renders UTC

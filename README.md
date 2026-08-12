@@ -123,27 +123,38 @@ Teardown is a single action: everything lives in one resource group, so `az grou
 
 Labs are numbered in build order. Where build order and the exam blueprint disagree, the build wins — the dependencies are real.
 
-| # | Lab | Domain | Status |
-|---|---|---|---|
-| [00](labs/00-tenant-licensing-identity/) | Tenant, licensing, identity, and Unified RBAC | Environment | 🔨 Built, documenting |
-| [01](labs/01-device-registration-intune-enrollment/) | Device registration and Intune enrolment | Environment | 🔨 Built, documenting |
-| [02](labs/02-mde-intune-integration/) | Defender for Endpoint ↔ Intune integration | Environment | 🔨 Built, documenting |
-| [03](labs/03-endpoint-onboarding/) | Endpoint onboarding, first detection, and investigation | Response | 🔨 Built, documenting |
-| [04](labs/04-sentinel-workspace/) | Sentinel workspace and the endpoint-to-SIEM pipeline | Environment | 🔨 Built, documenting |
-| [05](labs/05-device-groups-scoped-access/) | Device groups, automation levels, and scoped access | Environment | 🔨 Built, documenting |
-| [06](labs/06-attack-surface-reduction/) | Attack surface reduction rules | Response | 🔨 Built, documenting |
-| [07](labs/07-windows-security-events/) | Windows Security Events via AMA — agent-based ingestion | Ingestion | 🔨 Built, documenting |
-| [08](labs/08-entra-azure-activity-connectors/) | Entra ID and Azure Activity connectors | Ingestion | 🔨 Built, documenting |
-| [09](labs/09-attack-simulation-training/) | Attack simulation training — phishing campaign and what it does not prove | Response | 🔨 Built, documenting |
-| [10](labs/10-alert-policies/) | Alert policies — the first detection authored here, and the built-in that already covered it | Detection | 🔨 Built, documenting |
-| [11](labs/11-sentinel-analytics-rules/) | Sentinel analytics rules — twelve alerts from one event, and a template that never fired | Detection | 🔨 Built, documenting |
-| [12](labs/12-mdo-threat-policies/) | Defender for Office 365 threat policies — a control that reads healthy on four surfaces and did nothing | Response | 🔨 Built, documenting |
-| [13](labs/13-explorer-air-remediation/) | Explorer, AIR, and what the Action Center actually holds | Response | 🔨 Built, documenting |
-| [14](labs/14-purview-dlp-simulation/) | Purview DLP — a US Financial policy in simulation, and what the defaults ship | Data protection | 🔨 Built, documenting |
-| [15](labs/15-insider-risk-policy/) | Insider Risk Management — a trigger the selector accepts and the runtime ignores | Data protection | 🔨 Built, documenting |
-| [16](labs/16-mdca-file-policy/) | Defender for Cloud Apps — two products, one engine, one file | Data protection | 🔨 Built, documenting |
-| [17](labs/17-incident-investigation/) | Incident investigation — the classification trap, and a role whose grant, activation, and honoring were three separate events | Response | 🔨 Built, documenting |
-| [18](labs/18-sentinel-automation-rules/) | Sentinel automation rules — two creation doors, serial execution, and a duplicate only the audit log saw | Response | 🔨 Built, documenting |
+<!-- BEGIN GENERATED LAB INDEX -->
+
+| # | Lab | Status |
+|---|---|---|
+| [00](labs/00-tenant-licensing-identity/) | Tenant, Licensing, and Identity Foundation | 🔨 Built, documentation in progress |
+| [01](labs/01-device-registration-intune-enrollment/) | Device Registration and Intune Auto-Enrollment | 🔨 Built, documentation in progress |
+| [02](labs/02-mde-intune-integration/) | Defender for Endpoint ↔ Intune Integration | 🔨 Built, documentation in progress |
+| [03](labs/03-endpoint-onboarding/) | Endpoint Onboarding and First Alerts | 🔨 Built, documentation in progress |
+| [04](labs/04-sentinel-workspace/) | Sentinel Workspace: Deployment and the Defender Pipeline | 🔨 Built, documentation in progress |
+| [05](labs/05-device-groups-scoped-access/) | Device Groups, Automation, and Scoped Access | 🔨 Built, documentation in progress |
+| [06](labs/06-attack-surface-reduction/) | Attack Surface Reduction Rules | 🔨 Built, documentation in progress |
+| [07](labs/07-windows-security-events/) | Windows Security Events via AMA | 🔨 Built, documentation in progress |
+| [08](labs/08-entra-azure-activity-connectors/) | Entra ID and Azure Activity Connectors | 🔨 Built, documentation in progress |
+| [09](labs/09-attack-simulation-training/) | Attack Simulation Training | 🔨 Built, documentation in progress |
+| [10](labs/10-alert-policies/) | Microsoft 365 Alert Policies | 🔨 Built, documentation in progress |
+| [11](labs/11-sentinel-analytics-rules/) | Sentinel Analytics Rules | 🔨 Built, documentation in progress |
+| [12](labs/12-mdo-threat-policies/) | Defender for Office 365 Threat Policies | 🔨 Built, documenting |
+| [13](labs/13-explorer-air-remediation/) | Explorer Investigation and Defender-Native Remediation | 🔨 Built, documenting |
+| [14](labs/14-purview-dlp-simulation/) | Purview DLP: a US Financial Policy in Simulation | ✅ Built and measured, Phases A–D complete |
+| [15](labs/15-insider-risk-policy/) | Insider Risk Management: a Trigger That Never Fires | ✅ Built and measured |
+| [16](labs/16-mdca-file-policy/) | MDCA File Policy: Two Products, One Engine, One File | ✅ Built and measured |
+| [17](labs/17-incident-investigation/) | Incident Investigation: the Trap, the Audit Trail, and the Role That Wasn't There Yet | ✅ Built and measured |
+| [18](labs/18-sentinel-automation-rules/) | Sentinel Automation Rules: Two Doors, One Trigger, and a Duplicate Only the Audit Log Saw | ✅ Built and measured |
+| [19](labs/19-sentinel-playbooks/) | Sentinel Playbooks: A Permission Checked Before Anything Ran, and a Credential in Three Places | ✅ Built and measured |
+| [20](labs/20-security-copilot/) | Security Copilot: A Better Witness Than the Portal, and Confidently Incomplete | ✅ Built and measured |
+| [21](labs/21-nrt-execution-semantics/) | NRT Execution Semantics: The Hour That Never Holds an Hour | ✅ Built and measured |
+| [22](labs/22-endpoint-prevention-and-air/) | Endpoint Prevention and Automated Investigation: What Audit Mode Did Not Audit | ✅ Built and measured |
+| [23](labs/23-purview-audit-and-ediscovery/) | Purview Audit and eDiscovery: Two Data Planes, and the File Neither One Reports | ✅ Built and measured |
+
+*24 labs. Generated from each lab's own `README.md` by `scripts/build-lab-index.py` and CI-enforced — the lab pages are authoritative for their titles and statuses; this table mirrors them.*
+
+<!-- END GENERATED LAB INDEX -->
 
 Lab numbers are opaque, append-only handles — `04` is Sentinel because that folder existed as a stub before device groups were built, and renumbering corrupts cross-references. Course-module order and repo lab order diverge by design; the number is a filing handle, not a sequence claim.
 
@@ -176,7 +187,7 @@ python3 scripts/build-attack-matrix.py --check  # CI staleness check
 
 A lab accumulates weakenings. Each is defensible when made and invisible three weeks later.
 
-[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. **80 entries** (all 80 verified — `POS-002`, the register's last unverified entry, was closed on a portal read 2026-08-06) across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced.
+[`docs/posture-register.md`](docs/posture-register.md) tracks every security-relevant setting: its state, whether it was chosen or inherited, the production answer where they differ, and whether it must be reconsidered before this project is called done. Entries are classified across four kinds — hardened, default, gap, and weakening. Generated from [`posture.yml`](posture.yml) and CI-enforced; **the register is authoritative for its own count**, which is why no number is repeated here.
 
 The register separates **verified** (observed in a portal view) from **asserted** (recorded on the operator's word), because blurring that is how a register becomes decoration.
 

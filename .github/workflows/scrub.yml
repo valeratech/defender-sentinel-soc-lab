@@ -158,3 +158,10 @@ jobs:
 
       - name: Verify lessons index and that every cited handle resolves
         run: python3 scripts/build-lessons-index.py --check
+
+      # Added 2026-08-11. The README lab table drifted to 19 labs and a
+      # hardcoded 80 posture entries while the repository held 24 and 98 —
+      # every gated document stayed correct and the one ungated surface did
+      # not. This is the gate that closes that.
+      - name: Verify README lab index mirrors the lab pages
+        run: python3 scripts/build-lab-index.py --check

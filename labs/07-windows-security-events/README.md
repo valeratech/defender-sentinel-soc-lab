@@ -73,6 +73,13 @@ this VM cannot be reached from the internet at all. The standing cost consequenc
 Bastion is the meter to watch — it bills more than the VM while up, so it is a
 per-session teardown decision, not a leave-it-running one.
 
+**Amended 2026-08-12 — this note is SKU-specific.** It was written against the
+**Basic** SKU (~$0.19/hr) deployed here. A **Developer** SKU host created and
+deleted in Lab 21 produced **no meter row at all** in a per-meter export
+covering the subscription's full usage history, against Sentinel's daily
+zero-cost rows as control. Teardown discipline stands for Basic and Standard;
+it is not required by cost for Developer. `POS-099`.
+
 ## 4. Build: DCR, agent, collection tier
 
 1. **Content hub** → installed the **Windows Security Events** solution. (It did

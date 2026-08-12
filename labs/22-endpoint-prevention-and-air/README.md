@@ -7,7 +7,7 @@
 | **Depends on** | Lab 03 (EDR detection test, onboarding latencies), Lab 06 (ASR audit-vs-block already isolated), Lab 13 (**MDO** AIR — a different product, explicitly not the capability being retired), Lab 17 (incident workflow), `POS-033` (hostname truncation), `POS-019`/`POS-020` (RDP exposure on this VM) |
 | **Status** | ✅ Built and measured — four phases, one metered window of 68 minutes |
 | **Built** | 2026-08-10 |
-| **Cost** | `LAB-WIN11-01` compute only, 16:25 → 17:33. No Bastion. Public IP billing continues past teardown — see §9 and `POS-094`. `P89-10` remains open |
+| **Cost** | `LAB-WIN11-01` compute only, 16:25 → 17:33. No Bastion. Public IP billing continues past teardown — see §9 and `POS-094`, closed on the mechanism 2026-08-12 at $0.12/day on 29 of 29 days. `P89-10` closed the same day (`POS-099`) |
 
 > Two files were downloaded to the same machine, the same way, minutes apart.
 >
@@ -72,7 +72,7 @@ Registered before portal contact, in the order written.
 | **P90-7** | MDE detections produce AIR, unlike `DET-004`'s Sentinel alerts | **CONFIRMED** |
 | **P91-1** | The Copilot pane is absent, capacity having been torn down at MOD-88 | **CONFIRMED** on two reads |
 | **P91-2** | VirusTotal shows EICAR at a high detection ratio with an old first-seen | **CONFIRMED** — 57/64, first seen 2013-03-04 |
-| **P89-10** | Bastion Developer SKU bills $0 | **OPEN** — resolves on the 2026-08-12 cost read |
+| **P89-10** | Bastion Developer SKU bills $0 | **CONFIRMED 2026-08-12** — and stronger than predicted: no meter rows emitted at all, against Sentinel's daily zero-cost rows as control. `POS-099` |
 
 ### Corrections recorded on the record
 
@@ -541,6 +541,18 @@ compute window. A decision follows from that read and is deliberately deferred
 to it: keep the IP for direct-RDP convenience at ~$3.65/month, or delete it and
 move this VM to Bastion — which is only clearly cheaper if `P89-10` confirms the
 Developer SKU bills nothing.
+
+**Read taken 2026-08-12; both questions resolved.** The IP meter billed
+**$0.12/day on 29 of 29 days** from creation on 07-15, while the compute meter
+appears on only **9** of them — twenty days of charge with no VM running.
+$3.40 accrued. `P89-10` confirmed: the Developer SKU emits no meter rows at all.
+
+**The decision went the other way from the cost logic, deliberately.** The IP is
+**retained** through the 2026-09-14 E5 window and reassessed at teardown.
+Remaining exposure is ~$4; deleting the resource would convert `POS-019` and
+`POS-020` from currently observable state into historical findings needing a
+state-transition annotation. The network architecture is not changed mid-project
+for $4. `POS-094`, `POS-099`.
 
 **Metered window:** 16:25 → 17:33, **68 minutes**, `LAB-WIN11-01` compute only,
 no Bastion.

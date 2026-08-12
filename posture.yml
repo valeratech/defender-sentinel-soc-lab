@@ -1101,6 +1101,9 @@ entries:
       Pacific, Manual patching, boot diagnostics off. Access posture is deliberately
       BETTER than VM 1: inbound None and no public IP, versus VM 1's internet-facing
       RDP (POS-019). Standing cost note: Bastion bills more than the VM while running
+      - AMENDED 2026-08-12, this holds for the Basic SKU deployed here and NOT
+      for Developer, which emitted no meter row at all across the
+      subscription's full usage history (POS-099)
       - a per-session teardown decision.
 
       Deferred: Endpoint Threat Protection Essentials (the SecurityEvent analytics
@@ -3513,14 +3516,35 @@ entries:
     kind: default
     production: Deallocating a VM is not a teardown of its cost. Read the public IP resource itself - SKU and Assignment - rather than trusting the VM blade's Stopped (deallocated) label. Where a VM is parked between sessions, deleting the IP or moving access to Bastion removes the standing charge
     revisit: true
-    verified: 2026-08-10
+    verified: 2026-08-12
     note: >-
       This is MOD-84's mechanism, caught from configuration before the invoice
       rather than inferred from billing afterwards. The VM list renders the IP
       address in its own column beside Stopped (deallocated), which reads as
-      informational rather than as a live meter. Decision on keeping or
-      deleting the IP is deferred to the 2026-08-12 cost read and depends on
-      P89-10.
+      informational rather than as a live meter.
+
+      CLOSED ON THE MECHANISM 2026-08-12 by a per-meter daily cost export,
+      subscription scope, 2026-07-01 to 2026-08-12. The meter
+      Standard IPv4 Static Public IP is present on 29 of 29 days from the
+      resource's creation on 07-15 through the read, with no gaps, flat at
+      0.12 USD/day. What makes this allocation billing rather than an
+      inference from a flat total: the compute meter D2 v3/D2s v3 appears on
+      only 9 of those 29 days, so twenty days carry an IP charge with no VM
+      running at all. Accrued to date 3.40 USD. Three days depart from 0.12
+      and two are explained by partial days - 07-15 at 0.1046 (creation) and
+      08-12 at 0.05 (day incomplete at read time, NOT a rate change). The
+      third, 07-25 at 0.12615, is roughly +5% and is UNEXPLAINED; recorded
+      rather than rationalised.
+
+      RETENTION DECISION 2026-08-12, by the operator: retain the IP through
+      the 2026-09-14 M365 E5 capability window and reassess at teardown.
+      Reasoning on the record - remaining exposure is roughly 4 USD, while
+      deleting the resource would convert POS-019 (source-restricted direct
+      RDP) and POS-020 (NLA disabled) from currently observable state into
+      historical findings requiring a state-transition annotation and a move
+      to Bastion-only access. The network architecture is not altered
+      mid-project for 4 USD. revisit stays true and resolves at teardown, not
+      on a cost question.
   - id: POS-095
     lab: "23"
     setting: Unified audit log retrieval - the read side of the ingestion enabled in Lab 09
@@ -3611,6 +3635,44 @@ entries:
       revisit true - the grant/revoke cycle should be re-measured if any
       eDiscovery role is ever assigned again, and the Content Search case and
       LAB-EDISC-MOD94-A search remain in the tenant, inaccessible to admin.
+  # ---------- 2026-08-12 cost read (standalone, no lab) ----------
+  - id: POS-099
+    lab: "21"
+    setting: Azure Bastion Developer SKU billing, measured by meter emission rather than by amount
+    location: portal.azure.com > Subscriptions > (subscription) > Cost Management > Cost analysis > Group by Meter, Granularity Daily, 2026-07-01 to 2026-08-12, CSV export
+    state: ZERO rows carrying any Bastion meter across the entire usage history of the subscription - 29 days, from the first metered day 2026-07-15 through the read. Not a row priced at zero; no row at all. A Bastion Developer SKU host was created, used and deleted during Lab 21 on 2026-08-08, well outside any documented cost-data lag
+    baseline: P89-10 predicted the Developer SKU would bill 0 USD. It was registered before the host was created and left open across two labs pending a cost read
+    kind: default
+    production: A service that emits no meter records is invisible to cost tooling built on meters - budgets, alerts, anomaly detection and per-meter reporting all key on rows that do not exist. Absence from a cost export is not evidence that a resource was absent, and cannot be used to prove teardown. Verify deletion at the resource, not in billing
+    revisit: false
+    verified: 2026-08-12
+    note: >-
+      P89-10 is CONFIRMED, and in a stronger form than it was predicted. The
+      prediction was that the Developer SKU bills 0 USD. What the export shows
+      is that it emits nothing to bill.
+
+      The distinction is only available because the same export contains a
+      positive control for zero-priced metering. Sentinel writes daily rows -
+      Free Trial Analysis from 07-25 and Free Benefit - M365 Defender Analysis
+      from 07-26 - at CostUSD 0, every day, without interruption. So the
+      pipeline demonstrably records services that are metered and priced to
+      zero. Bastion is not in that category. Two different zeros in one file:
+      a measured zero and an absent row.
+
+      This is the two-read rule applied to a cost surface. The billing-account
+      scope was read first and returned "No cost reported during this period"
+      for the whole of August - a false empty caused by scope, not by spend
+      (divergence row 203). Had the Bastion conclusion been drawn there, it
+      would have been drawn from a surface that was reporting nothing about
+      anything.
+
+      Bounded deliberately: this says the Developer SKU produced no meter
+      rows for one host, created and deleted inside a single day, on a
+      pay-as-you-go subscription. It does not establish that Bastion never
+      bills, and it does not extend to the Basic or Standard SKUs, which are
+      documented as hourly and were the reason Lab 21's host was deleted
+      rather than stopped.
+
   - id: POS-098
     lab: "23"
     setting: Optical character recognition, and what content search indexes

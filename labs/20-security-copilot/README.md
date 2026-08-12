@@ -7,7 +7,7 @@
 | **Depends on** | Lab 19 (incident 24 — the measurement target, documented across seven surfaces), Lab 18 (Orders 1 and 2 still on the incident), Lab 11 (`DET-004`, the detection), `POS-016` (delete-to-stop billing), `POS-033` (Defender for Cloud declined — forecloses module 86), `POS-058` (Azure credit structurally unreachable) |
 | **Status** | ✅ Built and measured — provisioned 11:00:07, torn down inside the same clock hour |
 | **Built** | 2026-08-09 |
-| **Cost** | 1 provisioned SCU, 1 clock hour. **$4 inferred, not yet invoiced** (`P20-11` open) |
+| **Cost** | 1 provisioned SCU, 1 clock hour. **$4.00 accrued and attributed** — single `Provisioned Security Compute Unit` meter row dated 08-09, matching this lab's resource group total. Invoice confirmation still open (`P20-11`) |
 
 > The course teaches Copilot against Microsoft's synthetic sample alerts. This
 > lab pointed it at **incident 24 from Lab 19** — an incident whose ground
@@ -95,7 +95,7 @@ Written before provisioning. Withdrawals recorded, never edited away.
 | P20-8 | Session consumption well under 1 SCU-hour | ❌ **1.5 units** against 1 provisioned |
 | P20-9 | Usage dashboard lags; not visible at T+30 | ❌ near-live (`Last updated` within a minute) |
 | P20-10 | RG deletion removes capacity; workspace survives | ✅ workspace, session transcript **and usage history** all survive |
-| P20-11 | Final bill: 1 clock hour, $4 | ⏳ **open** — cost analysis reports nothing yet |
+| P20-11 | Final bill: 1 clock hour, $4 | ✅ **accrual confirmed 2026-08-12** — one `Provisioned Security Compute Unit` row, exactly $4.00, dated 08-09. ⏳ invoice confirmation still open (September) |
 | P20-12 | ≥1 field named differently from the guide | ✅ several — see §5 |
 
 ## 5. Validation

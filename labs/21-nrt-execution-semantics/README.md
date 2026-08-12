@@ -7,7 +7,7 @@
 | **Depends on** | `POS-046` / `DET-004` (the aggregation limit, reached from `SigninLogs`), `POS-044` + divergence row 41 (anomaly inventory, MOD-61 — reused, not re-measured), `POS-033` (hostname truncation; AMA+DCR collection), Lab 07 (`SecurityEvent` path), MOD-57 (store partitions) |
 | **Status** | ✅ Built and measured — two phases, one metered window of 3 h 18 m |
 | **Built** | 2026-08-10 |
-| **Cost** | VM 2 for 3 h 18 m; one Bastion Developer SKU host created and deleted inside the window. **Bastion charge unverified (`P89-10` open)** |
+| **Cost** | VM 2 for 3 h 18 m; one Bastion Developer SKU host created and deleted inside the window. **Bastion charge $0 — no meter rows emitted, confirmed 2026-08-12 (`P89-10` closed, `POS-099`)** |
 
 > The guide teaches a brute-force detector as an NRT rule: count failed logons
 > per account **per hour**, alert above a threshold. `POS-046` had already
@@ -172,7 +172,7 @@ recorded on the record, never edited away.
 | P89-7 | AMA buffers and uploads on a periodic cadence, ~30 s–2 min | **Confirmed and sharpened** — quantised grid |
 | P89-8 | Alerts-only rule with incidents off is invisible in the Defender alert surface | **Confirmed, three surfaces** |
 | P89-9 | The anomaly Edit wizard does not hydrate Mode; it defaults to Production | **Confirmed** |
-| P89-10 | Bastion Developer SKU incurs no hourly charge | **Open** — resolves on a cost read |
+| P89-10 | Bastion Developer SKU incurs no hourly charge | **CONFIRMED 2026-08-12**, and sharpened — the SKU emits *no meter rows at all*, not rows priced at zero. `POS-099` |
 
 ### Amendments and rejections
 
@@ -610,6 +610,14 @@ invoice: the standing *"Bastion bills more than the VM"* note from Lab 07 was
 written against a different SKU and drove teardown discipline for this and
 future labs. **If Developer is free, that note is SKU-specific rather than
 general and should be amended.**
+
+**Resolved 2026-08-12.** A per-meter daily cost export across the subscription's
+full usage history returned **no Bastion meter row of any kind** — not a row
+priced at zero. The same export carries Sentinel's daily zero-cost rows, which
+is what makes the absence readable as a property of the SKU rather than of the
+export. The Lab 07 note is therefore **SKU-specific and has been amended**;
+teardown discipline stands for Basic and Standard and is not required by cost
+for Developer. `POS-099`.
 
 Standing state, not acted on: the Win11 VM holds a **public IP while
 deallocated** — the exact configuration behind MOD-84's finding that IP hours

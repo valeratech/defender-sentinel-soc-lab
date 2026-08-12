@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**29 module(s) recorded · 17 produced a lab · 62 correction(s) to previously committed content.**
+**32 module(s) recorded · 19 produced a lab · 77 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -41,6 +41,9 @@ than restates**: each finding has exactly one authoritative home.
 | [89](../lessons/MOD-89-nrt-execution-semantics.md) | Anomaly rules and NRT execution semantics | 🔨 lab | `Lab 21` | `POS-090`, `POS-091` | `row 168`, `row 169`, `row 170`, `row 171`, `row 172` | 6 |
 | [90](../lessons/MOD-90-endpoint-prevention-controls.md) | Endpoint prevention controls — PUA protection, EICAR, and script execution | 🔨 lab | `Lab 22` | `POS-092` | `row 173`, `row 174`, `row 175`, `row 182` | 5 |
 | [91](../lessons/MOD-91-investigating-endpoint-detections.md) | Investigating endpoint detections — automated investigation and response | 🔨 lab | `Lab 22` | `POS-093`, `POS-094` | `row 176`, `row 177`, `row 178`, `row 179`, `row 180`, `row 181`, `row 183` | 8 |
+| [92](../lessons/MOD-92-purview-audit-tiers-and-licensing.md) | Auditing in Microsoft Purview — Standard, Premium, and what the tier boundary actually gates | 📖 concept | — | — | `row 199` | 2 |
+| [93](../lessons/MOD-93-purview-audit-log-search.md) | Searching the audit log — closing the read side of a pipeline opened sixteen days earlier | 🔨 lab | `Lab 23` | `POS-095` | `row 184`, `row 185`, `row 186`, `row 187`, `row 188`, `row 189`, `row 190`, `row 191`, `row 192` | 6 |
+| [94](../lessons/MOD-94-ediscovery-content-search.md) | Content search in eDiscovery — the file the safety net does not catch | 🔨 lab | `Lab 23` | `POS-096`, `POS-097`, `POS-098` | `row 193`, `row 194`, `row 195`, `row 196`, `row 197`, `row 198`, `row 200`, `row 201`, `row 202` | 7 |
 
 ## Corrections to previously committed content
 
@@ -112,3 +115,18 @@ anything.
 | 91 | Guide: the Action Center is where pending approvals are found. A pending approval was absent from the Pending tab while the investigation rendered it; a later read with no filters set showed it present. The first null was propagation, and is indistinguishable from an empty queue. |
 | 91 | Guide: pivot to VirusTotal for third-party reputation. No pivot is needed — the VirusTotal detection ratio is rendered inside the Defender entity flyout, alongside tenant-scoped and worldwide prevalence for the same object. |
 | 91 | Guide: deallocating the VM ends the charges for the lab. A Standard, statically assigned public IP continues to bill for as long as the resource exists, regardless of VM power state. |
+| 92 | Guide: auditing sits on the per-user licensing side of the cost model, and enabling or searching it generates no consumption charge. The Audit solution's own left navigation carries a Pay-as-you-go usage report, and tenant-level OCR scanning inside Purview is billed per-use against Microsoft Syntex. Purview carries at least three distinct cost mechanisms, not one. |
+| 92 | Guide: audit log ingestion is enabled by default for organizations with a qualifying subscription. Microsoft's current documentation explicitly exempts unmanaged tenants using free trials of enterprise licences. Whether this tenant fell in that class is not established — POS-035 measured ingestion disabled and enabled it by cmdlet, but the mechanism recorded there was a dehydrated Exchange organisation, not trial status. |
+| 93 | Guide presents a single combined 'Workloads / record types' filter. The surface renders Workloads and Record Types as two separate fields, in different columns, and adds a third the guide omits entirely: Activities - operation names. |
+| 93 | Guide names the path filter 'File, folder, or site'. It renders as ObjectId (File, folder, or site) — the schema field name, with the friendly description parenthesised. |
+| 93 | Guide: the friendly Activities list is the way to select an operation. The list contains identical labels across activity groups and identical labels repeated within one group, and the selected chip drops the group qualifier. It is a display vocabulary, not a query key; Activities - operation names takes the schema string and is what the search actually ran on. |
+| 93 | Guide: Search-UnifiedAuditLog is the cmdlet underlying the portal tool, returning the same records. For identical scope it returned 21 rows against the portal's 19. The two extras are the same records emitted twice at different ResultIndex positions, confirmed by identical Identity. No error, no warning: an analyst counting rows overcounts by ten percent. |
+| 93 | Guide describes export as taking time. Export is a second asynchronous job with its own progress state, not a slow download, and the Export control remains greyed after the completion banner renders. |
+| 93 | Guide implies a submitted search's criteria are lost from the form. The form does reset to defaults on submit, but the completed job restates the full query in a Search Query Information header — which also renders unresolved format tokens {9} {10} {11} {12} in place of the empty optional criteria. |
+| 94 | Guide: sampling options only become available after statistics have been generated. Statistics and Sample are mutually exclusive radio buttons chosen before the run, and the Sample tab is always reachable, always renders empty until its own Generate sample results action is invoked. Two independent jobs against one query; neither gates the other. |
+| 94 | Guide presents three partially-indexed options as peers on the search screen. Include partially indexed items ships unchecked, and checking it reveals two further nested options — one of them advanced indexing — plus a third-level warning about runtime. The advanced-indexing control cannot be discovered without first checking a box that is off by default. |
+| 94 | Guide: advanced indexing is the reprocessing pass that shows how much a search would have missed. It ran and reported Matches from advanced indexing 0 against a file that was present, plainly readable, and absent from the results. The remediation mechanism does not consider extension-excluded content to be a gap. |
+| 94 | Claude predicted the image-only control would be missed because OCR applies only after review-set collection. Falsified: the PNG returned while tenant OCR scanning was unchecked and greyed behind Syntex billing AND the case's own Enable OCR was unchecked. Text was extracted from image pixels by a path neither visible OCR setting governs. |
+| 94 | Claude predicted a non-zero partially-indexed count. Falsified: the count read 0 while a file containing the keyword sat unreturned in the searched location. |
+| 94 | Claude claimed the Content Search case pre-existed and was merely invisible, reading a blank Created column as evidence. Falsified by Case settings: the case was created 8/11/2026 8:51:57 PM +00:00, three minutes before the first search, i.e. on first access after the role grant. |
+| 94 | Claude claimed access persisting after role-group removal was explained by a direct case membership. The backend contradicted it — a write attempt returned 'you're not a member of this compliance case' while the Permissions page listed that membership. The persistence was a stale client view over a service that had already revoked. |

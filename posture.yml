@@ -3521,3 +3521,127 @@ entries:
       informational rather than as a live meter. Decision on keeping or
       deleting the IP is deferred to the 2026-08-12 cost read and depends on
       P89-10.
+  - id: POS-095
+    lab: "23"
+    setting: Unified audit log retrieval - the read side of the ingestion enabled in Lab 09
+    location: purview.microsoft.com > Audit > Search; and Exchange Online PowerShell (Get-AdminAuditLogConfig, Search-UnifiedAuditLog)
+    state: Ingestion enabled 2026-07-26 by cmdlet (POS-035) and never once read back. First retrieval 2026-08-11 - a bounded search over 2026-07-26 to 2026-08-11 for operation UserLoggedIn scoped to one identity returned 19 records, Completed, 100 percent, 3m 46s. Get-AdminAuditLogConfig still reads UnifiedAuditLogIngestionEnabled True at 16 days. The tenant had never run an audit search before this - the landing counters read Searches completed 0, Active 0, Active unfiltered 0, with No search history available
+    baseline: POS-035 established the write side only. A pipeline proven to ingest and never proven to retrieve is half a control
+    kind: hardened
+    production: Read back every logging pipeline after enabling it, on a schedule rather than once. Enablement and retrieval are separate claims and the gap between them can persist indefinitely without any surface reporting a fault. Pair the portal read with the cmdlet read - here they disagreed on row count
+    revisit: false
+    verified: 2026-08-11
+    note: >-
+      Closes a loop open for sixteen days. Three separate figures in this job
+      were unpopulated rather than empty and could each have been misread as an
+      answer: Total results 0 while Queued, a header reading 2 items beside a
+      single row on first read, and a mid-run count of 8 at 77.78 percent that
+      finished at 19. Progress rendered exactly 7/9, so the job steps a fixed
+      unit count rather than estimating - the mid-run figure is not
+      proportional and is not a partial answer.
+
+      Search-UnifiedAuditLog returned 21 rows for identical scope against the
+      portal's 19. Diffed rather than estimated: the export is a strict subset
+      and both extras are second occurrences of timestamps already present,
+      confirmed by identical Identity at two ResultIndex positions with
+      ResultCount 21. Nineteen distinct records, two emitted twice, no error
+      and no warning.
+
+      Not testable in this tenant: every record-retention figure in MOD-92.
+      Sixteen days of history cannot test 180 days, one year or ten. Recorded
+      as documented, never as measured.
+  - id: POS-096
+    lab: "23"
+    setting: eDiscovery Manager role group membership, and the eDiscovery access boundary
+    location: purview.microsoft.com > Settings > Roles and scopes > Role groups > eDiscovery Manager > Members; and eDiscovery > Content Search
+    state: Default membership 0 users and 0 security groups, verified on the role-group flyout and the Role groups list. Global Administrator does NOT inherit content-search access - Content Search refused with a Permission Error stating that content searches are part of an eDiscovery case and that the identity is not a member of it. There is no separate eDiscovery Administrator role group in this tenant; Administrator is a membership tier inside eDiscovery Manager, offered as Add Administrators alongside Add Managers on one group. The group carries 10 roles including Hold and RMS Decrypt, and is not decomposable
+    baseline: Shipped state - the role group exists and is empty. Confirmed against a full export of all 69 role groups in the tenant
+    kind: default
+    production: Separation of duties working as designed and worth preserving. A tenant administrator can manage every service and still not read the organisation's mail and documents. Grant the Manager tier rather than Administrator, and note that the minimum sufficient privilege for content search still carries Hold and RMS Decrypt because the role group cannot be split
+    revisit: false
+    verified: 2026-08-11
+    note: >-
+      This is MOD-92's licensing trap on a second axis. Premium audit events are
+      generated for a user only after the licence is assigned to that account;
+      content-search access exists only after the role group is assigned.
+      Entitlement is not assignment, twice, in consecutive modules.
+
+      The refusal rendered TWO stacked modals. On top, a Client Error reading
+      only "Missing required permissions to view case". Beneath it, a
+      Permission Error carrying the cause and the remedy in full. The useless
+      one renders first, so a user who dismisses it and navigates away never
+      sees the actionable one.
+
+      Page chrome rendered fully behind both - Case settings, Process manager,
+      Summarize this case, and the descriptive text - while every data-bearing
+      element was withheld. Stated precisely: case-scoped action buttons render
+      without the case being readable.
+  - id: POS-097
+    lab: "23"
+    setting: Temporary eDiscovery Manager grant and its revocation - measured before, during and after
+    location: purview.microsoft.com > Settings > Roles and scopes > Role groups > eDiscovery Manager; and eDiscovery > Cases, Content Search, Case settings > Permissions
+    state: admin added to eDiscovery Manager at the Manager tier, then removed the same session. Grant propagated within about 5 minutes with no sign-out and no token refresh - the Cases list went from 0 items to the Content Search case rendering Active. The case was CREATED by the grant, not merely made visible - Case settings gives Case created 8/11/2026 8:51:57 PM +00:00, three minutes before the first search. After removal, with the role group confirmed at 0 users on three surfaces, the portal continued to render the case and its search list across two reads fifteen minutes apart. A write attempt then returned Microsoft.Exchange.Management.Tasks.ComplianceCaseMemberTaskException - you do not have access because you are not a member of this compliance case - and the Cases list immediately read 0 items again
+    baseline: No eDiscovery role assignments in the tenant before this lab; POS-096 records the empty default
+    kind: weakening
+    production: Verify a revocation by attempting an operation, not by reading a permissions surface. Every role-management surface and the case's own Permissions page rendered a state the service did not honour. Where a revocation matters, follow it with a deliberate failed action as the proof
+    revisit: true
+    verified: 2026-08-11
+    note: >-
+      configured != effective on the REVOCATION side, which is the more
+      dangerous direction. An administrator would remove the role, verify it on
+      exactly the surfaces built for that question, and reasonably conclude the
+      boundary had closed. Three role surfaces agreed it had. The service
+      disagreed and only a write attempt exposed it.
+
+      Two claims made during the lab were falsified here and are recorded
+      rather than removed. First, that the case pre-existed and was merely
+      invisible - a blank Created column was read as evidence, and Case
+      settings disproved it. Second, that persisting access was explained by a
+      direct case membership materialised on first access - the Permissions
+      page did list that membership, and the backend refused a write on the
+      grounds that it did not exist. The persistence was a stale client view
+      over a service that had already revoked.
+
+      The refused write surfaced a raw .NET exception type and a case GUID
+      directly in a customer-facing dialog, under the same generic Client Error
+      title used for the unrelated refusal in POS-096. The diagnostic payload
+      offered behind that dialog was not captured and is not reproducible from
+      this identity now that access has closed.
+
+      revisit true - the grant/revoke cycle should be re-measured if any
+      eDiscovery role is ever assigned again, and the Content Search case and
+      LAB-EDISC-MOD94-A search remain in the tenant, inaccessible to admin.
+  - id: POS-098
+    lab: "23"
+    setting: Optical character recognition, and what content search indexes
+    location: purview.microsoft.com > Settings > Roles and scopes > Optical character recognition (OCR); and eDiscovery > Content Search > Case settings > Search & analytics
+    state: Tenant OCR scanning UNCHECKED and GREYED, blocked behind Microsoft Syntex billing, charged per use - with PNG explicitly listed among its supported formats. The case's own Enable OCR also UNCHECKED. A content search nonetheless returned a PNG whose only occurrence of the search term was rendered pixels, verified before upload to carry no tEXt/iTXt/zTXt chunks and no literal string in the file bytes. In the same search a plain-ASCII file with an unrecognised extension, containing the term in body text, did NOT return - and was reported as Partially indexed items 0, then as Matches from advanced indexing 0 on a rerun with advanced indexing enabled
+    baseline: Both OCR controls at their shipped values; neither was changed. Try for free on the OCR estimation trial was deliberately not selected - it starts a 30-day clock and is mutually exclusive with enabling scanning
+    kind: default
+    production: Do not treat the partially-indexed report as a complete account of what a search missed. Establish coverage by planting a known population and measuring what returns, not by reading the gap surface. Where a defensible answer matters, the gap surface is a floor on what was missed, not a measure of it
+    revisit: true
+    verified: 2026-08-11
+    note: >-
+      Two findings, opposite directions, one search.
+
+      Text was extracted from image pixels on a path that neither visible OCR
+      setting governs. A prediction that the image would be missed because OCR
+      applies only after review-set collection was FALSIFIED; a reviewer had
+      flagged that pre-explanation as improper before the test ran.
+
+      The unindexed file is the sharper result. Three surfaces reported no gap:
+      absent from results, Partially indexed items 0 (0 B), and Matches from
+      advanced indexing 0 (0 B). The advanced-indexing pass demonstrably ran -
+      the card set changed and the run took roughly six minutes against one -
+      and found nothing. Extension-based exclusion sits outside the
+      partially-indexed model entirely, so it is not a gap the tooling is built
+      to report and no amount of opting in reveals it.
+
+      The gap surface is also off by default. Include partially indexed items
+      ships unchecked, and checking it reveals two further nested options - one
+      of them advanced indexing - plus a third-level runtime warning. The
+      advanced-indexing control cannot be discovered without first checking a
+      box that is off.
+
+      Why the .labx is excluded - extension, content sniffing, or indexer
+      policy - is NOT established. Only that it is. revisit true.

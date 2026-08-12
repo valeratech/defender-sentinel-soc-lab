@@ -2720,12 +2720,12 @@ entries:
     lab: "16"
     setting: Microsoft 365 app connector - Connected, and silent
     location: Defender > Cloud apps > Connected apps > App connectors
-    state: Microsoft 365 connector present and Connected. "Was connected on Jul 15 2026 5:18 AM" (suspected UTC, no wall-clock anchor - would place it Jul 14 22:18 PDT, provisioning-adjacent). Last activity - . Zero user telemetry as of 2026-08-05
+    state: Microsoft 365 connector present and Connected. "Was connected on Jul 15 2026 5:18 AM" (suspected UTC, no wall-clock anchor - would place it Jul 14 22:18 PDT, provisioning-adjacent). Last activity - . Zero user telemetry as of 2026-08-05, still zero and Last activity still - on 2026-08-12. MECHANISM - the Select Microsoft 365 components page has five of six checkboxes unchecked including Microsoft 365 activities; the sixth (Entra Users and groups) is checked and locked
     baseline: Connector auto-created at provisioning, not requested
     kind: gap
-    production: A connector reporting Connected with no activity is a monitoring gap that no dashboard raises. Production needs an alert on connector inactivity, not a periodic human glance at a status column
+    production: A connector reporting Connected with no activity is a monitoring gap that no dashboard raises. Production needs an alert on connector inactivity, not a periodic human glance at a status column. Alert on the component selection too - a connector can pass its own connectivity test with the collection it exists for switched off
     revisit: true
-    verified: 2026-08-04
+    verified: 2026-08-12
     note: >-
       THREE independent surfaces agree the connector carries no user
       telemetry: the Activity log holds five events, all administrative; the
@@ -2747,6 +2747,65 @@ entries:
       This entry is the strongest available explanation for POS-069's zero,
       and the reason that zero is recorded as divergence-with-mechanism-open
       rather than as a calibration result.
+
+      MECHANISM RESOLVED 2026-08-12, eight days later, and it was a
+      configuration this entry had no reason to suspect. The connector's own
+      Select Microsoft 365 components page carries six checkboxes. FIVE ARE
+      UNCHECKED - Microsoft Entra ID Management events, Microsoft Entra ID
+      Sign-in events, Microsoft Entra ID Apps, MICROSOFT 365 ACTIVITIES, and
+      Microsoft 365 files. The sixth, Microsoft Entra Users and groups, is
+      checked and greyed - it cannot be unchecked. That single enabled
+      component is what Protected accounts 3 reports on, and it is the whole
+      of what this connector collects.
+
+      Microsoft's own advanced hunting documentation names this exact control
+      as the prerequisite: "To make sure the CloudAppEvents table is
+      populated: Go to the Defender portal and select Settings > Cloud apps >
+      App connectors. In the Select Microsoft 365 components page, select the
+      Microsoft 365 activities checkbox."
+      (advanced-hunting-cloudappevents-table, ms.date 05/15/2025.) The page
+      itself states the consequence: "unchecked options prevent some security
+      features from functioning properly."
+
+      So the answer was documented and on-screen the entire time, three
+      non-obvious interactions away from every surface that reports health.
+      The route: select the row's CHECKBOX to reveal an action bar above the
+      table, then Edit settings. The overflow menu item literally labelled
+      "View App connector settings" navigates to a filtered list view, not to
+      settings. Cancel on the components wizard drops the connector context
+      entirely.
+
+      TEST CONNECTION: SUCCESS IS NOT EVIDENCE OF EFFECTIVE COLLECTION. Run
+      live on 2026-08-12, the connector's Test connection returned Success in
+      green, and Last health check read "an hour ago" on two readings roughly
+      an hour apart - so a scheduled check is running and passing. It was
+      passing against a connector with Microsoft 365 activities unchecked,
+      five of six components disabled, and the expected activity absent. The
+      test establishes that authentication and reachability work. It
+      establishes nothing about whether anything is being collected. This is
+      recorded here as supporting evidence for the resolved mechanism rather
+      than as a separate divergence row: it is one evidence chain, not an
+      independent expected-versus-observed claim.
+
+      Connected / Healthy / Success are not effective telemetry collection.
+
+      CORROBORATION EXTENDED. CloudAppEvents now reads 0 rows ACROSS ALL TIME,
+      not 0 over 7 days - a bare | count, with AlertInfo (30 rows) and
+      DeviceLogonEvents (86) in the same session as the control proving the
+      query surface works. The connector's own app dashboard renders Active
+      users and Activity chart both flat at zero across 07/12 to 08/11 with a
+      blank location map. Five surfaces now, spanning a month.
+
+      DELIBERATELY NOT REMEDIATED. The checkbox is left unchecked. Turning it
+      on is a configuration change that earns its own predeclared measurement
+      list - first-arrival latency into CloudAppEvents, whether it backfills,
+      when Last activity moves, how long the dashboard charts take - rather
+      than being flipped as a side effect of an investigation. The default as
+      provisioned is now recorded, which is what makes that experiment
+      possible later.
+
+      revisit stays true: the mechanism is closed, the remediation decision
+      is open.
 
   - id: POS-069
     lab: "16"

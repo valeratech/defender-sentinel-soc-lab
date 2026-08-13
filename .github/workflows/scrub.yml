@@ -41,9 +41,21 @@ jobs:
 
       - name: Install gitleaks
         run: |
-          curl -sL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
-            | tar xz gitleaks
-          sudo mv gitleaks /usr/local/bin/
+          # Download and extract as SEPARATE commands. The 2026-08-12 failure
+          # surfaced from tar as "gzip: stdin: not in gzip format", obscuring
+          # the download failure that preceded it. With this workflow's default
+          # shell, a pipeline reports tar's status rather than curl's.
+          # Separating the commands lets curl fail before tar is invoked.
+          #
+          # -S restores curl's error text (which -s suppresses). Staged through
+          # RUNNER_TEMP so the checked-out workspace stays byte-identical and
+          # neither the history scan nor the image glob can see the installer.
+          curl --version | head -1
+          curl -sSL --fail \
+            -o "${RUNNER_TEMP}/gitleaks.tar.gz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          tar xzf "${RUNNER_TEMP}/gitleaks.tar.gz" -C "${RUNNER_TEMP}" gitleaks
+          sudo mv "${RUNNER_TEMP}/gitleaks" /usr/local/bin/
           gitleaks version
 
       # THE COUNT IS THE ASSERTION.
@@ -114,9 +126,21 @@ jobs:
 
       - name: Install gitleaks
         run: |
-          curl -sL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
-            | tar xz gitleaks
-          sudo mv gitleaks /usr/local/bin/
+          # Download and extract as SEPARATE commands. The 2026-08-12 failure
+          # surfaced from tar as "gzip: stdin: not in gzip format", obscuring
+          # the download failure that preceded it. With this workflow's default
+          # shell, a pipeline reports tar's status rather than curl's.
+          # Separating the commands lets curl fail before tar is invoked.
+          #
+          # -S restores curl's error text (which -s suppresses). Staged through
+          # RUNNER_TEMP so the checked-out workspace stays byte-identical and
+          # neither the history scan nor the image glob can see the installer.
+          curl --version | head -1
+          curl -sSL --fail \
+            -o "${RUNNER_TEMP}/gitleaks.tar.gz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          tar xzf "${RUNNER_TEMP}/gitleaks.tar.gz" -C "${RUNNER_TEMP}" gitleaks
+          sudo mv "${RUNNER_TEMP}/gitleaks" /usr/local/bin/
           gitleaks version
 
       - name: Scan images

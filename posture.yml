@@ -3766,3 +3766,53 @@ entries:
 
       Why the .labx is excluded - extension, content sniffing, or indexer
       policy - is NOT established. Only that it is. revisit true.
+
+  - id: POS-100
+    lab: "24"
+    setting: Office 365 E5 trial subscription lifecycle across its stated expiration date
+    location: admin.microsoft.com > Billing > Your products > Products > Office 365 E5;
+      and Users > Active users > admin > Licenses and apps
+    state: "Subscription reports Subscription status: Active on all three billing surfaces
+      on 2026-08-14, one day past its rendered expiration date of 8/13/2026. Assigned 1 /
+      purchased 25 / available 24, unchanged across three reads. The licence remains checked
+      and assigned to admin. The row is present under a fully widened seven-status filter,
+      so its presence is a property of the tenant and not of the default view. Extend trial
+      end date renders live; the one trial extension has never been consumed."
+    baseline: "Trial acquired 2026-07-14. Microsoft 365 E5 was extended to 2026-09-14 on
+      2026-08-06; Office 365 E5 was deliberately not extended. No subscription control has
+      been operated at any point."
+    kind: default
+    production: "An expiration date rendered on a billing surface is not evidence that
+      entitlement has ended. Do not build access reviews, licence reclamation, or offboarding
+      logic on a rendered expiry date alone; verify against subscription status, and verify
+      status against more than one surface."
+    revisit: true
+    verified: 2026-08-14
+    note: "The lapse has not processed, so the ongoing-dependency question Lab 24 was built
+      to answer remains open. What the lab established is narrower: crossing the stated
+      expiration date produced no observed change to Microsoft 365 E5, its entitlement, or
+      the Defender portal. P24-1, P24-2 and P24-4 are therefore recorded as holding but not
+      stress-tested, and P24-8 and P24-9 as untestable rather than falsified. Resolves when
+      the lapse processes or when the tenant ends."
+
+  - id: POS-101
+    lab: "24"
+    setting: Your products default subscription-status filter
+    location: admin.microsoft.com > Billing > Your products > Products > Subscription status
+      filter chip
+    state: "Ships showing five of seven statuses. Checked as found: Active, Pending,
+      Scheduled, Expired, Disabled. Unchecked as found: Deleted, Failed. Read as-found twice,
+      2026-08-12 and 2026-08-14, unchanged across the subscription's expiration date. The chip
+      label reads +2 in the default state and +4 when all seven are applied, which is the only
+      indicator that a widened selection was committed."
+    baseline: Shipped default; never changed before this lab. Widened to all seven on
+      2026-08-14 as a read, then recorded.
+    kind: default
+    production: "A subscription's absence from this page is a statement about the filter until
+      the filter is widened. Deleted and Failed subscriptions are excluded by default, so an
+      inventory or reconciliation built on the default view under-reports silently."
+    revisit: false
+    verified: 2026-08-14
+    note: "The repository's recurring unpopulated-is-not-empty shape on a billing surface.
+      Widening to all seven returned the same 3 items, which is what converts Lab 24's item
+      count from a filter statement into a tenant statement."

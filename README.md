@@ -151,8 +151,9 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [21](labs/21-nrt-execution-semantics/) | NRT Execution Semantics: The Hour That Never Holds an Hour | ✅ Built and measured |
 | [22](labs/22-endpoint-prevention-and-air/) | Endpoint Prevention and Automated Investigation: What Audit Mode Did Not Audit | ✅ Built and measured |
 | [23](labs/23-purview-audit-and-ediscovery/) | Purview Audit and eDiscovery: Two Data Planes, and the File Neither One Reports | ✅ Built and measured |
+| [24](labs/24-licensing-lifecycle-dependency/) | Licensing Lifecycle: A Subscription Past Its Stated Expiration Date and Still Active | ✅ Built and measured |
 
-*24 labs. Generated from each lab's own `README.md` by `scripts/build-lab-index.py` and CI-enforced — the lab pages are authoritative for their titles and statuses; this table mirrors them.*
+*25 labs. Generated from each lab's own `README.md` by `scripts/build-lab-index.py` and CI-enforced — the lab pages are authoritative for their titles and statuses; this table mirrors them.*
 
 <!-- END GENERATED LAB INDEX -->
 

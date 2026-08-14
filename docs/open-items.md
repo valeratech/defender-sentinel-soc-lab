@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**22 open item(s) across 12 file(s).**
+**24 open item(s) across 13 file(s).**
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -88,6 +88,15 @@ Status: ✅ Built and measured — divergence confirmed, mechanism open
 | Line | Section | Item |
 |---|---|---|
 | 112 | How the zero must be read | *(pending)* — the MDE-side discovery toggle (Settings → Endpoints → Advanced |
+
+## `labs/24-licensing-lifecycle-dependency/README.md`
+
+Status: ✅ Built and measured — three reads across three dates, zero cost, no tenant object modified
+
+| Line | Section | Item |
+|---|---|---|
+| 395 | 9. What this cost, and what was left behind | *(pending — per-licence service-plan expansion, and whether `Apps (175)` moves when Office 365 E5 is |
+| 409 | 9. What this cost, and what was left behind | *(pending — acquisition-order prediction resolves on a future clean tenant, not in this repository)* |
 
 ## `lessons/MOD-57-entities-and-ueba.md`
 

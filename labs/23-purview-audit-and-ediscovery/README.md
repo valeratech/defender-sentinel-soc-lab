@@ -28,19 +28,19 @@
 > Three surfaces, three zeros, and a readable file sitting in the searched
 > location containing the exact term.
 >
-> The module could not begin at all until a refusal was resolved — and that
+> The assignment could not begin at all until a refusal was resolved — and that
 > refusal, granted and then revoked, turned out to carry the sharper finding.
 
 ---
 
 ## 1. Objective
 
-Modules 92, 93 and 94 are one lab and three lesson files. Module 92 is a tier
-and licensing read producing no tenant state; modules 93 and 94 are two
+The audit-tier, audit-log-search and eDiscovery guides are one lab and three evidence notes. The audit-tier guide is a tier
+and licensing read producing no tenant state; the audit-log-search guide and eDiscovery guide are two
 investigation surfaces exercised in one continuous session against the same
 tenant. Splitting them would separate an audit-log search from the content
 search performed twelve minutes later on the same portal by the same identity.
-Precedent: Lab 20 combined modules 85, 87 and 88; Lab 22 combined 90 and 91.
+Precedent: Lab 20 combined the capacity-creation, Copilot-investigation and capacity-teardown guides; Lab 22 combined the endpoint-prevention guide and endpoint-detections walkthrough.
 
 The distinction the section rests on, and the reason both surfaces belong in one
 lab:
@@ -71,7 +71,7 @@ Three things were in scope that no prior lab had covered:
 Registered before portal contact. Withdrawals and falsifications are recorded on
 the record; four of my own predictions were falsified and one was withdrawn.
 
-**Phase A — MOD-93**
+**Phase A — audit log search** (`docs/evidence-notes/purview-audit-log-search.md`)
 
 | ID | Claim | Result |
 |---|---|---|
@@ -86,7 +86,7 @@ the record; four of my own predictions were falsified and one was withdrawn.
 | `P93-9` | The friendly-name vocabulary is not unique | **CONFIRMED** (registered mid-phase) |
 | `P93-10` | A submitted job's criteria are not recoverable | **FALSIFIED** (registered mid-phase) |
 
-**Phase B — MOD-94**
+**Phase B — eDiscovery content search** (`docs/evidence-notes/ediscovery-content-search.md`)
 
 | ID | Claim | Result |
 |---|---|---|
@@ -239,7 +239,7 @@ pre-explanation, and two claims about the case lifecycle in §8.5.
 
 ### 7.1 The cost model has three mechanisms, not one
 
-`MOD-92`'s guide places auditing on the per-user licensing side, with no
+The source guide behind `docs/evidence-notes/purview-audit-tiers-and-licensing.md` places auditing on the per-user licensing side, with no
 consumption charge for enabling or searching. The Audit solution's own left
 navigation carries **`Pay-as-you-go usage report`**, and
 `Settings → Roles and scopes → Optical character recognition (OCR)` states that
@@ -472,7 +472,7 @@ and a case GUID directly in a customer-facing dialog, under the same generic
 Same session, same identity, same page. The first is a content-level failure
 after a successful invocation; the second is an availability refusal.
 
-**This narrows `POS-091`.** MOD-88 tore down Security Copilot capacity, and
+**This narrows `POS-091`.** `docs/evidence-notes/tearing-down-copilot-capacity.md` tore down Security Copilot capacity, and
 `POS-091` recorded the missing Defender pane as *"torn down and therefore
 absent."* The summarizer here is consistent with that. The KeyQL drafter is
 **not gated on that capacity** and ran without it. The earlier framing remains

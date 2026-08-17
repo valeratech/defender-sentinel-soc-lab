@@ -33,7 +33,7 @@ sign-ins are self-triggerable. Both VMs stayed deallocated.
 
 | Decision | Chosen | Alternative | Rationale |
 |---|---|---|---|
-| Check templates first | **Yes** | Author blind | Lab 10's lesson, applied one module later. Found `Brute force attack against Azure Portal` covering exactly the intended activity |
+| Check templates first | **Yes** | Author blind | Lab 10's lesson, applied one guide later. Found `Brute force attack against Azure Portal` covering exactly the intended activity |
 | Enable *and* author | **Both** | One or the other | Converts Lab 10's accidental overlap into a designed comparison — Microsoft's logic beside a naive threshold rule, one trigger testing both |
 | Rule type | **Scheduled** ×2 | NRT | NRT cannot aggregate over a window, and counting failures across an hour is exactly that. NRT is structurally unsuitable for brute force, which the guide does not say while calling it the recommended default for high-priority detections |
 | Distinguishing field | **Severity** — Medium vs **Low** | Name only | Severity is what separated the custom and built-in alerts in Lab 10; and Low is honest, a raw count being lower fidelity than deviation logic |
@@ -147,8 +147,8 @@ pane been authoritative, the rule would have produced alerts that never reached
 the incident queue.
 
 **Sentinel scheduled alerts receive no automated investigation.** All incidents
-read `Unsupported alert type`, where Lab 10's MDO incident reads `Queued`. Module
-53 established that an alert is not an action; **for Sentinel-authored rules there
+read `Unsupported alert type`, where Lab 10's MDO incident reads `Queued`. The actions-and-submissions guide
+established that an alert is not an action; **for Sentinel-authored rules there
 is no action path at all**.
 
 **Twelve incidents is worse than twelve notifications.** Lab 10's duplicate cost

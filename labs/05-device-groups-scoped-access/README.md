@@ -9,7 +9,7 @@
 | **Built** | 2026-07-19 |
 
 > Numbered 05 rather than 04 to avoid renumbering `labs/04-sentinel-workspace`.
-> Course-module order (device groups precede Sentinel) and repo lab-number order
+> The source course's order (device groups precede Sentinel) and repo lab-number order
 > diverge here by one; the lab number is an opaque handle, not a sequence claim —
 > the same rule that keeps guide handles stable (see `configuration-inventory.md`).
 

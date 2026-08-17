@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | **Domain** | AI-assisted investigation / metered capacity |
-| **Objectives** | Provision Security Copilot capacity against a fixed cost ceiling (module 85, G62); interrogate a *previously documented* incident and score the answers against the committed record (module 87, G64); tear down inside one clock hour (module 88, G65) |
-| **Depends on** | Lab 19 (incident 24 — the measurement target, documented across seven surfaces), Lab 18 (Orders 1 and 2 still on the incident), Lab 11 (`DET-004`, the detection), `POS-016` (delete-to-stop billing), `POS-033` (Defender for Cloud declined — forecloses module 86), `POS-058` (Azure credit structurally unreachable) |
+| **Objectives** | Provision Security Copilot capacity against a fixed cost ceiling (the capacity-creation guide, G62); interrogate a *previously documented* incident and score the answers against the committed record (the Copilot investigation guide, G64); tear down inside one clock hour (the capacity-teardown guide, G65) |
+| **Depends on** | Lab 19 (incident 24 — the measurement target, documented across seven surfaces), Lab 18 (Orders 1 and 2 still on the incident), Lab 11 (`DET-004`, the detection), `POS-016` (delete-to-stop billing), `POS-033` (Defender for Cloud declined — forecloses the sample-alerts exercise), `POS-058` (Azure credit structurally unreachable) |
 | **Status** | ✅ Built and measured — provisioned 11:00:07, torn down inside the same clock hour |
 | **Built** | 2026-08-09 |
 | **Cost** | 1 provisioned SCU, 1 clock hour. **$4.00 accrued and attributed** — single `Provisioned Security Compute Unit` meter row dated 08-09, matching this lab's resource group total. Invoice confirmation still open (`P20-11`) |
@@ -37,7 +37,7 @@
 
 ## 1. Objective
 
-Modules 85, 87 and 88 are one build-measure-teardown unit. Module 86 (sample
+The capacity-creation, Copilot-investigation and capacity-teardown guides are one build-measure-teardown unit. The sample-alerts guide (sample
 alerts) is **skipped and pre-refuted** — see §7.
 
 Three things this lab measures rather than accepts:
@@ -60,10 +60,10 @@ the ceiling was enforced by the clock and by configuration, not by credit.
 
 | Control | Decision | Basis |
 |---|---|---|
-| Provisioned SCUs | **1** (minimum) | `MOD-83` |
-| Overage | **Limited to 0** | `MOD-83`, written before any price was seen |
+| Provisioned SCUs | **1** (minimum) | `docs/evidence-notes/security-compute-units-capacity.md` |
+| Overage | **Limited to 0** | `docs/evidence-notes/security-compute-units-capacity.md`, written before any price was seen |
 | Resource group | **dedicated, created empty in advance** | teardown interlock — see §6 |
-| Provision time | **on the hour boundary** (11:00:07) | clock-hour billing, `MOD-83` |
+| Provision time | **on the hour boundary** (11:00:07) | clock-hour billing, `docs/evidence-notes/security-compute-units-capacity.md` |
 | Deletion | **inside the same block** (11:23) | one unit |
 
 **Ceiling $10. Actual: one clock hour.**
@@ -122,7 +122,7 @@ Written before provisioning. Withdrawals recorded, never edited away.
 
 **The Create form defaulted the resource group to `NetworkWatcherRG`** — the
 alphabetically first group, not the one created for this lab. Uncorrected, the
-capacity would have landed there and module 88's *delete the resource group*
+capacity would have landed there and the capacity-teardown guide's *delete the resource group*
 teardown would have targeted it. Caught by capturing defaults before filling
 the form. **The dedicated resource group is the safety interlock for the
 teardown step, not a tidiness preference.**
@@ -143,9 +143,9 @@ propagation, confirmed by re-reading the capacities blade rather than clicking
 checkbox enables nothing; `Delete resource group` exists only inside the
 group's own Overview blade.
 
-## 7. Module 86 — skipped, and pre-refuted rather than declined
+## 7. The sample-alerts exercise — skipped, and pre-refuted rather than declined
 
-Module 86 populates a tenant with Defender for Cloud **sample alerts**.
+The sample-alerts exercise populates a tenant with Defender for Cloud **sample alerts**.
 Generating them requires selecting the Defender plans to generate for, and
 those alerts exist only where a plan is enabled. **This subscription has none**
 — `POS-033` records Defender for Cloud declined at Lab 04, and names the
@@ -153,15 +153,15 @@ consequence already being paid: no Defender for Servers P2, therefore no
 500 MB/day/server allowance, therefore the DCR tier as the only cost lever.
 
 So the skip is not a cost preference. A recorded architectural decision
-forecloses the module, and reversing it would have opened a **second meter on a
+forecloses the exercise, and reversing it would have opened a **second meter on a
 different billing basis** inside the paid hour.
 
-**It was never load-bearing.** Module 87 needs an *incident ID*, not Microsoft's
+**It was never load-bearing.** The Copilot-investigation guide needs an *incident ID*, not Microsoft's
 synthetic alerts — and using a real, already-documented incident is what made
 the measurement possible at all.
 
 This is the second instance in two sessions of a committed finding
-**pre-refuting a later module's advice** (`POS-058` did it to `MOD-84`).
+**pre-refuting a later guide's advice** (`POS-058` did it to `docs/evidence-notes/before-allocating-scus.md`).
 
 ## 8. Findings
 
@@ -209,7 +209,7 @@ Administrator, Security Administrator, **Intune Administrator**, **Conditional
 Access Administrator**, and three Purview roles — granted owner rights over
 usage monitoring, plugin management and role assignment, with no control on the
 screen to remove any of them. The grant is to *roles*, so anyone who ever holds
-Intune Administrator inherits Copilot ownership silently. `MOD-82`'s claim that
+Intune Administrator inherits Copilot ownership silently. The claim in `docs/evidence-notes/security-copilot-overview.md` that
 Copilot inherits the analyst's permissions holds for **data** and not for
 **control**: service ownership is Copilot-native and was assigned by default.
 
@@ -219,7 +219,7 @@ tooltip states Microsoft does not charge for the extra units needed to finish an
 in-flight operation. **This is documented in none of guides 60–65.** An earlier
 claim that the unlimited-overage default *would have* billed $6 for that 0.5 is
 **withdrawn** — the evidence does not support it, and what the cap prevented on
-this session is unknown. The `MOD-83` decision stands on its own reasoning.
+this session is unknown. The `docs/evidence-notes/security-compute-units-capacity.md` decision stands on its own reasoning.
 
 **The throttle condition is only legible after the fact.** No warning fired at
 1.0. A warning triangle sat on the capacity tab with **no tooltip and no
@@ -247,7 +247,7 @@ provisions through apiVersion **`2024-11-01-preview`**.
 all`. Usage monitoring offers a page 2 that holds nothing. A Message center
 search for `Security Copilot` returns **five items, none about Security
 Copilot** — four Purview agent notices matched because those agents *run on*
-SCUs, which is `MOD-83`'s correction seen from the other side.
+SCUs, which is the correction recorded in `docs/evidence-notes/security-compute-units-capacity.md` seen from the other side.
 
 ## 9. References
 

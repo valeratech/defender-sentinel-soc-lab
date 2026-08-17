@@ -98,26 +98,26 @@ Status: ✅ Built and measured — three reads across three dates, zero cost, no
 | 395 | 9. What this cost, and what was left behind | *(pending — per-licence service-plan expansion, and whether `Apps (175)` moves when Office 365 E5 is |
 | 409 | 9. What this cost, and what was left behind | *(pending — acquisition-order prediction resolves on a future clean tenant, not in this repository)* |
 
-## `lessons/MOD-57-entities-and-ueba.md`
+## `docs/evidence-notes/analytics-rules.md`
 
 Status: —
 
 | Line | Section | Item |
 |---|---|---|
-| 102 | What could not be tested | evidence. *(pending)* |
+| 93 | What could not be tested | summarized result. *(pending)* |
 
-## `lessons/MOD-59-analytics-rules.md`
-
-Status: —
-
-| Line | Section | Item |
-|---|---|---|
-| 96 | What could not be tested | summarized result. *(pending)* |
-
-## `lessons/MOD-77-incident-investigation.md`
+## `docs/evidence-notes/entities-and-ueba.md`
 
 Status: —
 
 | Line | Section | Item |
 |---|---|---|
-| 60 | What could not be tested | until the admin-side comparison is read (tracked as *(pending)* in Lab 17). |
+| 99 | What could not be tested | evidence. *(pending)* |
+
+## `docs/evidence-notes/incident-investigation.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 57 | What could not be tested | until the admin-side comparison is read (tracked as *(pending)* in Lab 17). |

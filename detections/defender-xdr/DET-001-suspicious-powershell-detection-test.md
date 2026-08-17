@@ -71,7 +71,7 @@ Defender rendered a **Suspicious** verdict on the IP `127.0.0.1` — loopback,
 which cannot be attacker infrastructure. It was flagged only because it appeared
 in a malicious-looking download. Any custom IOC pipeline that promotes
 auto-extracted "suspicious" IPs to indicators (Defender → Cloud Apps →
-indicator auto-add, per the module 29 settings reference) would need to exclude
+indicator auto-add, per the endpoint-settings reference guide) would need to exclude
 loopback and RFC 1918 space, or it would generate block indicators against
 addresses that mean nothing. Recorded as the first concrete member of the same
 false-positive family as the `senseir.exe` benign-PowerShell pattern

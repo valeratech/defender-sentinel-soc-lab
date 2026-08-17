@@ -20,7 +20,7 @@
 
 ## 1. Objective
 
-Module 71 creates an insider risk policy. This lab treats the assignment as an
+The insider-risk assignment creates an insider risk policy. This lab treats the assignment as an
 instrument, and the instrument is the *trigger*: IRM policies do nothing until a
 triggering event fires, and the wizard offers "User matches a DLP policy" as the
 first-class option. Lab 14 had just produced a DLP policy. Pointing one at the

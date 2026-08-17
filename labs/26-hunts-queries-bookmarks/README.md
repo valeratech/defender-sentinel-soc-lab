@@ -5,7 +5,7 @@
 | **Domain** | Microsoft Sentinel hunting — hunts, hunting queries, bookmarks, and the `HuntingBookmark` table |
 | **Objectives** | Build the full hunt → query → results → bookmark chain, and determine at which link it breaks and why |
 | **Depends on** | `POS-034` (Entra ID connector, `SigninLogs` connector-fed), `POS-045`/`POS-046` (the tenant's two analytics rules), `DET-004` (validated brute-force detection, same logic as the hunting query authored here), Lab 11 (the trigger method reused) |
-| **Status** | ✅ Built and measured — four modules, three sittings, every registered prediction closed |
+| **Status** | ✅ Built and measured — four source guides, three sittings, every registered prediction closed |
 | **Built** | 2026-08-14 through 2026-08-16 |
 | **Cost** | $0.00. Hunts and queries are control-plane objects; one bookmark row; six sign-in events. Query execution is not billed |
 
@@ -24,7 +24,7 @@
 
 ## 1. Objective
 
-Four course modules describe one chain: a hunt holds queries, queries produce
+Four source guides describe one chain: a hunt holds queries, queries produce
 results, results produce bookmarks, bookmarks promote to incidents. They are one
 evidence chain and therefore one lab.
 
@@ -34,8 +34,8 @@ whether mappings propagate along the chain.
 
 ## 2. Predictions
 
-Registered per module before portal contact. Prefixes are module-scoped and match
-no repo counter — see the lessons' `corrections:`.
+Registered per source guide before portal contact. Prefixes echo the retired course numbering and match
+no repo counter — see the evidence notes' `corrections:`.
 
 | ID | Prediction | Outcome |
 |---|---|---|
@@ -51,7 +51,7 @@ no repo counter — see the lessons' `corrections:`.
 | P108-1 | Six failures, all `50126`, no lockout | **Confirmed on terms; premise questioned** |
 | P108-2 | Rows not immediately queryable | **Falsified** — latency floor unmeasured |
 | P108-3 | `DET-004` fires and produces an incident | **Confirmed** |
-| P108-4/-5/-6 | Bookmark count, mapping inheritance, table write | **Untestable by surface**, then answered via MOD-110 |
+| P108-4/-5/-6 | Bookmark count, mapping inheritance, table write | **Untestable by surface**, then answered via `docs/evidence-notes/search-jobs.md` |
 | P108-7 | Clone is hunt-local; main counters unmoved | **Confirmed** |
 | P110-5 | `Add bookmark` present in results reached from Sentinel | **Confirmed** |
 
@@ -115,7 +115,7 @@ text ≠ authored query text.**
 17 tactics, not 14. `Evasion`, `Impair Process Control`, `Inhibit Response
 Function` are ATT&CK for ICS. Inside Credential Access, T1414/T1417/T1453/T1517
 are ATT&CK for Mobile, and `Input Capture` appears twice under different IDs.
-Against MOD-104's 250 techniques / 14 tactics at `Matrices type view : 13
+Against the 250 techniques / 14 tactics recorded in `docs/evidence-notes/mitre-attack-coverage-matrix.md` at `Matrices type view : 13
 selected`, two surfaces in one product offer different tactic universes.
 
 ### 4.5 `count()` counts records, not attempts

@@ -23,19 +23,19 @@ Onboarding is deliberately separate from Lab 01's enrolment. Enrolment is
 *management* authority (policy, compliance); onboarding is *telemetry*. They
 travel different paths and, in this environment, only one of them works —
 `POS-022` records that Intune enrolment never fires, so the scalable
-Intune-driven onboarding path (module 26) is foreclosed and the local-script
+Intune-driven onboarding path (Intune mass-onboarding guide) is foreclosed and the local-script
 path is the only one available. That is not a preference. See §2.
 
 ## 2. Design Decisions
 
 | Decision | Chosen | Alternative | Rationale |
 |---|---|---|---|
-| Onboarding method | **Local script** | Intune EDR policy (module 26); Group Policy | The Intune path requires an Intune-enrolled device. `POS-022`: enrolment never fires here, so it is structurally unavailable — see the foreclosure table below. GPO requires AD-join; this is Entra-only. Local script is what remains. |
+| Onboarding method | **Local script** | Intune EDR policy (Intune mass-onboarding guide); Group Policy | The Intune path requires an Intune-enrolled device. `POS-022`: enrolment never fires here, so it is structurally unavailable — see the foreclosure table below. GPO requires AD-join; this is Entra-only. Local script is what remains. |
 | Elevation for the script | **Azure Run Command as SYSTEM — *attempted, unavailable*** → fell back to interactive `labadmin` via Bastion | RDP as `labadmin` (guide's method) | SYSTEM was chosen to keep an interactive privileged session off the endpoint (`POS-021`). Run Command and the VMAccess extension both hang without completing on this VM despite a Ready agent (`POS-028`), so SYSTEM was **not available**. The interactive `labadmin` path was forced, not preferred — and `labadmin` is the RID-500 local admin `POS-025` flags. |
 | Connectivity type | **Streamlined** | Standard | Default since 2024-05-08; consolidates service URLs under one domain. The VM has unrestricted egress, so either works; the choice is recorded and verified applied (`DeviceInfo.ConnectivityType`). |
 | Detection validation | **Microsoft's built-in detection test** | Wait for organic activity | A synthetic, benign trigger produces a known, timeable signal. Organic activity on a lab VM is sparse and unpredictable. |
 
-### Module 26 (Intune mass onboarding) — foreclosed, with the chain that breaks it
+### The Intune mass-onboarding path — foreclosed, with the chain that breaks it
 
 The scalable pattern chains three independent layers. This environment breaks
 the chain at all three, each break already a verified posture entry:
@@ -50,7 +50,7 @@ Fixing layer 1 alone would not produce a working control: the risk-back path
 (`POS-011`) is independently off, and `POS-018` (no vTPM) means the device could
 not satisfy a risk/attestation check even if it reached one. Three independent
 breaks. The local-script method is the only structurally available onboarding
-path in this tenant, and module 26 is documented rather than executed.
+path in this tenant, and the Intune mass-onboarding guide is documented rather than executed.
 
 ## 3. Build
 
@@ -95,9 +95,9 @@ below was observed, not assumed.
 | Connectivity applied | `DeviceInfo.ConnectivityType` | Streamlined | ✅ Streamlined; OnboardingStatus Onboarded |
 | Attribution | `AccountName` on process events | The account that acted | ✅ `labadmin` on the test process |
 | Detection→alert→incident | Run detection test, watch Incidents | Alert, correlated to an incident | ✅ "Suspicious PowerShell command line" (Medium), grouped into "Execution incident on one endpoint" (priority 35) |
-| **Device-side onboard** (module 27) | `Get-ItemProperty ...\Windows Advanced Threat Protection\Status` in `labadmin`'s session | `OnboardingState = 1` | ✅ `OnboardingState 1`; `OrgId` populated (correct tenant — value not reproduced) |
-| **Defender AV mode** | `Get-MpComputerStatus` → `AMRunningMode` | Normal (AV primary, no third-party) | ✅ **Normal**, `AntivirusEnabled True` — matters for module 33 ASR enforcement |
-| **ATT&CK mapping** (module 30) | Incident → alert summary | A technique, Defender-assigned | ✅ **`T1059.001` PowerShell** (Execution) — first *observed* coverage, tracked as `DET-001` |
+| **Device-side onboard** (device-side verification guide) | `Get-ItemProperty ...\Windows Advanced Threat Protection\Status` in `labadmin`'s session | `OnboardingState = 1` | ✅ `OnboardingState 1`; `OrgId` populated (correct tenant — value not reproduced) |
+| **Defender AV mode** | `Get-MpComputerStatus` → `AMRunningMode` | Normal (AV primary, no third-party) | ✅ **Normal**, `AntivirusEnabled True` — matters for ASR enforcement per the ASR deployment guide |
+| **ATT&CK mapping** (incident-walkthrough guide) | Incident → alert summary | A technique, Defender-assigned | ✅ **`T1059.001` PowerShell** (Execution) — first *observed* coverage, tracked as `DET-001` |
 | **Investigation surface** | Incident graph + Process tree + Alert timeline | Full Plan 2 experience | ✅ Full graph, complete process lineage — **Plan 2 confirmed active** (E5) |
 | **Remediation actions logged** *(added 2026-07-27)* | Action center → History | *(expected ≥1)* | ⚠️ **"No actions found"** — investigation ran, nothing was remediable. See §7 |
 
@@ -108,7 +108,7 @@ trivial and got it wrong once before it got it right).
 
 | Latency | Vendor number | Measured |
 |---|---|---|
-| Onboard → device in inventory | 5–30 min (module 25 guide); ~10 min (guide 3) | **~2 min** |
+| Onboard → device in inventory | 5–30 min (local-script onboarding guide); ~10 min (guide 3) | **~2 min** |
 | Onboard → first telemetry ingested | not stated | **~3.5 min** (FirstEvent 08:30:16 → FirstIngest 08:33:52) |
 | Detection test → alert visible | "a few minutes" | **~2 min** |
 
@@ -196,7 +196,7 @@ here and the canonical command lives in Microsoft's documentation (§8). It maps
 to the same behavioural signals a SIEM hunt would flag — hidden window,
 execution-policy bypass, download-and-execute — which is why it fires cleanly.
 
-**Verified from the device, not just the cloud (module 27).** Everything above
+**Verified from the device, not just the cloud (device-side verification guide).** Everything above
 is cloud-side (portal, hunting). The onboard was also confirmed from the box
 itself: the registry `Status\OnboardingState` reads `1` and `OrgId` is populated
 with this tenant's ID, proving the sensor installed, registered, and joined the
@@ -213,7 +213,7 @@ The registry value is authoritative; the cmdlet's onboarding field is
 AV-centric and unreliable. Same name, two sources, no warning which to trust —
 added to the diagnostic traps register.
 
-**Walking the incident (module 30) turned the synthetic alert into the first
+**Walking the incident (incident-walkthrough guide) turned the synthetic alert into the first
 observed ATT&CK coverage.** Defender mapped it to `T1059.001` (PowerShell,
 under Execution) and reconstructed the full process lineage from logon shell
 (`userinit.exe → explorer.exe → cmd.exe → powershell.exe`) down to the script.
@@ -246,7 +246,7 @@ is telemetry, including the work of investigating it — the same lesson as the
 `senseir.exe` self-collection pattern.
 
 **An alert is not an action — the Action Center is empty, correctly** *(observed
-2026-07-27, during module 53).* `Action center → History` reads **"No actions
+2026-07-27, during the actions and submissions guide).* `Action center → History` reads **"No actions
 found"** for this detection, and that is not a fault. An automated investigation
 demonstrably *did* run: the `senseir.exe` self-collection above is AIR gathering
 evidence in the first minutes. The device sat under **Full** automation
@@ -296,5 +296,5 @@ is a fortnight, and no second onboarded device exists to observe it with.
 
 - Microsoft Learn — Onboard Windows devices using a local script
 - Microsoft Learn — Run a detection test on a newly onboarded device
-- Microsoft Learn — Onboarding using Microsoft Intune (module 26 path)
+- Microsoft Learn — Onboarding using Microsoft Intune (the Intune mass-onboarding guide path)
 - `POS-022`, `POS-011`, `POS-018`, `POS-021`, `POS-025`, `POS-028`, `POS-029`

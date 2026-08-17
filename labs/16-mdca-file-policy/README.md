@@ -21,7 +21,7 @@
 
 ## 1. Objective
 
-Module 76's material is an instructor demo; this lab was built live by decision.
+The MDCA file-policy assignment's material is an instructor demo; this lab was built live by decision.
 Four questions:
 
 1. **What ships enabled?** (Phase A census — `POS-066`)

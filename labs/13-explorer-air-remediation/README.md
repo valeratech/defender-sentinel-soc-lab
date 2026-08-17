@@ -4,7 +4,7 @@
 |---|---|
 | **Domain** | Response |
 | **Objectives** | Investigate a message whose ground truth is already known; run AIR and a remediation against it; establish what the Action Center actually holds |
-| **Depends on** | Lab 12 (the four messages and their measured policy paths), Lab 03 (`MOD-53` — the empty Action Center this lab explains) |
+| **Depends on** | Lab 12 (the four messages and their measured policy paths), Lab 03 (`docs/evidence-notes/actions-and-submissions.md` — the empty Action Center this lab explains) |
 | **Status** | 🔨 Built, documenting |
 | **Built** | 2026-08-01 |
 
@@ -25,7 +25,7 @@ knew: which policy acted, from the `X-MS-Exchange-AtpMessageProperties` header;
 what it did, from four independent surfaces; and how long it took, to the
 millisecond. That is a rare position, and it makes the tooling gradeable.
 
-Second objective: close `MOD-53`. Lab 03 recorded an empty Action Center after an
+Second objective: close `docs/evidence-notes/actions-and-submissions.md`. Lab 03 recorded an empty Action Center after an
 automated investigation, cause identified as **no remediable artifact existed**.
 An email in a mailbox is a remediable artifact. If the Action Center stayed empty
 for an investigation and populated for a remediation, that would settle it.
@@ -193,7 +193,7 @@ are the ones that have produced wrong conclusions here**.
 
 ### The Action Center holds remediations, not investigations
 
-`MOD-53` recorded an empty Action Center in Lab 03 and attributed it to no
+`docs/evidence-notes/actions-and-submissions.md` recorded an empty Action Center in Lab 03 and attributed it to no
 remediable artifact existing. That was right, and this lab confirms it
 independently from a second product scope.
 

@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | **Domain** | Sentinel analytics rules / anomaly rule lifecycle / detection engineering |
-| **Objectives** | Test Sentinel's Flighting/Production anomaly-rule lifecycle (module 89, G66); build the course's hour-aggregation NRT rule as a **falsification test** and measure what it actually detects |
-| **Depends on** | `POS-046` / `DET-004` (the aggregation limit, reached from `SigninLogs`), `POS-044` + divergence row 41 (anomaly inventory, MOD-61 — reused, not re-measured), `POS-033` (hostname truncation; AMA+DCR collection), Lab 07 (`SecurityEvent` path), MOD-57 (store partitions) |
+| **Objectives** | Test Sentinel's Flighting/Production anomaly-rule lifecycle (the NRT guide, G66); build the course's hour-aggregation NRT rule as a **falsification test** and measure what it actually detects |
+| **Depends on** | `POS-046` / `DET-004` (the aggregation limit, reached from `SigninLogs`), `POS-044` + divergence row 41 (anomaly inventory, `docs/evidence-notes/enabling-ueba.md` — reused, not re-measured), `POS-033` (hostname truncation; AMA+DCR collection), Lab 07 (`SecurityEvent` path), `docs/evidence-notes/entities-and-ueba.md` (store partitions) |
 | **Status** | ✅ Built and measured — two phases, one metered window of 3 h 18 m |
 | **Built** | 2026-08-10 |
 | **Cost** | VM 2 for 3 h 18 m; one Bastion Developer SKU host created and deleted inside the window. **Bastion charge $0 — no meter rows emitted, confirmed 2026-08-12 (`P89-10` closed, `POS-099`)** |
@@ -40,7 +40,7 @@ grep of this repository found the construction already ruled out — `POS-046`,
 written three weeks earlier, records that `DET-004` was deliberately built as a
 **scheduled** rule instead, because NRT cannot aggregate over a time window. The
 guide teaches a construction this project had already rejected in writing. So
-rather than skip the module, the rule was built **on purpose, to prove exactly
+rather than skip the exercise, the rule was built **on purpose, to prove exactly
 how it fails**.
 
 The first half of the work cost nothing and needed no virtual machine. It
@@ -129,8 +129,8 @@ required section and should not be backfilled into the other twenty.**
 
 ## 1. Objective
 
-Module 89 (G66) opens course section 8. Roughly half of it was already
-evidenced: MOD-61 measured the anomaly inventory (48 enabled), the `Anomalies`
+The NRT guide (G66) opens a new course section. Roughly half of it was already
+evidenced: `docs/evidence-notes/enabling-ueba.md` measured the anomaly inventory (48 enabled), the `Anomalies`
 table (0 rows over 7 days), and the three-surface disagreement — `POS-044`,
 divergence row 41, 2026-07-31. **This lab does not repeat that measurement.**
 
@@ -143,7 +143,7 @@ New work, scoped before any portal contact:
 The guide's rule is **pre-refuted by the repository**. `POS-046` records that
 `DET-004` was built Scheduled rather than NRT because NRT cannot aggregate over
 a time window, and notes that the course material recommends NRT as a default
-without making that point. Rather than skip the module, the rule was built as a
+without making that point. Rather than skip the exercise, the rule was built as a
 **falsification test**: lab-only name, **no `DET-` id**, disposition recorded,
 disabled at teardown. It does not enter the detection catalogue.
 
@@ -251,7 +251,7 @@ details pane states this in Microsoft's own words: anomalies are saved to the
 
 **The 48 is two populations, not one.** UEBA anomaly rules and customisable ML
 anomaly rules sit in one grid, under one Status column, counted in one total.
-MOD-61 recorded 48 as a single number. Nothing on the grid distinguishes the
+`docs/evidence-notes/enabling-ueba.md` recorded 48 as a single number. Nothing on the grid distinguishes the
 classes except the name.
 
 **Thresholds differ sharply between them.** `UEBA Anomalous Authentication`
@@ -269,7 +269,7 @@ rule Enabled  →  data source connected  →  baseline trained  →  anomaly wr
    (this tab)      (Data connectors)        (training period)   (Anomalies table)
 ```
 
-This is a **second, structurally distinct cause** of MOD-61's zero rows,
+This is a **second, structurally distinct cause** of the zero rows recorded in `docs/evidence-notes/enabling-ueba.md`,
 independent of the no-baseline cause recorded there. It strengthens `POS-044`
 rather than repeating it.
 
@@ -541,7 +541,7 @@ this one, because incident creation is off.
 
 **An analyst checking either Defender surface would conclude the rule never
 fired.** Both nulls are indistinguishable from failure; only the workspace table
-tells the truth. This extends MOD-57's store-partition finding — the two stores
+tells the truth. This extends the store-partition finding in `docs/evidence-notes/entities-and-ueba.md` — the two stores
 disagree about the same alert, **by configuration rather than by fault**.
 
 The portal warns about this on the Incident settings step. **The Review + create
@@ -620,7 +620,7 @@ teardown discipline stands for Basic and Standard and is not required by cost
 for Developer. `POS-099`.
 
 Standing state, not acted on: the Win11 VM holds a **public IP while
-deallocated** — the exact configuration behind MOD-84's finding that IP hours
+deallocated** — the exact configuration behind the finding in `docs/evidence-notes/before-allocating-scus.md` that IP hours
 bill against machines the portal reports as stopped.
 
 ---
@@ -629,10 +629,10 @@ bill against machines the portal reports as stopped.
 
 - `POS-046` / `DET-004` — the aggregation limit, reached from `SigninLogs`
 - `POS-044`, divergence row 41 — anomaly inventory and the three-surface
-  disagreement (MOD-61, reused not repeated)
+  disagreement (`docs/evidence-notes/enabling-ueba.md`, reused not repeated)
 - `POS-033` — hostname truncation; AMA+DCR collection
 - `POS-090`, `POS-091` — this lab
 - Divergence rows 168–172 — this lab
-- `lessons/MOD-89-nrt-execution-semantics.md`
+- `docs/evidence-notes/nrt-execution-semantics.md`
 - Lab 03, Lab 07 — `labadmin` convention, `SecurityEvent` path
-- MOD-57 — store partitions
+- `docs/evidence-notes/entities-and-ueba.md` — store partitions

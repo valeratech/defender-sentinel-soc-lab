@@ -884,7 +884,7 @@ entries:
       The SOC's first endpoint. Before this the Device* advanced-hunting tables
       were empty; after it they are the data plane later labs read from.
 
-      Onboarded by local script because the scalable Intune path (module 26) is
+      Onboarded by local script because the scalable Intune path (Intune mass-onboarding guide) is
       structurally foreclosed here: it requires an Intune-enrolled device, and
       POS-022 records that enrolment never fires. Even were that fixed, the
       device-risk-to-compliance path is independently off (POS-011) and the VM
@@ -1479,7 +1479,7 @@ entries:
     verified: 2026-07-27
     note: >-
       Read-only visit to Defender > Settings > Email & collaboration > User
-      reported settings during module 53. Nothing was saved and no Save exists for
+      reported settings during the actions and submissions guide. Nothing was saved and no Save exists for
       what was done. The page was opened, read, and left. Assigned to lab 09
       because these settings govern the "users who reported 0%" metric that lab
       measured, and because Microsoft's SecOps-mailbox guidance for this setting
@@ -1573,7 +1573,7 @@ entries:
     revisit: true
     verified: 2026-07-27
     note: >-
-      Discovered 2026-07-27 while reviewing Settings > Endpoints during module 55.
+      Discovered 2026-07-27 while reviewing Settings > Endpoints during the threat-analytics walkthrough.
       Read-only; the toggle was NOT changed. MDE security settings management lets
       Defender for Endpoint enforce security configuration on devices that are, in
       the portal's own words, "not yet enrolled to Intune". It requires a matching
@@ -1625,7 +1625,7 @@ entries:
     revisit: true
     verified: 2026-07-27
     note: >-
-      Observed 2026-07-27 during module 55, read-only, nothing changed. Defender
+      Observed 2026-07-27 during the threat-analytics walkthrough, read-only, nothing changed. Defender
       XDR > Settings > Microsoft Defender XDR > Email notifications carries three
       tabs - Incidents, Actions, and Threat analytics. ALL THREE ARE EMPTY. No
       notification rule of any kind has ever existed in this tenant.
@@ -2402,7 +2402,7 @@ entries:
       unexecuted because every existing artifact references the current
       names' GUIDs rather than display names.
 
-  # ---------- Lab 14 — Purview DLP (module 66) ----------
+  # ---------- Lab 14 — Purview DLP (`docs/evidence-notes/dlp-policies.md`) ----------
 
   - id: POS-059
     lab: "14"
@@ -2882,7 +2882,7 @@ entries:
     revisit: false
     verified: 2026-08-06
     note: >-
-      Module 77's trap sprung and sidestepped: all three alerts traced to
+      the incident-investigation assignment's trap sprung and sidestepped: all three alerts traced to
       lab-controlled activity (MDE onboarding validation script twice; Azure
       Run Command delivering the onboarding package itself), so True positive
       and False positive were both wrong. The detections were accurate; the
@@ -2954,7 +2954,7 @@ entries:
       "You're missing permissions to manage this incident" - a claim about the
       identity that was only true of the cache; see the divergence table.
 
-  # ---------- Lab 18 — Sentinel automation rules (modules 78-79) ----------
+  # ---------- Lab 18 — Sentinel automation rules (guides G55-G56) ----------
   - id: POS-075
     lab: "18"
     setting: Two Sentinel automation rules, both Standard, ordered
@@ -3196,7 +3196,7 @@ entries:
       operates every lab, and the register had no entry for either. They were
       found by auditing licensing for an unrelated reason.
 
-  # ---------- Lab 19 — Sentinel playbooks (module 80 / G57) ----------
+  # ---------- Lab 19 — Sentinel playbooks (G57) ----------
   - id: POS-081
     lab: "19"
     setting: Playbook managed identity — Entra directory role
@@ -3457,7 +3457,7 @@ entries:
       any future holder of Intune Administrator inherits Copilot ownership
       with no action taken and no notification.
 
-      THIS QUALIFIES MOD-82. The committed claim is that Copilot inherits the
+      THIS QUALIFIES `docs/evidence-notes/security-copilot-overview.md`. The committed claim is that Copilot inherits the
       analyst's permissions and cannot reach past a boundary the user could
       not cross. That holds for DATA. It does not hold for CONTROL: ownership
       of the Copilot service is Copilot-native, assigned at setup, and was
@@ -3486,7 +3486,7 @@ entries:
       plus an Entra object ID and a User SID that are not in the wordlist.
       Shipped defaults would have routed that to human review.
 
-      THE MODEL-TRAINING TOGGLE QUALIFIES MOD-82's assurance that customer
+      THE MODEL-TRAINING TOGGLE QUALIFIES the assurance in `docs/evidence-notes/security-copilot-overview.md` that customer
       data is not used to train foundation models. Not necessarily a
       contradiction - a security AI model may be a different object from a
       foundation model, and the control is opt-out rather than silent - but a
@@ -3531,7 +3531,7 @@ entries:
     note: >-
       The Review + create summary does not restate the consequence. The last
       screen before commit is silent about the most consequential setting on
-      the rule. Extends MOD-57's store-partition finding - two stores
+      the rule. Extends the store-partition finding in `docs/evidence-notes/entities-and-ueba.md` - two stores
       disagreeing about one alert, by configuration rather than fault.
   - id: POS-092
     lab: "22"
@@ -3577,7 +3577,7 @@ entries:
     revisit: true
     verified: 2026-08-12
     note: >-
-      This is MOD-84's mechanism, caught from configuration before the invoice
+      This is the mechanism recorded in `docs/evidence-notes/before-allocating-scus.md`, caught from configuration before the invoice
       rather than inferred from billing afterwards. The VM list renders the IP
       address in its own column beside Stopped (deallocated), which reads as
       informational rather than as a live meter.
@@ -3630,7 +3630,7 @@ entries:
       ResultCount 21. Nineteen distinct records, two emitted twice, no error
       and no warning.
 
-      Not testable in this tenant: every record-retention figure in MOD-92.
+      Not testable in this tenant: every record-retention figure in `docs/evidence-notes/purview-audit-tiers-and-licensing.md`.
       Sixteen days of history cannot test 180 days, one year or ten. Recorded
       as documented, never as measured.
   - id: POS-096
@@ -3644,10 +3644,10 @@ entries:
     revisit: false
     verified: 2026-08-11
     note: >-
-      This is MOD-92's licensing trap on a second axis. Premium audit events are
+      This is the licensing trap from `docs/evidence-notes/purview-audit-tiers-and-licensing.md` on a second axis. Premium audit events are
       generated for a user only after the licence is assigned to that account;
       content-search access exists only after the role group is assigned.
-      Entitlement is not assignment, twice, in consecutive modules.
+      Entitlement is not assignment, twice, in consecutive guides.
 
       The refusal rendered TWO stacked modals. On top, a Client Error reading
       only "Missing required permissions to view case". Beneath it, a
@@ -3835,7 +3835,7 @@ entries:
       30-day period." Raising Total retention was scoped, then DECLINED on
       2026-08-16 - the tenant and subscription are being scrapped, so preserved
       telemetry has no consumer. Recorded as a decision, not an unrun task. The
-      consequence bounds MOD-109 permanently: search-over-archive and restore
+      consequence bounds `docs/evidence-notes/archived-log-data.md` permanently: search-over-archive and restore
       cannot be demonstrated in this workspace at any future date.
 
   - id: POS-103

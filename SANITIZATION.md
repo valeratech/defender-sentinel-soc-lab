@@ -29,18 +29,18 @@ Replacements are visibly synthetic and internally consistent. Values are drawn f
 | User principal name | `analyst@contoso.com` | — |
 | User display name | `Lab Administrator`, `Lab User`, `Lab Analyst` | Generic, non-attributable role labels. **Use the same placeholder for the same tenant identity in every field** — findings frequently turn on whether two fields resolve to one identity (`POS-083`: sender and recipient are the same principal), and inconsistent substitution destroys that. The class was listed as Attributable in §1 from the beginning; this row closes the gap where no convention existed for it (see the 2026-08-11 note below) |
 | Device name (client) | `LAB-WIN11-01` | Generic, non-attributable. **Canonical** for every client-device reference in the repository |
-| Device name (client, truncated rendering) | `LAB-WIN11-DEFEN` | Synthetic, display-only. **15 characters by design** — preserves the observed truncation behaviour; use *only* where the truncation itself is part of the finding. Observed in `AuditData.DeviceProperties.DisplayName` during MOD-94. Unlike the server placeholder this is **not derivable** from the canonical name — `LAB-WIN11-01` is 12 characters and never truncates — so this is an explicit alias for a rendered form, **not** evidence that `LAB-WIN11-01` is truncated by Windows or NetBIOS. It must not replace the canonical name anywhere else |
+| Device name (client, truncated rendering) | `LAB-WIN11-DEFEN` | Synthetic, display-only. **15 characters by design** — preserves the observed truncation behaviour; use *only* where the truncation itself is part of the finding. Observed in `AuditData.DeviceProperties.DisplayName` during the eDiscovery content-search walkthrough (`docs/evidence-notes/ediscovery-content-search.md`). Unlike the server placeholder this is **not derivable** from the canonical name — `LAB-WIN11-01` is 12 characters and never truncates — so this is an explicit alias for a rendered form, **not** evidence that `LAB-WIN11-01` is truncated by Windows or NetBIOS. It must not replace the canonical name anywhere else |
 | Device name (server) | `LAB-SRV-DEFENDER-01` | Generic. **19 characters by design** — the NetBIOS-truncation finding (`POS-033`, divergence row 13) depends on the name exceeding 15 chars and truncating to `LAB-SRV-DEFENDE`. A shorter placeholder destroys the finding silently |
 | Resource group | `rg-soc-lab` | Generic |
 | Log Analytics workspace | `law-lab-01` | Generic. Deliberately *not* in the `-soc-lab` family, which the real workspace name resembled closely enough to read as a placeholder |
 | Data collection rule | `dcr-winsec-lab` | Generic |
 | Resource group (Copilot lab) | `rg-copilot-lab` | Generic. **Keeps the `rg-` prefix by design** — Lab 20 §6's near-miss depends on `NetworkWatcherRG` being the alphabetically first group in the tenant; a placeholder sorting ahead of it would silently erase the finding, the same failure mode as shortening `LAB-SRV-DEFENDER-01` |
-| Security Copilot capacity | `copilotlab` | Generic. **Hyphen-free by design** — the Create form accepts lowercase letters and numbers only (Lab 20 §5, MOD-85); a hyphenated placeholder would contradict the finding recorded beside it |
+| Security Copilot capacity | `copilotlab` | Generic. **Hyphen-free by design** — the Create form accepts lowercase letters and numbers only (Lab 20 §5, `docs/evidence-notes/creating-security-copilot-capacity.md`); a hyphenated placeholder would contradict the finding recorded beside it |
 | Security Copilot workspace | `copilotlab-ws` | Generic, derived from the capacity placeholder. The hyphen constraint applies to the capacity name field only, not to workspaces |
 | IPv4 (external) | `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24` | RFC 5737 TEST-NET-1/2/3 |
 | IPv6 | `2001:db8::/32` | RFC 3849 |
 | Public IP of lab endpoint | **Omitted entirely — not placeholdered** | — |
-| Public IP of the operating workstation | **Omitted entirely — not placeholdered** | Distinct from the row above. Classed **Attributable**, not Operational: it identifies a person rather than describing a reachable lab surface. Rendered on the Purview Audit results grid and in every exported `AuditData` payload as both `ClientIP` and `ActorIpAddress` (MOD-93) |
+| Public IP of the operating workstation | **Omitted entirely — not placeholdered** | Distinct from the row above. Classed **Attributable**, not Operational: it identifies a person rather than describing a reachable lab surface. Rendered on the Purview Audit results grid and in every exported `AuditData` payload as both `ClientIP` and `ActorIpAddress` (`docs/evidence-notes/purview-audit-log-search.md`) |
 
 **Rows added 2026-08-09** for the three resource-name classes Lab 20
 introduced. The placeholders were applied in content before the Lab 20 commit
@@ -322,7 +322,7 @@ to surface.
 ### The wordlist firing on a reintroduction — 2026-08-09
 
 The paragraph above asserted the wordlist is the durable fix. During Lab 20 it
-was measured. Writing MOD-88's teardown prose, a resource-group name already
+was measured. Writing the teardown prose recorded in `docs/evidence-notes/tearing-down-copilot-capacity.md`, a resource-group name already
 on `.pii-terms` was reintroduced into new content — not copied from an old
 file, authored fresh, which is the path no substitution sweep revisits. Every
 shape-based gate passed, for the reasons this section already records: gitleaks

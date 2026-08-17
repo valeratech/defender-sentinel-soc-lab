@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Domain** | Response / SOC operations |
-| **Objectives** | Investigate and triage the queue's richest incident end-to-end (module 77 §2–§6); spring and sidestep §5's classification trap on our own telemetry; demonstrate §1's permission model live — grant Microsoft Sentinel Responder to the scoped analyst and test both sides of the boundary |
+| **Objectives** | Investigate and triage the queue's richest incident end-to-end (the incident-investigation assignment §2–§6); spring and sidestep §5's classification trap on our own telemetry; demonstrate §1's permission model live — grant Microsoft Sentinel Responder to the scoped analyst and test both sides of the boundary |
 | **Depends on** | Lab 03 (the incident under investigation *is* Lab 03's onboarding validation), Lab 11 (`DET-004`, whose incidents are the boundary-test corpus), `POS-027` (the analyst identity), `POS-002` (the gap this lab's grant pattern speaks to) |
 | **Status** | ✅ Built and measured — classification written, boundary crossed twice, one headline claim withdrawn on its second read |
 | **Built** | 2026-08-05 (triage + grant + activation 1) · 2026-08-06 (re-activation + the read that killed the headline) |
@@ -24,7 +24,7 @@
 
 ## 1. Objective
 
-Module 77 investigates and manages incidents. This lab treats the module as
+The incident-investigation assignment investigates and manages incidents. This lab treats the source guide as
 two instruments:
 
 1. **The classification trap (§5).** Incident 1 was created by Lab 03's

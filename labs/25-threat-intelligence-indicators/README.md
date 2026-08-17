@@ -9,7 +9,7 @@
 | **Built** | 2026-08-14 through 2026-08-16 |
 | **Cost** | Effectively $0. `_BilledSize: 786` bytes, `_IsBillable: True`. Query execution unbilled. No connector, no solution, no feed |
 
-> The module reads as "connect a threat feed." The architectural point is that TI
+> The source guide reads as "connect a threat feed." The architectural point is that TI
 > in the workspace is a **reference dataset** — a lookup that analytics rules join
 > against — not another telemetry stream you monitor. That framing makes the
 > tenant's answer legible: the indicator was created, was valid, was unrevoked,

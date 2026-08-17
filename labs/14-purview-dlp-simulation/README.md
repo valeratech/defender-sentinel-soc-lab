@@ -21,7 +21,7 @@
 
 ## 1. Objective
 
-Module 66's assignment: create a US Financial DLP policy, default locations,
+The DLP-policy assignment's assignment: create a US Financial DLP policy, default locations,
 simulation mode. This lab treats the assignment as an instrument. Three
 questions:
 
@@ -47,7 +47,7 @@ Recorded before building (P1–P5) and before triggering (P-C1–P-C4):
 | P2 | Simulation report empty at first check regardless of elapsed time | voided by sequencing — content seeded before first read; report already populated at 14.5 h |
 | P3 | Pre-seeded default DLP policies exist | ✅ CONFIRMED — four |
 | P4 | Purview role groups have no members; everything runs on GA | ✅ CONFIRMED — 70 groups, zero members |
-| P5 | DLP evaluates all matching policies, not first-match | deferred to module 68 |
+| P5 | DLP evaluates all matching policies, not first-match | deferred to the DLP evaluation-order guide |
 | P-C1 | SIT Test matches the doc at Medium for both SITs, policy-independent | ✅ CONFIRMED — plus two unpredicted findings (§5) |
 | P-C2 | OneDrive file uploaded pre-activation still appears in simulation (at-rest scan) | ✅ CONFIRMED — first read showed the file as the match |
 | P-C3 | Email sent pre-activation would never appear (transit-only) | premise ✅ CONFIRMED by three surfaces (Exchange "Scanning in realtime", "as they're sent", no retroactive scan) — deliberately untriggered |

@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Domain** | Defender for Endpoint prevention controls / automated investigation and response (AIR) / incident investigation surfaces |
-| **Objectives** | Exercise endpoint prevention on a live client (modules 90–91); capture the **Defender for Endpoint AIR standalone experience before its 2026-09-01 retirement**; measure what each surface reports about the same two files |
+| **Objectives** | Exercise endpoint prevention on a live client (guides G67–G68); capture the **Defender for Endpoint AIR standalone experience before its 2026-09-01 retirement**; measure what each surface reports about the same two files |
 | **Depends on** | Lab 03 (EDR detection test, onboarding latencies), Lab 06 (ASR audit-vs-block already isolated), Lab 13 (**MDO** AIR — a different product, explicitly not the capability being retired), Lab 17 (incident workflow), `POS-033` (hostname truncation), `POS-019`/`POS-020` (RDP exposure on this VM) |
 | **Status** | ✅ Built and measured — four phases, one metered window of 68 minutes |
 | **Built** | 2026-08-10 |
@@ -29,11 +29,11 @@
 
 ## 1. Objective
 
-Modules 90 and 91 cover endpoint prevention and the investigation of what it
-produces. They are one lab and two lesson files, because **module 90 generates
-the evidence module 91 consumes**; splitting them would make one lab's evidence
-depend on the other's generation. Precedent: Lab 20 combined modules 85, 87 and
-88.
+The endpoint-prevention guide and endpoint-detections walkthrough cover endpoint prevention and the investigation of what it
+produces. They are one lab and two evidence notes, because **the endpoint-prevention guide generates
+the evidence the endpoint-detections walkthrough consumes**; splitting them would make one lab's evidence
+depend on the other's generation. Precedent: Lab 20 combined the capacity-creation,
+Copilot-investigation and teardown guides.
 
 Three things were in scope that prior labs had not covered:
 
@@ -70,7 +70,7 @@ Registered before portal contact, in the order written.
 | **P90-5** | Device name truncates per `POS-033` | **CONFIRMED**, and extended — see §8.8 |
 | **P90-6** | `Initiate Automated Investigation` is offered and functional | **CONFIRMED, with its interpretation corrected** — see §8.5 |
 | **P90-7** | MDE detections produce AIR, unlike `DET-004`'s Sentinel alerts | **CONFIRMED** |
-| **P91-1** | The Copilot pane is absent, capacity having been torn down at MOD-88 | **CONFIRMED** on two reads |
+| **P91-1** | The Copilot pane is absent, capacity having been torn down at `docs/evidence-notes/tearing-down-copilot-capacity.md` | **CONFIRMED** on two reads |
 | **P91-2** | VirusTotal shows EICAR at a high detection ratio with an old first-seen | **CONFIRMED** — 57/64, first seen 2013-03-04 |
 | **P89-10** | Bastion Developer SKU bills $0 | **CONFIRMED 2026-08-12** — and stronger than predicted: no meter rows emitted at all, against Sentinel's daily zero-cost rows as control. `POS-099` |
 
@@ -83,7 +83,7 @@ otherwise (§8.5). The claim is corrected rather than quietly restated, and the
 session transfer that carried it forward is superseded by this section.
 
 **P91-1's shape was corrected before it was tested.** An earlier framing called
-it "structurally pre-refuted, same shape as MOD-86." That is wrong. MOD-86 was a
+it "structurally pre-refuted, same shape as `docs/evidence-notes/sample-alerts-skipped.md`." That is wrong. `docs/evidence-notes/sample-alerts-skipped.md` was a
 scenario foreclosed before contact — nothing could run, so nothing was observed.
 P91-1 is a *positive absence on a live surface*: the incident page renders
 normally and the pane is not on it. "Structurally unavailable" and "torn down and
@@ -472,7 +472,7 @@ One state also carries three labels: `Pending action` (investigation header),
 
 **Copilot pane — absent.** No pane on the incident page, no entry in the
 command bar, no icon in the portal's global toolbar. Two reads, incident flyout
-and full incident page. Capacity was torn down at MOD-88 (Lab 20); the surface
+and full incident page. Capacity was torn down at `docs/evidence-notes/tearing-down-copilot-capacity.md` (Lab 20); the surface
 renders normally and the pane is not on it. `P91-1` confirmed.
 
 **Greyed ≠ state-dependent.** `Action center` and `Policy sync` in the device
@@ -511,7 +511,7 @@ read.
 ## 9. Teardown, cost, and what did not stop
 
 RDP disconnected, VM stopped. **Two reads** of the deallocation state, per the
-MOD-84 precedent that IP hours have billed against machines the portal reported
+`docs/evidence-notes/before-allocating-scus.md` precedent that IP hours have billed against machines the portal reported
 stopped:
 
 **Read 1** — Azure portal, Virtual machines list: both `LAB-SRV-DEFENDER-01` and
@@ -532,7 +532,7 @@ Essentials), which is the probative surface:
 regardless of VM state. Deallocating stopped compute; it did not stop the IP
 meter. Approximately **$0.005/hr — ~$0.12/day, ~$3.65/month.**
 
-This is MOD-84's mechanism, and this time it was caught **from configuration
+This is the mechanism recorded in `docs/evidence-notes/before-allocating-scus.md`, and this time it was caught **from configuration
 before the invoice** rather than inferred from billing afterwards. `POS-094`.
 
 The 2026-08-12 cost read should show the Standard static public IP meter
@@ -570,9 +570,9 @@ unapproved and uncancelled. It is the evidence §8.6 and §8.7 rest on.
 - `POS-033` — hostname truncation
 - `POS-019`, `POS-020` — RDP exposure on this VM
 - Divergence rows **173–183**
-- `lessons/MOD-90-endpoint-prevention-controls.md`,
-  `lessons/MOD-91-investigating-endpoint-detections.md`
+- `docs/evidence-notes/endpoint-prevention-controls.md`,
+  `docs/evidence-notes/investigating-endpoint-detections.md`
 - Lab 03 (EDR detection test), Lab 06 (ASR), Lab 13 (**MDO** AIR — unaffected by
   the 2026-09-01 change), Lab 17 (incident workflow), Lab 20 (Copilot capacity
-  teardown, MOD-88)
+  teardown, `docs/evidence-notes/tearing-down-copilot-capacity.md`)
 - Message center **MC1411577**; four Microsoft Learn pages, verified 2026-08-10

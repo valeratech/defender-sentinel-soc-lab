@@ -8,8 +8,8 @@ README advertised **19 labs** and **80 entries**, and every lab in its table
 read `Built, documenting` while five of them were complete and committed.
 
 Every *generated* document was correct at that moment — the posture register,
-the lessons index, the lab-coverage report, the ATT&CK matrix, the open-items
-list. All five are CI-enforced and none had drifted. The one surface that had
+the then-current lessons index (since retired), the lab-coverage report, the
+ATT&CK matrix, the open-items list. All five were CI-enforced and none had drifted. The one surface that had
 drifted was the one with no gate behind it: hand-maintained prose on the
 repository's front page, which is also the first thing any reader sees.
 

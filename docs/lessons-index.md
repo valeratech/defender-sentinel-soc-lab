@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**40 module(s) recorded · 19 produced a lab · 91 correction(s) to previously committed content.**
+**42 module(s) recorded · 20 produced a lab · 100 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -52,6 +52,8 @@ than restates**: each finding has exactly one authoritative home.
 | [101](../lessons/MOD-101-let-union-and-join.md) | let, union and join — concept | 📖 concept | — | — | — | 1 |
 | [102](../lessons/MOD-102-advanced-hunting-in-defender.md) | Advanced hunting in the Defender portal — concept, verified against current docs | 📖 concept | — | — | — | 2 |
 | [103](../lessons/MOD-103-community-query-repository.md) | The Azure-Sentinel community query repository — concept | 📖 concept | — | — | — | 2 |
+| [104](../lessons/MOD-104-mitre-attack-coverage-matrix.md) | The MITRE ATT&CK coverage matrix — a page whose numbers are a function of its filters | 🔀 mixed | — | `POS-045`, `POS-046` | `row 213`, `row 214` | 5 |
+| [105](../lessons/MOD-105-threat-intelligence-indicators.md) | Threat intelligence indicators — a reference dataset nothing was joined to | 🔨 lab | `Lab 25` | — | `row 215` | 4 |
 
 ## Corrections to previously committed content
 
@@ -152,3 +154,12 @@ anything.
 | 102 | Guide's boolean-representation change (numeric 1/0 to textual True/False on 2026-02-25) and the AADSignInEventsBeta to EntraIdSignInEvents replacement both verified against advanced-hunting-schema-changes (ms.date 06/03/2026). One correction: the guide implies a general 30-day grace pattern, but that document gives 2025-12-09 as the specific removal date for the legacy tables. They are long gone, not lingering. |
 | 103 | Guide does not mention that the repository's default branch is master, not main. Verified - master/README.md returns 200, main/README.md returns 404. A raw URL or branch-specific clone built on the modern convention fails, and a 404 on a raw file reads as 'that query does not exist' rather than 'wrong branch'. |
 | 103 | Repository identity verified - the README describes itself as the unified Microsoft Sentinel and Microsoft 365 Defender repository, and the folder taxonomy named in the guide is present. The specific Hunting Queries path and the YAML field set were NOT verified; a guessed filename returned 404 and the GitHub API rate-limited the working environment. Carried from source. |
+| 104 | P104-3 was scored `unsupported - never measured` on a first read. Its registered falsifier read 'Falsified if it renders any other version, or no version at all' - absence was inside the falsification criterion from the start. Two errors stacked: an absence recorded on a first observation, and scored against a category never registered. Re-read 2026-08-16 in a separated sitting: still no version string anywhere. P104-3 is FALSIFIED. |
+| 104 | P104-5 registered four options including 'one further Microsoft-supplied category such as Fusion or Microsoft security rules'. The fourth is `Active custom detection rules` - not Fusion, and not Microsoft-supplied at all; custom detections are customer-authored Defender XDR objects. The miss was in kind, not wording. Scored Partial under the compound-verdict convention; read literally the registered falsifier would have said Falsified. |
+| 104 | Claude stated 'POS-045 and POS-046 confirmed Enabled' from a pane reading `2 Active scheduled query rules` - an aggregate, not an identification. Two known repo rules plus a count of two is inference. Corrected by following the pane's `View` control to a filtered Analytics page that named both rules; only then was the refresh observation. |
+| 104 | docs/attack-coverage.md reports 2 detections on T1110 where the portal reports 7. Not a divergence: the generated doc counts detection specs in detections/, the portal counts deployed analytics-rule populations including five anomaly rules with no specs here. Two documents counting different universes. No change made to build-attack-matrix.py or docs/attack-coverage.md. |
+| 104 | Prediction IDs for this module are module-scoped (P104-n) and match no repo counter. Adopted deliberately after the Lab 25 prefix error, to avoid naming a lab number before one could be allocated. |
+| 105 | Prediction IDs for this lab were registered as P26-n, from a lab number inferred off the reservation note 'MOD-95 is Lab 25'. Lab numbers are allocated in build order and a module number never reserves one. The lab is 25; the prefix stays as registered because a prediction ID is evidence of what was written before portal contact. |
+| 105 | P26-3 registered a query within ~60 seconds of creation. The window elapsed before the first query ran, so the condition was never met. Recorded UNTESTABLE with reason, not falsified. Not reopenable on this object. |
+| 105 | Claude asserted that TLP and severity 'live inside Data (dynamic)'. That was inference from their absence in the column list, not measurement - neither field was populated on this object. Microsoft documents TLP as AdditionalFields.TLPLevel; severity storage remains unverified here. What is measured is only that neither is a promoted column. |
+| 105 | Claude characterised the ingestion cost of manual TI from recollection before measuring, and then described it as 'ordinary ingestion'. The measured claim is narrower: this record carried _IsBillable True and _BilledSize 786. No meter, rate, or comparison to other TI paths is asserted. |

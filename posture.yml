@@ -3816,3 +3816,44 @@ entries:
     note: "The repository's recurring unpopulated-is-not-empty shape on a billing surface.
       Widening to all seven returned the same 3 items, which is what converts Lab 24's item
       count from a filter statement into a tenant statement."
+  - id: POS-102
+    lab: "04"
+    setting: "Log Analytics workspace table retention - Analytics and Total retention across all tables"
+    location: "Defender portal > Microsoft Sentinel > Configuration > Tables; Azure portal > Log Analytics workspace > Settings > Tables"
+    state: "Every table reads Analytics retention 30 days / Total retention 30 days, rendered as 'Same as Analytics retention (30 days)'. 192 tables total - 181 Analytics tier, 44 XDR default tier, 0 data lake tier (buckets overlap; the three counters sum to 225). Verified 2026-08-15 and 2026-08-16."
+    baseline: "Workspace default; never configured. The Analytics retention control labels the current value '30 days (Included in license)'."
+    kind: default
+    production: "Retention set per table against a stated evidence-retention requirement, with the Analytics/Total split chosen deliberately so that long-term retention exists at all"
+    revisit: false
+    verified: 2026-08-16
+    note: >-
+      Long-term retention is not a destination - it is the gap between a table's
+      interactive retention and its total retention. When those are equal the gap
+      is zero and data is DELETED at the boundary rather than aged into archive.
+      The Manage panel states the mechanism: "This XDR table is automatically
+      integrated with the data lake once retention is increased from the default
+      30-day period." Raising Total retention was scoped, then DECLINED on
+      2026-08-16 - the tenant and subscription are being scrapped, so preserved
+      telemetry has no consumer. Recorded as a decision, not an unrun task. The
+      consequence bounds MOD-109 permanently: search-over-archive and restore
+      cannot be demonstrated in this workspace at any future date.
+
+  - id: POS-103
+    lab: "04"
+    setting: "Microsoft Sentinel data lake tier - provisioned, integrated, and holding no data"
+    location: "Defender portal > Microsoft Sentinel > Configuration > Tables (tier counters and per-table details pane)"
+    state: "Data lake tier 0, Lake tier 0 KB over 30 days, while individual tables report 'Data lake: Integrated'. Analytics tier 7.7 MB over the same window. Verified 2026-08-16."
+    baseline: "Never enabled or configured; the tier is present in the UI by default"
+    kind: default
+    production: "Data lake tier enabled deliberately after modelling the billing change - if a workspace uses search jobs, auxiliary logs, or long-term retention, billing for those features switches to data lake meters"
+    revisit: false
+    verified: 2026-08-16
+    note: >-
+      A fourth instance of the provisioned-but-inert pattern this section kept
+      finding, alongside ThreatIntelligenceIndicator (present, zero rows, no
+      longer the ingestion target), HuntingBookmark (existed empty until
+      2026-08-15), and the Livestream Results metric slot for a retired feature.
+      'Integrated' describes a capability whose activation is CONDITIONAL on a
+      retention increase above the 30-day default - see POS-102, where that
+      increase was declined. The counter and the per-table label are both
+      accurate and read as contradictory.

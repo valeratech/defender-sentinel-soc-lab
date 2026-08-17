@@ -31,15 +31,15 @@ testimony rather than something a reader can check.
 
 | Metric | Count |
 |---|---|
-| Settings tracked | 101 |
-| Verified by direct observation | 101 |
+| Settings tracked | 103 |
+| Verified by direct observation | 103 |
 | Asserted but unverified | 0 |
 | Flagged to revisit | 69 |
 
 | Kind | Count |
 |---|---|
 | hardened | 29 |
-| default | 39 |
+| default | 41 |
 | **weakening** | 13 |
 | **gap** | 20 |
 
@@ -245,8 +245,14 @@ it is an oversight. Closing an item means recording which one it was.
 | ID | Setting | Location | State | Kind | Revisit | Verified |
 |---|---|---|---|---|---|---|
 | `POS-032` | Microsoft Sentinel workspace and Defender XDR ingestion | `Azure > Log Analytics workspace law-lab-01; Microsoft Sentinel; Data connectors` | Sentinel enabled on law-lab-01 (West US, PAYG). Defender XDR connector Connected/Primary, forwarding incidents and alerts only. Raw Device* event streaming OFF. | hardened | yes | 2026-07-19 |
+| `POS-102` | Log Analytics workspace table retention - Analytics and Total retention across all tables | `Defender portal > Microsoft Sentinel > Configuration > Tables; Azure portal > Log Analytics workspace > Settings > Tables` | Every table reads Analytics retention 30 days / Total retention 30 days, rendered as 'Same as Analytics retention (30 days)'. 192 tables total - 181 Analytics tier, 44 XDR default tier, 0 data lake tier (buckets overlap; the three counters sum to 225). Verified 2026-08-15 and 2026-08-16. | default | no | 2026-08-16 |
+| `POS-103` | Microsoft Sentinel data lake tier - provisioned, integrated, and holding no data | `Defender portal > Microsoft Sentinel > Configuration > Tables (tier counters and per-table details pane)` | Data lake tier 0, Lake tier 0 KB over 30 days, while individual tables report 'Data lake: Integrated'. Analytics tier 7.7 MB over the same window. Verified 2026-08-16. | default | no | 2026-08-16 |
 
 **`POS-032` — Microsoft Sentinel workspace and Defender XDR ingestion.** The section capstone - the aggregation layer over every prior lab. Endpoint (Lab 03 sensor) to Defender to XDR to Sentinel, proven with a live detection test: a SecurityIncident arrived carrying ProviderName Microsoft XDR, the proof it came through the connector. Defender-to-Sentinel sync measured at ~2 minutes (UTC-converted; the local-vs-UTC timestamp trap applies a fifth time). Cost-safe by design and verified. Ingestion is the only meaningful Sentinel cost and it is volume-based. Only the free alert/incident sync is enabled; raw Device* event streaming is OFF, confirmed by DeviceEvents failing to resolve as a table in the Sentinel Logs blade (it resolves fine in Defender Advanced Hunting - different store). The trial (2026-07-19 to 2026-08-19) covers 10 GB/day on both Sentinel and Log Analytics; the conservative connector keeps usage far under that. Architecture recorded in Lab 04 for reuse: a sensor produces telemetry (on-device, the source), a connector moves it (cloud-to-cloud, no software); Defender Advanced Hunting and Sentinel Logs both speak KQL but query different stores (Defender's free raw lake with column Timestamp vs the billed Log Analytics workspace with column TimeGenerated holding only forwarded data). The project's existing kql/ queries are portable across both - language transfers, store and cost change. Two behaviours worth remembering: the Defender XDR connector is forward-only (historical incidents do not backfill - prove flow with a fresh event); and the incident wrapper (SecurityIncident) syncs ahead of the discrete SecurityAlert, so query SecurityIncident or search * to confirm flow, not SecurityAlert alone. Permissions note: subscription Owner was required for auto-onboard - Global Administrator (a directory role) is not Azure RBAC (POS-024).
+
+**`POS-102` — Log Analytics workspace table retention - Analytics and Total retention across all tables.** Long-term retention is not a destination - it is the gap between a table's interactive retention and its total retention. When those are equal the gap is zero and data is DELETED at the boundary rather than aged into archive. The Manage panel states the mechanism: "This XDR table is automatically integrated with the data lake once retention is increased from the default 30-day period." Raising Total retention was scoped, then DECLINED on 2026-08-16 - the tenant and subscription are being scrapped, so preserved telemetry has no consumer. Recorded as a decision, not an unrun task. The consequence bounds MOD-109 permanently: search-over-archive and restore cannot be demonstrated in this workspace at any future date.
+
+**`POS-103` — Microsoft Sentinel data lake tier - provisioned, integrated, and holding no data.** A fourth instance of the provisioned-but-inert pattern this section kept finding, alongside ThreatIntelligenceIndicator (present, zero rows, no longer the ingestion target), HuntingBookmark (existed empty until 2026-08-15), and the Livestream Results metric slot for a retired feature. 'Integrated' describes a capability whose activation is CONDITIONAL on a retention increase above the 30-day default - see POS-102, where that increase was declined. The counter and the per-table label are both accurate and read as contradictory.
 
 ### Lab 05
 

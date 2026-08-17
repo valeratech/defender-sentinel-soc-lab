@@ -8,7 +8,7 @@ as amendments to existing labs, as posture entries, and as divergence rows.
 `lessons/` answers the module-shaped question, and **cross-references rather
 than restates**: each finding has exactly one authoritative home.
 
-**42 module(s) recorded · 20 produced a lab · 100 correction(s) to previously committed content.**
+**47 module(s) recorded · 24 produced a lab · 113 correction(s) to previously committed content.**
 
 | Module | Title | Verdict | Labs | Posture | Divergences | Corrections |
 |---|---|---|---|---|---|---|
@@ -54,6 +54,11 @@ than restates**: each finding has exactly one authoritative home.
 | [103](../lessons/MOD-103-community-query-repository.md) | The Azure-Sentinel community query repository — concept | 📖 concept | — | — | — | 2 |
 | [104](../lessons/MOD-104-mitre-attack-coverage-matrix.md) | The MITRE ATT&CK coverage matrix — a page whose numbers are a function of its filters | 🔀 mixed | — | `POS-045`, `POS-046` | `row 213`, `row 214` | 5 |
 | [105](../lessons/MOD-105-threat-intelligence-indicators.md) | Threat intelligence indicators — a reference dataset nothing was joined to | 🔨 lab | `Lab 25` | — | `row 215` | 4 |
+| [106](../lessons/MOD-106-hunts.md) | Hunts — a control-plane container, and a metrics bar on the wrong tab | 🔨 lab | `Lab 26` | — | — | 2 |
+| [107](../lessons/MOD-107-hunting-queries.md) | Hunting queries — entity mapping is compiled into the KQL, and a form that contradicts its guide | 🔨 lab | `Lab 26` | — | `row 218` | 2 |
+| [108](../lessons/MOD-108-hunting-bookmarks.md) | Hunting bookmarks — the documented path routes to the one surface that cannot bookmark | 🔨 lab | `Lab 26` | — | `row 217`, `row 219` | 3 |
+| [109](../lessons/MOD-109-archived-log-data.md) | Archived log data — a module whose subject does not exist in this tenant | 📖 concept | — | `POS-102`, `POS-103` | `row 220` | 3 |
+| [110](../lessons/MOD-110-search-jobs.md) | Search jobs — a page that runs no search job, and the bookmark that closed MOD-108 | 🔨 lab | `Lab 26` | — | `row 216`, `row 219`, `row 221` | 3 |
 
 ## Corrections to previously committed content
 
@@ -163,3 +168,16 @@ anything.
 | 105 | P26-3 registered a query within ~60 seconds of creation. The window elapsed before the first query ran, so the condition was never met. Recorded UNTESTABLE with reason, not falsified. Not reopenable on this object. |
 | 105 | Claude asserted that TLP and severity 'live inside Data (dynamic)'. That was inference from their absence in the column list, not measurement - neither field was populated on this object. Microsoft documents TLP as AdditionalFields.TLPLevel; severity storage remains unverified here. What is measured is only that neither is a promoted column. |
 | 105 | Claude characterised the ingestion cost of manual TI from recollection before measuring, and then described it as 'ordinary ingestion'. The measured claim is narrower: this record carried _IsBillable True and _BilledSize 786. No meter, rate, or comparison to other TI paths is asserted. |
+| 106 | P106-3 predicted the metrics bar would be absent because no hunts existed, and that creating one would materialise it. Creating a hunt did not. The bar exists on the `Queries` tab, not the `Hunts` tab - the location clause was falsified as framed, not the existence clause. `Livestream Results` holds a counter slot on that bar for a feature the product has retired. |
+| 106 | The guide describes creating a hunt and then discusses bookmarks as though they hang off query results generally. It never states that a hunt is a container opened by clicking its name, with its own Queries, Bookmarks, and Entities tabs. That step is not discoverable from the guide. |
+| 107 | The guide's worked query opens with `| where TimeGenerated >= ago(1h)`. The creation form's own banner forbids it: 'Do not use fixed time ranges, either directly or in a function, in your query. Otherwise, we cannot show changes in query results over time.' Windowing belongs to the page scope control; the Results delta columns depend on it. The query was authored without a time filter and P107-5 amended on the record before the read, not after. |
+| 107 | Claude asked for the full tactics list to be expanded and photographed, which placed the dropdown over the panel footer. That is one of two candidate causes for the inert `Create` observed immediately afterward. The instruction may have created the condition it then diagnosed. |
+| 108 | P108-2 registered zero rows on a first query within 60 seconds of the trigger. Claude did not supply the query until several minutes after the sign-ins were reported, so the registered window had already elapsed. Falsified on the letter; the latency FLOOR is unmeasured. Second instance of the same timing error as P26-3. |
+| 108 | P108-1 scored Confirmed on its terms - six rows, all 50126, no lockout - but its PREMISE is questioned. Six rows carry three distinct timestamps, each duplicated at identical millisecond precision. See below. |
+| 108 | The guide states entity and MITRE mappings 'default to those of the hunting query that produced the results' unconditionally. Observed under MOD-110: from a raw Logs query they arrive EMPTY. The inheritance is conditional on the producing query being a mapped hunting query. Observable only because the hunting path was broken. |
+| 109 | P109-4 predicted the restore table picker would offer no eligible table. It offers 14, none of which has a byte in long-term retention. The picker does not filter on whether archived data exists. |
+| 109 | Claude estimated the earliest telemetry expiry from an incident dated 2026-07-18 and put the retention deadline at 2026-08-17. The Tables ingestion chart's x-axis starts 2026-07-24 on a 30-day window, which would put it near 2026-08-23. Neither was measured; `Last data received` per table is the authoritative field and was not read for the oldest table. |
+| 109 | POS-102 and POS-103 record workspace-level settings and are cited to Lab 04 (labs/04-sentinel-workspace/), which already owns POS-032. They are not artifacts of Lab 25 or Lab 26; citing them there would satisfy check-lab-coverage.py dishonestly. Whether Lab 04 is the right long-term owner is audit material. |
+| 110 | P110-1 registered four inputs from the guide - table, term, time range, results table name. The Search page has two. Claude wrote the prediction from the guide rather than from the surface; the missing controls were never there. |
+| 110 | P110-4 (union of time ranges) was untestable: no time picker exists on the Search form to set against an in-query filter. |
+| 110 | Claude repeatedly issued navigation as a bare control name without naming the portal, page, or starting point - against the repo's own navigation standard, cited in the same session. The `View results` routing question took three round trips as a result. |

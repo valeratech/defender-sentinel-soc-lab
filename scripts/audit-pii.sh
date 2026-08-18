@@ -75,7 +75,7 @@ hdr "GUIDs (tenant / subscription / workspace / object IDs)"
 # tenant — not environment identifiers. Allowlisted by exact value only; any
 # other GUID (a real tenant/subscription/object ID) is still reported.
 guids=$(grep "${GREP_OPTS[@]}" "\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b" . 2>/dev/null \
-        | grep -vE "^(0{8}-0{4}-0{4}-0{4}-0{12}|1{8}-1{4}-1{4}-1{4}-1{12})$" \
+        | grep -vE "^0{8}-0{4}-0{4}-0{4}-0{12}$" \
         | grep -viE "^(d1e49aac-8f56-4280-b9ba-993a6d77406c|e6db77e5-3df2-4cf1-b95a-636979351e5b)$" | sort -u)
 if [ -z "$guids" ]; then ok "only nil/placeholder GUIDs"
 else hit "non-placeholder GUIDs:"; echo "$guids" | sed 's/^/       /'; fi
@@ -109,6 +109,50 @@ ips=$(grep "${GREP_OPTS[@]}" "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" . 2>/dev/null \
       | sort -u)
 if [ -z "$ips" ]; then ok "only documentation/private ranges"
 else hit "routable addresses — confirm each is attacker-side, not lab-side:"; echo "$ips" | sed 's/^/       /'; fi
+
+# ── 5a. MAC addresses ────────────────────────────────────────
+hdr "MAC addresses"
+# Mirrored in .gitleaks.toml - the two scanners keep independent exception
+# lists and neither reads the other. EUI-48 colon and hyphen forms; the two
+# separator forms are enumerated because a per-octet [:-] class accepts mixed
+# strings such as 00:00-5e:00-53:01, which are not valid addresses.
+# Identifier-class boundaries stop extraction from inside a longer token
+# (x00:00:5e:00:53:01z) or before a dotted suffix (00:00:5e:00:53:01.example);
+# sed strips the consumed boundary characters before the exception filters.
+# Dotted EUI-48 / Cisco-style three-group notation (0011.2233.4455) is
+# deliberately outside this check's colon/hyphen representation scope.
+# RFC 7042 reserves 00-00-5E-00-53-xx for documentation.
+MACPAT='(^|[^0-9A-Za-z:._-])((([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2})|(([0-9A-Fa-f]{2}-){5}[0-9A-Fa-f]{2}))([^0-9A-Za-z:._-]|\.[^0-9A-Za-z_-]|\.$|$)'
+macs=$(grep "${GREP_OPTS[@]}" "$MACPAT" . 2>/dev/null \
+       | sed -E 's/^[^0-9A-Fa-f]+//; s/[^0-9A-Fa-f]+$//' \
+       | grep -viE '^((00:){5}00|(00-){5}00|(ff:){5}ff|(ff-){5}ff)$' \
+       | grep -viE '^(00:00:5e:00:53:|00-00-5e-00-53-)' | sort -u)
+if [ -z "$macs" ]; then ok "none present"
+else hit "hardware addresses - each identifies a specific machine:"; echo "$macs" | sed 's/^/       /'; fi
+
+# ── 5b. Routable IPv6 ────────────────────────────────────────
+hdr "Routable IPv6"
+# Mirrored in .gitleaks.toml. RFC 4291 textual forms: eight hextets, one of the
+# compressed shapes, or a mixed dotted-decimal form whose explicit hextets
+# either side of "::" total at most five. A colon count is not a validity test -
+# ">=3 colons" matched the MAC 00:00:5e:00:53:01, and "has a ::" matched inside
+# 1:2:3:4:5:6:7:8:9. The trailing class treats ".", "_" and "-" as identifier
+# characters so an address cannot terminate before a suffix or a dotted tail.
+# The sed clauses strip, in order: a label prefix (IPv6:), a leading boundary
+# character, a trailing boundary character, and a sentence-final period.
+V6H='[0-9a-fA-F]{1,4}'; V6D='(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])'
+V6IPV4="$V6D(\.$V6D){3}"
+V6MIX="($V6H:){6}$V6IPV4|::($V6H:){0,5}$V6IPV4|($V6H:){1}:($V6H:){0,4}$V6IPV4|($V6H:){2}:($V6H:){0,3}$V6IPV4|($V6H:){3}:($V6H:){0,2}$V6IPV4|($V6H:){4}:($V6H:){0,1}$V6IPV4|($V6H:){5}:$V6IPV4"
+V6HEX="($V6H:){7}$V6H|($V6H:){1,7}:|($V6H:){1,6}:$V6H|($V6H:){1,5}(:$V6H){1,2}|($V6H:){1,4}(:$V6H){1,3}|($V6H:){1,3}(:$V6H){1,4}|($V6H:){1,2}(:$V6H){1,5}|$V6H:(:$V6H){1,6}|:((:$V6H){1,7}|:)"
+V6LEAD='(^|[^0-9A-Za-z:._-]|[A-Za-z][A-Za-z0-9_]*:)'
+V6TRAIL='([^0-9A-Za-z:._-]|\.[^0-9A-Za-z_-]|\.$|$)'
+v6=$(grep "${GREP_OPTS[@]}" "$V6LEAD($V6MIX|$V6HEX)$V6TRAIL" . 2>/dev/null \
+     | sed -E 's/^[A-Za-z][A-Za-z0-9_]*://; s/^[^0-9A-Fa-f:]+//; s/[^0-9A-Fa-f:.]+$//; s/\.$//' \
+     | grep -viE '^(2001:0?db8:|fe[89ab][0-9a-f]:|f[cd][0-9a-f]{2}:|ff[0-9a-f]{2}:)' \
+     | grep -viE '^(0{1,4}:){7}0*[01]$' \
+     | grep -viE '^::[01]?$' | sort -u)
+if [ -z "$v6" ]; then ok "only documentation/link-local/ULA/multicast/loopback"
+else hit "routable IPv6 - confirm each is attacker-side, not lab-side:"; echo "$v6" | sed 's/^/       /'; fi
 
 # ── 6. Tenant / lab hostnames ────────────────────────────────
 hdr "Tenant domains and lab hostnames"

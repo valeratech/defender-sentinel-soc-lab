@@ -21,7 +21,6 @@ regexTarget = "match"
 regexes = [
   '''00000000-0000-0000-0000-000000000000''',
   '''contoso\.(com|onmicrosoft\.com)''',
-  '''2001:0?db8:''',
   # Public Microsoft ASR rule GUIDs — documented, identical for every tenant,
   # not environment identifiers. (Lab 06 / POS-031.)
   '''d1e49aac-8f56-4280-b9ba-993a6d77406c''',   # Block process creations from PSExec/WMI
@@ -53,7 +52,6 @@ tags = ["azure", "identifier", "pii"]
   regexTarget = "match"
   regexes = [
     '''00000000-0000-0000-0000-000000000000''',
-    '''11111111-1111-1111-1111-111111111111''',
   ]
 
 [[rules]]
@@ -175,3 +173,67 @@ id = "azure-vm-public-dns"
 description = "Azure-assigned public DNS name for a lab VM"
 regex = '''\b[a-z0-9\-]+\.[a-z0-9\-]+\.cloudapp\.azure\.com\b'''
 tags = ["operational", "critical"]
+
+[[rules]]
+id = "mac-address"
+description = "MAC address (EUI-48, colon or hyphen form) — a hardware identifier tied to a specific machine"
+# The two separator forms are enumerated. A per-octet [:-] class accepted mixed
+# strings such as 00:00-5e:00-53:01, which are not valid addresses.
+# Boundaries are consumed because RE2 has no lookarounds; the address itself is
+# secretGroup 1. Hex-class boundaries fired on x00:00:5e:00:53:01z and on
+# 00:00:5e:00:53:01.example, so the classes below are identifier-class, matching
+# public-ipv6-review. No label alternative: it would admit MAC:02:... but would
+# also extract a six-group substring from a seven-group colon run such as
+# ab:00:00:5e:00:53:01.
+# Dotted EUI-48 / Cisco-style three-group notation (0011.2233.4455) is
+# deliberately outside this detector's colon/hyphen representation scope.
+regex = '''(?:^|[^0-9A-Za-z:._\-])((?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}|(?:[0-9A-Fa-f]{2}-){5}[0-9A-Fa-f]{2})(?:[^0-9A-Za-z:._\-]|\.[^0-9A-Za-z_\-]|\.$|$)'''
+secretGroup = 1
+tags = ["operational", "identifier"]
+  [rules.allowlist]
+  # No regexTarget: the default target is the extracted Secret. "match" would
+  # test these against the whole match including the consumed boundaries, where
+  # they can never fire, and the broadcast address would be reported.
+  # Forms are enumerated as in the rule: a mixed-separator string is not a valid
+  # address, so it is not listed here as a benign one.
+  regexes = [
+    '''(?i)^(?:00:){5}00$''',
+    '''(?i)^(?:00-){5}00$''',
+    '''(?i)^(?:ff:){5}ff$''',
+    '''(?i)^(?:ff-){5}ff$''',
+    # RFC 7042 documentation block, both representations
+    '''(?i)^00:00:5e:00:53:''',
+    '''(?i)^00-00-5e-00-53-''',
+  ]
+
+[[rules]]
+id = "public-ipv6-review"
+description = "Routable IPv6 — confirm it is attacker-side/TI, not a lab endpoint"
+# RFC 4291 textual forms. The mixed dotted-decimal branches are listed first so
+# leftmost-first alternation prefers a whole match over a truncated hex one.
+# Compressed mixed forms are enumerated per leading-hextet count b with trailing
+# count 5-b: the dotted quad is already two 16-bit groups and "::" must compress
+# at least one, so explicit hextets either side total at most five. Independent
+# counts accepted 1:2:3:4:5::6:7:8:9:192.0.2.1.
+# Boundaries are consumed (RE2 has no lookarounds); address is secretGroup 1.
+# The trailing class treats ".", "_" and "-" as identifier characters, matching
+# the leading class: an asymmetric version fired on 2001:db8::8888.example and
+# let 2001:4860::8888_suffix terminate early, and a digit-only test let
+# 1:2:3:4:5:6::192.0.2.1 truncate to ...::192.
+# A routable mixed-form address is reported here and its dotted tail by
+# public-ipv4-review. Two findings for one value is intended; the alternative is
+# the two rules disagreeing about who owns the dotted component.
+regex = '''(?i)(?:^|[^0-9A-Za-z:._\-]|[A-Za-z][A-Za-z0-9_]*:)((?:[0-9a-f]{1,4}:){6}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|::(?:[0-9a-f]{1,4}:){0,5}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-f]{1,4}:){1}:(?:[0-9a-f]{1,4}:){0,4}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-f]{1,4}:){2}:(?:[0-9a-f]{1,4}:){0,3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-f]{1,4}:){3}:(?:[0-9a-f]{1,4}:){0,2}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-f]{1,4}:){4}:(?:[0-9a-f]{1,4}:){0,1}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-f]{1,4}:){5}:(?:[0-9a-f]{1,4}:){0,0}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-f]{1,4}:){7}[0-9a-f]{1,4}|(?:[0-9a-f]{1,4}:){1,7}:|(?:[0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|(?:[0-9a-f]{1,4}:){1,5}(?::[0-9a-f]{1,4}){1,2}|(?:[0-9a-f]{1,4}:){1,4}(?::[0-9a-f]{1,4}){1,3}|(?:[0-9a-f]{1,4}:){1,3}(?::[0-9a-f]{1,4}){1,4}|(?:[0-9a-f]{1,4}:){1,2}(?::[0-9a-f]{1,4}){1,5}|[0-9a-f]{1,4}:(?::[0-9a-f]{1,4}){1,6}|:(?:(?::[0-9a-f]{1,4}){1,7}|:))(?:[^0-9A-Za-z:._\-]|\.[^0-9A-Za-z_\-]|\.$|$)'''
+secretGroup = 1
+tags = ["operational", "review"]
+  [rules.allowlist]
+  regexes = [
+    # RFC 3849 documentation range. Relocated here from the global allowlist,
+    # where it was an exception to a rule that did not yet exist.
+    '''(?i)^2001:0?db8:''',
+    '''(?i)^fe[89ab][0-9a-f]:''',      # RFC 4291 link-local FE80::/10
+    '''(?i)^f[cd][0-9a-f]{2}:''',      # RFC 4193 unique local FC00::/7
+    '''(?i)^ff[0-9a-f]{2}:''',         # RFC 4291 multicast FF00::/8
+    '''(?i)^(?:0{1,4}:){7}0*[01]$''',  # full-notation unspecified and loopback
+    '''^::[01]?$''',                   # compressed unspecified and loopback
+  ]

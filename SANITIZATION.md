@@ -179,6 +179,20 @@ committed as-is.
 
 Distinct real values map to distinct placeholders (`analyst@`, `admin@`, `svc-ama@`) so relationships in the data survive redaction and queries remain readable.
 
+**Terms decided 2026-08-17 — one removed.** The GitHub account/org identity was
+removed from `.pii-terms` as a **public-identity exception** under the taxonomy
+below. It is the first path component of this repository's canonical URL; it is
+emitted by `actions/checkout` on every workflow run, appears in the clone
+remote, and is also present in historical commit-authorship metadata. It cannot
+be eliminated from the canonical repository identity or platform-generated
+repository references without changing that public identity. Measured across 67
+workflow logs: 13 occurrences per run, in `repository:`, `Syncing repository:`,
+`From https://github.com/<owner>/…` and `Artifact download URL:` lines.
+Retaining it as a prohibited term guarantees findings on every log-bearing
+surface while reducing publication risk by nothing. The exception is grounded in
+that role only: the same string in an unrelated private context would be
+evaluated separately. The wordlist stands at **21 terms** afterwards.
+
 ### Public constants — allowlisted by exact value, not redacted
 
 A few GUID- and IP-shaped values are published Microsoft/Azure constants,
@@ -203,6 +217,26 @@ constant, and the allowlist entry names why.
 ### Not redacted
 
 Threat intelligence, attacker-controlled IPs observed in the wild, public IOCs, and Microsoft-published sample data. These are already public and their removal would gut the analysis.
+
+### Which inventory a value belongs to
+
+Three dispositions, decided by what the value *is*, not by how inconvenient it
+is to keep:
+
+1. **Local-only attributable value → `.pii-terms`.** No structural invariant a
+   scanner can grip, and removal from the published surface is achievable.
+2. **Intentionally public structural identity → documented public-identity
+   exception.** The value is published by construction and cannot be removed
+   from the repository's canonical references. Recording it as prohibited
+   produces unavoidable findings without reducing publication risk.
+3. **Platform-generated infrastructure metadata → scanner-context benign
+   class.** Emitted by the platform, not by this repository, and identified by
+   its emitting context rather than its shape.
+
+Neither (2) nor (3) may be implemented as a broad global regex allowlist. A
+class is excluded by context, never by pattern breadth — and an exception is
+grounded in a specific role, so the same string appearing in an unrelated
+private context is evaluated afresh.
 
 ---
 
@@ -297,7 +331,12 @@ were introduced between the Lab 04 and Lab 07 commits; a rewrite removing them w
 commit log, on a repository whose whole premise is a dated, verifiable record. Weighed
 against a leak consisting of resource names in a disposable single-analyst tenant holding
 no real data — the same mitigating control named in Lab 00 §7 — the rewrite costs more
-than it buys. **Commits before `02737e7` therefore contain real resource names.** Stated
+than it buys. **Commit `02737e7` still contains the affected real resource names; its child
+`d5d3d3d` is the commit that sanitized them forward.** A second event followed on
+2026-08-11: `9ad238ad` sanitized the operator display name forward, again leaving
+history intact. Any check for post-sanitization recurrence must compare each term
+against the sanitization event applicable to **that term**, not against a single
+project-wide boundary. Stated
 here plainly so a reader finds it in the document that claims the repository is sanitized,
 rather than discovering it in `git log`.
 
@@ -442,6 +481,54 @@ stated purpose is to *exclude* version-control metadata.
 the gap did not overlap: everything an operator would think to verify was
 present, and the mechanism reported healthy while the specific thing that
 mattered was gone. *Configured ≠ effective*, one layer below the tenant.
+
+### The reverse direction — moving the working copy *out* for analysis
+
+The section above governs delivery *into* the working copy. Audit and analysis
+move material the other way, and that direction has its own failure, measured on
+2026-08-17: a snapshot built with `tar czf --exclude=.git` carried `.pii-terms`
+— 22 lines of real attributable values — out of this machine and into an
+external analysis environment.
+
+**`--exclude=.git` is correct for delivery and wrong for extraction.** It
+excludes version-control metadata. It does not consult `.gitignore`, because
+`tar` has no reason to: ignore rules govern *Git admission*, not the filesystem.
+A file can be permanently excluded from history and still be copied by every
+archive, sync, backup and upload tool on the system.
+
+**Rule: never build an audit snapshot by recursively walking the working tree
+with filesystem `tar`.** For committed-state snapshots, use Git as the transport
+boundary with `git archive HEAD`:
+
+```
+git archive --format=tar.gz --output=<path> HEAD
+```
+
+`git archive HEAD` exports tracked content *from the commit*, so an untracked
+local file cannot ride along merely because it exists. Where working-tree bytes
+are genuinely required, derive the member set from `git ls-files` and archive
+only that set.
+
+**Prove it, don't assume it.** The accepted instrument is exact set equivalence
+between `git ls-files` and the archive's non-directory members:
+
+```
+git ls-files | LC_ALL=C sort > /tmp/a
+tar tzf <archive> | grep -v '/$' | LC_ALL=C sort > /tmp/b
+diff -u /tmp/a /tmp/b
+```
+
+A raw member count is **not** a valid check — `git archive` emits directory
+entries as well as files, so the totals legitimately differ. This equality also
+assumes no tracked file is omitted by an `export-ignore` attribute; none is set
+today, and if one is ever introduced the proof needs an explicitly reviewed
+expected export set rather than naive equality.
+
+**The shared lesson with the paragraph above.** Both failures come from treating
+`.gitignore` as protection outside Git. One archive lost it and risked a future
+commit; the other ignored its semantics and moved the file off the machine.
+`.gitignore` controls Git admission and nothing else. Local-only sensitive
+control files require an independent transport boundary.
 
 ## 8. Enforcement
 

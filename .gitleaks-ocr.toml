@@ -159,3 +159,78 @@ tags = ["ocr", "operational"]
     '''^127[ \t]*\.''',
     '''^172[ \t]*\.[ \t]*(1[6-9]|2[0-9]|3[01])[ \t]*\.''',
   ]
+
+[[rules]]
+id = "ocr-mac-label"
+description = "Chrome indicating an adjacent hardware address — check the value"
+regex = '''(?i)(mac[ \t]*address|physical[ \t]*address|hardware[ \t]*address|bssid)'''
+tags = ["ocr", "label", "review"]
+
+[[rules]]
+id = "ocr-mac"
+description = "MAC address recovered intact from a screenshot"
+# Real hex only. Colon-form and hyphen-form are enumerated separately because a
+# per-separator [:-] class accepts mixed strings that are not addresses.
+# [ \t]* absorbs OCR-inserted spacing; that is what OCR tolerance means here,
+# not a looser structural grammar. Consumed identifier boundaries with
+# secretGroup 1 stop a six-group match being taken from inside a longer
+# colon-hextet run. No regexTarget on the allowlist: the default target is the
+# extracted Secret, and "match" would test these anchored patterns against the
+# consumed boundaries too, where they could never fire.
+regex = '''(?:^|[^0-9A-Za-z:._\-])((?:[0-9a-fA-F]{2}[ \t]*:[ \t]*){5}[0-9a-fA-F]{2}|(?:[0-9a-fA-F]{2}[ \t]*-[ \t]*){5}[0-9a-fA-F]{2})(?:[^0-9A-Za-z:._\-]|\.[^0-9A-Za-z_\-]|\.$|$)'''
+secretGroup = 1
+tags = ["ocr", "identifier"]
+  [rules.allowlist]
+  regexes = [
+    '''(?i)^(?:00[ \t]*[:\-][ \t]*){5}00$''',
+    '''(?i)^(?:ff[ \t]*[:\-][ \t]*){5}ff$''',
+    # RFC 7042 documentation block
+    '''(?i)^00[ \t]*[:\-][ \t]*00[ \t]*[:\-][ \t]*5e[ \t]*[:\-][ \t]*00[ \t]*[:\-][ \t]*53''',
+  ]
+
+[[rules]]
+id = "ocr-fuzzy-mac"
+description = "MAC-shaped token with OCR character confusion — review by eye"
+# Same grammar, character class widened for the usual OCR confusions
+# (O/0, I/l/1, S/5, Q, Z). WARN tier: degraded evidence prompts a look rather
+# than blocking on a reading the engine may have invented.
+regex = '''(?:^|[^0-9A-Za-z:._\-])((?:[0-9a-fA-FoOlLiIsSqQzZ]{2}[ \t]*:[ \t]*){5}[0-9a-fA-FoOlLiIsSqQzZ]{2}|(?:[0-9a-fA-FoOlLiIsSqQzZ]{2}[ \t]*-[ \t]*){5}[0-9a-fA-FoOlLiIsSqQzZ]{2})(?:[^0-9A-Za-z:._\-]|\.[^0-9A-Za-z_\-]|\.$|$)'''
+secretGroup = 1
+tags = ["ocr", "label", "review"]
+  [rules.allowlist]
+  regexes = [
+    # An entirely valid-hex token is ocr-mac's business. Without this every real
+    # MAC produces a BLOCK and a WARN, "strict only" becomes untestable, and
+    # values suppressed on the strict rule resurface here as warnings.
+    '''^(?:[0-9a-fA-F]{2}[ \t]*[:\-][ \t]*){5}[0-9a-fA-F]{2}$''',
+    '''(?i)^(?:00[ \t]*[:\-][ \t]*){5}00$''',
+    '''(?i)^(?:ff[ \t]*[:\-][ \t]*){5}ff$''',
+    '''(?i)^00[ \t]*[:\-][ \t]*00[ \t]*[:\-][ \t]*5e[ \t]*[:\-][ \t]*00[ \t]*[:\-][ \t]*53''',
+  ]
+
+[[rules]]
+id = "ocr-ipv6-label"
+description = "Chrome indicating an adjacent IPv6 address"
+regex = '''(?i)(ipv6[ \t]*address|link[ \t]*local|inet6|ipv6[ \t]*[:.])'''
+tags = ["ocr", "label", "review"]
+
+[[rules]]
+id = "ocr-ipv6"
+description = "IPv6 recovered intact from a screenshot — classify attacker-side or lab-side"
+# RFC 4291 textual forms enumerated: counting colons is not a validity test, as
+# a ">=2 groups" candidate matched the clock 08:45:12 and a MAC. Mixed dotted
+# branches are listed first so leftmost-first alternation prefers a whole match
+# over a truncated one, and their compressed forms are enumerated per leading
+# hextet count because explicit hextets either side of "::" total at most five.
+regex = '''(?:^|[^0-9A-Za-z:._\-])((?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){6}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[ \t]*\.[ \t]*(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|::[ \t]*(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){0,5}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[ \t]*\.[ \t]*(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){1}:[ \t]*(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){0,4}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[ \t]*\.[ \t]*(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){2}:[ \t]*(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){0,3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[ \t]*\.[ \t]*(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){3}:[ \t]*(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){0,2}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[ \t]*\.[ \t]*(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){4}:[ \t]*(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){0,1}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[ \t]*\.[ \t]*(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){5}:[ \t]*(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){0,0}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[ \t]*\.[ \t]*(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){7}[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){1,6}:[ \t]*[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){1,5}(?::[ \t]*[0-9a-fA-F]{1,4}){1,2}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){1,4}(?::[ \t]*[0-9a-fA-F]{1,4}){1,3}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){1,3}(?::[ \t]*[0-9a-fA-F]{1,4}){1,4}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){1,2}(?::[ \t]*[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}[ \t]*:(?::[ \t]*[0-9a-fA-F]{1,4}){1,6}|(?:[0-9a-fA-F]{1,4}[ \t]*:[ \t]*){1,7}:|:(?:(?::[ \t]*[0-9a-fA-F]{1,4}){1,7}|:))(?:[^0-9A-Za-z:._\-]|\.[^0-9A-Za-z_\-]|\.$|$)'''
+secretGroup = 1
+tags = ["ocr", "operational"]
+  [rules.allowlist]
+  regexes = [
+    # RFC 3849 documentation range
+    '''(?i)^2001[ \t]*:[ \t]*0?db8[ \t]*:''',
+    '''(?i)^fe[89ab][0-9a-f][ \t]*:''',
+    '''(?i)^f[cd][0-9a-f]{2}[ \t]*:''',
+    '''(?i)^ff[0-9a-f]{2}[ \t]*:''',
+    '''^:[ \t]*:[ \t]*1?$''',
+  ]

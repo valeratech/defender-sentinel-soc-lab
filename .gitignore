@@ -98,3 +98,10 @@ screenshots/raw/
 # Your username, hostname, personal email, tenant display name.
 # Committing this file would publish the identifiers it exists to find.
 .pii-terms
+
+# ── Python bytecode ────────────────────────────────────────
+# Syntax-validating or importing these scripts (py_compile, an editor, a test
+# harness) writes __pycache__ next to them, and `git add -A` (the documented
+# workflow) would stage compiled artifacts into a publication repository.
+__pycache__/
+*.pyc

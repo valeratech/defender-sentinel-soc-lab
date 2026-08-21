@@ -210,22 +210,112 @@ fi
 
 # ── 10. Images ───────────────────────────────────────────────
 hdr "Committed images"
-shopt -s nullglob globstar
-imgs=( **/*.png **/*.jpg **/*.jpeg **/*.webp )
-if [ ${#imgs[@]} -eq 0 ]; then
+# Extension set comes from the single machine authority; the parity gate
+# fails the build if an independent list reappears here (AUD-007).
+. "$(dirname "$0")/image-formats.sh"
+shopt -s nullglob globstar nocaseglob
+# Policy view first (P7): image-like files that are NOT lowercase supported
+# must surface here, not vanish into "no images". nocaseglob catches case
+# variants; verdict logic below distinguishes them.
+allimgs=()
+for _ext in $SUPPORTED_IMAGE_EXTS $REJECTED_IMAGE_EXTS; do
+  for _f in **/*."$_ext"; do allimgs+=( "$_f" ); done
+done
+shopt -u nocaseglob
+imgs=()
+POLICY_HIT=0
+in_word_list() { local w="$1"; shift; local x; for x in $*; do [ "$w" = "$x" ] && return 0; done; return 1; }
+for _f in "${allimgs[@]}"; do
+  _ext="${_f##*.}"
+  if in_word_list "$_ext" $SUPPORTED_IMAGE_EXTS; then
+    # Content↔extension binding (P11/P17): the manual audit must agree with
+    # the census and policy hook about what a supported image IS. Detected
+    # MIME must equal the authority-mapped value; failing closed otherwise.
+    if ! command -v file >/dev/null 2>&1; then
+      hit "image policy: $_f — 'file' unavailable; content/extension binding cannot be verified, failing closed (SANITIZATION.md section 10)"
+      POLICY_HIT=1
+      continue
+    fi
+    _mime="$(file --brief --mime-type -- "$_f" 2>/dev/null)"; _mrc=$?
+    if [ "$_mrc" -ne 0 ] || [ -z "$_mime" ]; then
+      hit "image policy: $_f — MIME detection failed; failing closed (SANITIZATION.md section 10)"
+      POLICY_HIT=1
+      continue
+    fi
+    _bound=""
+    for _pair in $SUPPORTED_IMAGE_MIME_MAP; do
+      [ "${_pair%%=*}" = "$_ext" ] && _bound="${_pair#*=}"
+    done
+    if [ -z "$_bound" ] || [ "$_mime" != "$_bound" ]; then
+      hit "image policy: $_f — content/extension mismatch: detected $_mime under '.$_ext' (bound to ${_bound:-nothing}) (SANITIZATION.md section 10)"
+      POLICY_HIT=1
+      continue
+    fi
+    imgs+=( "$_f" )
+  else
+    hit "image policy: $_f — extension '.$_ext' violates the lowercase supported set (SANITIZATION.md section 10)"
+    POLICY_HIT=1
+  fi
+done
+if [ ${#imgs[@]} -eq 0 ] && [ "$POLICY_HIT" -eq 0 ]; then
   ok "no images in repository"
-else
-  printf '   %d image(s) — running OCR gate\n' "${#imgs[@]}"
+elif [ ${#imgs[@]} -gt 0 ]; then
+  printf '   %d supported image(s) — running single-frame check and OCR gate\n' "${#imgs[@]}"
+  # Single-frame contract (AUD-007 facet g) before OCR.
+  FRAME_HIT=0
+  for img in "${imgs[@]}"; do
+    python3 "$(dirname "$0")/detect-animation.py" "$img"
+    _arc=$?
+    case "$_arc" in
+      0) : ;;
+      1) hit "image policy: $img — multi-image content (APNG/animated WebP/JPEG MPO); supported publication images must contain exactly one image (SANITIZATION.md section 10)"; FRAME_HIT=1 ;;
+      3) hit "image policy: $img — content is not a recognised PNG/WebP/JPEG container; the single-image contract cannot be evaluated, failing closed (SANITIZATION.md section 10)"; FRAME_HIT=1 ;;
+      *) hit "image policy: $img — single-image check could not parse this image; failing closed"; FRAME_HIT=1 ;;
+    esac
+  done
   if bash scripts/scan-image-text.sh "${imgs[@]}"; then
     ok "OCR gate passed (manual visual review still required — SANITIZATION.md section 4)"
   else
     hit "OCR gate blocked one or more images"
   fi
   hdr "Image metadata"
-  if command -v exiftool >/dev/null 2>&1; then
-    meta=$(exiftool -s -GPS* -Author -Creator -Software -HostComputer "${imgs[@]}" 2>/dev/null | grep -v "^$" || true)
-    if [ -z "$meta" ]; then ok "no GPS/author/software metadata"
-    else hit "metadata present:"; echo "$meta" | sed 's/^/       /'; fi
+  # Byte-level strip idempotence: would the repository's own strip operation
+  # (exiftool -all= -overwrite_original) change this image? Markers shared
+  # verbatim with scripts/ci-verify-image-metadata.sh. Output carries paths
+  # and markers only — never metadata values, never warning text. A check
+  # that did not run is never reported clean, and every oracle step fails
+  # closed to the same standard as the CI implementation (SANITIZATION.md
+  # section 10).
+  if ! command -v exiftool >/dev/null 2>&1; then
+    hit "METADATA-CHECK-NOT-RUN — exiftool unavailable; metadata verification did not run"
+  else
+    META_HIT=0
+    for img in "${imgs[@]}"; do
+      _mw="$(mktemp -d)" || { hit "METADATA-CHECK-FAILED $img"; META_HIT=1; continue; }
+      if ! cp -- "$img" "$_mw/copy"; then
+        hit "METADATA-CHECK-FAILED $img"; META_HIT=1; rm -rf "$_mw"; continue
+      fi
+      if ! _h1="$(sha256sum -- "$_mw/copy" | cut -d' ' -f1)" || [ -z "$_h1" ]; then
+        hit "METADATA-CHECK-FAILED $img"; META_HIT=1; rm -rf "$_mw"; continue
+      fi
+      _err="$(exiftool -all= -overwrite_original "$_mw/copy" 2>&1 1>/dev/null)"
+      _rc=$?
+      if [ "$_rc" -ne 0 ] || [ -n "$_err" ]; then
+        hit "METADATA-CHECK-FAILED $img"; META_HIT=1; rm -rf "$_mw"; continue
+      fi
+      if ! _h2="$(sha256sum -- "$_mw/copy" | cut -d' ' -f1)" || [ -z "$_h2" ]; then
+        hit "METADATA-CHECK-FAILED $img"; META_HIT=1; rm -rf "$_mw"; continue
+      fi
+      rm -rf "$_mw"
+      if [ "$_h1" != "$_h2" ]; then
+        hit "METADATA-PRESENT $img — strip would change this image; inspect locally with exiftool (values deliberately not printed here)"
+        META_HIT=1
+      fi
+    done
+    # P7: never print a clean line above red findings.
+    if [ "$META_HIT" -eq 0 ]; then
+      ok "metadata check clean (byte-level strip idempotence, ${#imgs[@]} image(s))"
+    fi
   fi
 fi
 

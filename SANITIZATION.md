@@ -577,3 +577,79 @@ intersection with tracked files. If that is ever non-zero, it is real.
 | 2026-07-16 | **Invented IOC committed and scrubbed from history.** A public IPv4 address was written into a lab writeup as an example attacker IOC. It was not observed in this environment and not sourced from threat intelligence — it was generated, and it labelled a live, routable allocation as attacker infrastructure. No tenant data was exposed and nothing required rotation. Removed from history with `git-filter-repo`; the address is treated as permanently public per §9.3 regardless. **Cause:** the address was produced while drafting documentation, which is the same path that produced every other near-miss this repo has had — an operator email in code comments (×4) and a lab public IP in prose (×2), all caught pre-commit. The gates catch leaks; the gates do not catch invention. §7 was written afterwards and is the control: this document deliberately does not print a real IOC. |
 
 **On the scope of this table.** Nothing of the tenant's has leaked. This entry is here because §9.5 says to record incidents and the commit graph shows a history rewrite, and a changelog that reads "no incidents" beside a `git-filter-repo` in the log is the one line in this document a reader can falsify for themselves. The near-misses above are not listed as incidents because they never entered history — the gates held. That distinction is the point of keeping the table at all.
+
+## 10. Publication Image Formats
+
+One machine authority defines which image formats may be published:
+`scripts/image-formats.sh`. Every surface that names image extensions — the
+pre-commit hooks, the CI census/metadata steps, `audit-pii.sh`,
+`.gitattributes`, and this document — is contract-checked against it by
+`scripts/check-image-format-parity.py`. Drift fails the build (AUD-007).
+
+```image-format-policy
+supported: png jpg jpeg webp
+rejected-raster: gif bmp tif tiff avif heic heif ico jfif
+rejected-textual: svg
+single-frame: png webp jpg jpeg
+mime-binding: png=image/png jpg=image/jpeg jpeg=image/jpeg webp=image/webp
+```
+
+**Supported extensions are bound to their content.** Detected MIME must equal
+the mapped type (`png=image/png`, `jpg`/`jpeg`=`image/jpeg`,
+`webp=image/webp`, from the authority): GIF bytes renamed `.png` fail as a
+content/extension mismatch, in both the CI census and the local policy hook.
+The single-frame detector additionally treats any container it cannot fully
+parse — truncated, oversized chunk declarations, missing terminal structures —
+as a failure, never as single-frame.
+
+**Supported formats are lowercase-exact.** A mis-cased extension (`.PNG`) is
+rejected rather than accommodated: one strict spelling enforced once beats a
+case-insensitive regex duplicated across five surfaces, each a chance to get
+it subtly wrong.
+
+Why each rejection:
+
+- **JPEG Multi-Picture Format (MPO)** — a valid CIPA-standard `.jpg` can carry
+  multiple complete JPEG images (MP extensions in APP2); OCR surfaces one and
+  exits 0. Rejected until deliberately supported: every supported publication
+  image must represent exactly one OCR-relevant image.
+- **Animated PNG (APNG) and animated WebP** — rejected even under supported
+  extensions (facet g). A later frame can carry text that single-raster OCR
+  never surfaces: a two-frame APNG with sensitive text only in frame 2 passes
+  Tesseract at exit 0 showing frame 1 alone. `scripts/detect-animation.py`
+  checks content (acTL chunk; VP8X animation flag / ANIM/ANMF chunks) before
+  OCR, in both the census and the local policy hook.
+- **gif** — potentially multi-frame; the OCR pipeline rasterizes a single
+  image per input, so scanning frame 1 of an animation would be a silent
+  coverage gap. Rejected rather than partially supported (fail closed).
+- **svg** — text-based and able to embed raster content; it must not sit
+  outside both policy classes. Textual scanning covers committed text, but the
+  format is rejected as a publication image until deliberately admitted.
+- **bmp / tif / tiff / avif / heic / heif / ico / jfif** — never needed by
+  this repository and unqualified against the OCR and strip toolchain.
+  Unsupported until deliberately admitted.
+
+Enforcement layers:
+
+1. **Local** — the `image-policy` pre-commit hook blocks rejected and
+   mis-cased extensions at staging (bypassable by construction, like every
+   local hook).
+2. **CI census** — over the tracked boundary (`git ls-files -z`, NUL-safe
+   end to end): any image-like extension must be exact-lowercase supported,
+   and any file whose *detected content* is `image/*` must carry a supported
+   extension — a PNG renamed `evidence.dat` fails. Detection floor is
+   libmagic's signature knowledge on the runner; unknown formats fall back to
+   the extension layer.
+3. **CI metadata verification** — byte-level strip idempotence: the workflow
+   re-runs the repository's own strip operation (`exiftool -all=
+   -overwrite_original`, pinned exact version, checksum-bound install) against
+   a temp copy of every tracked supported image and fails if the bytes would
+   change. Any ExifTool warning or error fails closed, even at exit 0. Output
+   carries paths and machine-readable markers (`METADATA-CHECK-NOT-RUN`,
+   `METADATA-CHECK-FAILED`, `METADATA-PRESENT`) — never metadata values, never
+   warning text.
+
+The CI layers are **advisory/detective for the repository-configured
+workflow**: they run on push, and as observed 2026-08-19 no branch protection
+or ruleset requires them to run or pass before `main` changes. They detect;
+they do not prevent.

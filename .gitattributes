@@ -11,12 +11,23 @@
 *.md    text eol=lf
 *.json  text eol=lf
 
-# Binary — never diff, never normalize
+# Binary — never diff, never normalize. Pinned superset (supported + rejected
+# raster) derived from scripts/image-formats.sh: if a rejected raster ever
+# lands through a bypass, normalization must not alter its bytes while it is
+# investigated and removed. Checked by scripts/check-image-format-parity.py.
 *.png   binary
 *.jpg   binary
-*.jpeg  binary
+*.jpeg   binary
+*.webp   binary
 *.gif   binary
-*.webp  binary
+*.bmp   binary
+*.tif   binary
+*.tiff   binary
+*.avif   binary
+*.heic   binary
+*.heif   binary
+*.ico   binary
+*.jfif   binary
 
 # Generated — collapse in PR diffs
 docs/attack-coverage.md linguist-generated=true

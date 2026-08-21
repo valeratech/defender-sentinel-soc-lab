@@ -143,10 +143,41 @@ jobs:
           sudo mv "${RUNNER_TEMP}/gitleaks" /usr/local/bin/
           gitleaks version
 
-      - name: Scan images
+      - name: Install ExifTool (pinned + checksum-bound)
         run: |
-          shopt -s nullglob globstar
-          imgs=( **/*.png **/*.jpg **/*.jpeg **/*.webp )
+          # Exact experimentally qualified version. The expected digest is fixed
+          # here in reviewed bytes — NEVER derived from the artifact after
+          # downloading it. Mismatch fails before installation. A version bump
+          # is a deliberate reviewed diff changing pin + digest together; the
+          # per-run oracle self-proof in ci-verify-image-metadata.sh catches
+          # semantic regression on any new toolchain.
+          EXIFTOOL_VERSION="12.76"
+          EXIFTOOL_SHA256="07d1cdcf96153c94dca9489fff9bfc9475c399e0aecae5620591163198198b79"
+          curl -sSL --fail \
+            -o "${RUNNER_TEMP}/exiftool.tar.gz" \
+            "https://github.com/exiftool/exiftool/archive/refs/tags/${EXIFTOOL_VERSION}.tar.gz"
+          echo "${EXIFTOOL_SHA256}  ${RUNNER_TEMP}/exiftool.tar.gz" | sha256sum --check --strict
+          tar xzf "${RUNNER_TEMP}/exiftool.tar.gz" -C "${RUNNER_TEMP}"
+          sudo ln -sf "${RUNNER_TEMP}/exiftool-${EXIFTOOL_VERSION}/exiftool" /usr/local/bin/exiftool
+          INSTALLED="$(exiftool -ver)"
+          [ "${INSTALLED}" = "${EXIFTOOL_VERSION}" ] || { echo "ExifTool version mismatch: ${INSTALLED} != ${EXIFTOOL_VERSION}"; exit 1; }
+          file --version | head -1
+
+      - name: Image format census (tracked boundary + content detection)
+        run: bash scripts/ci-image-census.sh
+
+      - name: Image format parity gate
+        run: python3 scripts/check-image-format-parity.py
+
+      - name: Verify image metadata (byte-level strip idempotence)
+        run: bash scripts/ci-verify-image-metadata.sh
+
+      - name: Scan images (OCR)
+        run: |
+          # List production is hard-checked; a failed census must fail this
+          # step too, not read as an empty image list (AUD-007 review P9).
+          bash scripts/ci-image-census.sh --list0 > "${RUNNER_TEMP}/imgs0"
+          readarray -d '' imgs < "${RUNNER_TEMP}/imgs0"
           if [ ${#imgs[@]} -eq 0 ]; then
             echo "No images in repository - nothing to scan."
             exit 0

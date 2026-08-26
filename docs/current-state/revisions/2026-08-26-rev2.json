@@ -1,0 +1,71 @@
+{
+  "id": "2026-08-26-rev2",
+  "status": "CURRENT",
+  "supersedes": [
+    "2026-08-25-rev1"
+  ],
+  "reviewer_authority": {
+    "file": "docs/current-state/reviewer-authority/2026-08-26-stage2-closeout.md",
+    "sha256": "42e6f75e584c3c132733761bd50a499f1f07a328f14023de5092c09572f2d72f"
+  },
+  "governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
+  "stage_board": {
+    "1": "CLOSED",
+    "2": "CLOSED_WITH_ACCEPTED_LIMITATION",
+    "3": "NOT_STARTED",
+    "4": "NOT_STARTED",
+    "5": "NOT_STARTED",
+    "6": "NOT_STARTED",
+    "7": "NOT_STARTED",
+    "8": "NOT_STARTED"
+  },
+  "gates": {
+    "A": "FROZEN_CLOSED",
+    "B": "FROZEN_CLOSED",
+    "C": "FROZEN_CLOSED",
+    "D": "CLOSED_WITH_ACCEPTED_LIMITATION"
+  },
+  "unit6": {
+    "l1_integration": "COMMITTED_INERT",
+    "l2_integration": "COMMITTED_INERT",
+    "l3_integration": "COMMITTED_UNWIRED",
+    "activation": "NONE",
+    "core_hooksPath": "UNSET",
+    "l2_expected_baseline": "NOT_ESTABLISHED",
+    "phase2_readiness": "NOT_DEMONSTRABLE_WITH_AVAILABLE_BYTES",
+    "frozen_authority": "U6-AUTH-001 CLOSED - ACCEPTED CURRENT LIMITATION (1 of 13 identities present)",
+    "provisioning": "COMPLETE_DO_NOT_REPEAT"
+  },
+  "dispositions": {
+    "U6-AUTH-001": "CLOSED_ACCEPTED_CURRENT_LIMITATION",
+    "U6-ORCH-040": "CLOSED",
+    "U6-TEST-010": "CLOSED",
+    "U6-MSG-001": "CLOSED_MEASURED",
+    "PRIV-001": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION",
+    "PRIV-002": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION"
+  },
+  "message_policy_measurement": {
+    "commits_scanned": 74,
+    "wordlist_terms": 21,
+    "commits_with_matches": 3,
+    "distinct_term_commit_pairs": 4,
+    "total_occurrences": 5,
+    "identical_to_audit3_wordlist_set": true,
+    "unit6_era_commits_in_match_set": 0,
+    "structural_semantics": "NOT_MEASURED"
+  },
+  "privacy": {
+    "PRIV-001": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION",
+    "PRIV-002": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION"
+  },
+  "ruleset": "DEFERRED_TO_STAGE_8_FINAL_PUBLICATION_REVIEW",
+  "note": "Reviewer-owned current revision adopted at Stage-2 closeout. Stage 2 and Gate D are CLOSED_WITH_ACCEPTED_LIMITATION. Fresh Unit-6 activation was not demonstrated because U6-AUTH-001 closed on currently unavailable frozen byte-bearing authority. The stage2_closure_checkpoint is the measured pre-authority-commit evidence checkpoint and is intentionally not represented as self-current HEAD.",
+  "stage2_closure_checkpoint": {
+    "origin_main_before_authority_commit": "928d22a07eb5382aa8478bdea2dcd871a9fcb41a",
+    "ci_run": "32937882002",
+    "ci_result": "success",
+    "tracked_files": 205,
+    "builder_defined_tree_digest": "4e1f2cd0c38ac3dc3c82ac0dd3361f3d25cc58f3a3a53f289dfc3652dfae235f",
+    "tree_digest_status": "MEASURED_ON_OPERATOR_HOST_FROM_CLOSURE_CHECKPOINT"
+  }
+}

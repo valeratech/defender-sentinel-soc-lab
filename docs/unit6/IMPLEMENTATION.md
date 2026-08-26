@@ -255,6 +255,12 @@ and repository root in-process; they never touch the operator's real
 private root, wordlist or clone. The falsification harness applies one
 defect per mutant to a temporary copy and requires the suite to fail.
 
+## Dispositions
+
+Stage-2 disposition records (missing frozen authority, the corrected commit
+step, the commit-message policy surface) live in `DISPOSITIONS.md` beside this
+file. Records are append-only and Reviewer-adopted.
+
 ## Operator sequence
 
 See `u6/orchestrate/README.md`. Nothing is live until a ⚠️ joint lock.

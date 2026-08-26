@@ -24,7 +24,7 @@ frozen member under `msgctl/`.
 | 30 | `30-u6-runtime-qualify.sh` | 20 + 25 (`msgctl/u6runtime.py`) | governed run | nothing; the frozen implementation derives EFFECTIVE runtime state | 🚨 log local; one U6_RETURN line with STATE pasteable |
 | — | Reviewer binds `docs/current-state/CURRENT.txt` + revision (Reviewer-owned) | | | | |
 | 35 | `35-verify.sh` | 20, 25, 30, bound state | verification only | nothing; failure evidence left in place | pasteable |
-| 40 | `40-commit.sh` | 35 ok=1 | mutating (index + one local commit) | candidate commit, through L1 | pasteable |
+| 40 | `40-commit.sh` | 35 ok=1 + explicit path manifest + message file | mutating (index + one local commit) | stages **exactly** the manifest paths, refuses otherwise; broad `git add -A` is NOT AUTHORIZED (Stage-2 ruling) | pasteable |
 | 45 | `45-phase2-diag.sh` | frozen diagnostic + `<rundir>` | governed run | reads private root | 🚨 log local; one U6_RETURN line with STATE pasteable |
 | 50 | `50-adjudication.sh` | frozen wrapper | governed run | private processing | 🚨 log local; one U6_RETURN line pasteable |
 | — | Reviewer accepts the current L2 expected baseline (Reviewer-owned ruling) | | | | |

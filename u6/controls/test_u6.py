@@ -19,6 +19,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -832,9 +833,140 @@ class TestOrchestration(unittest.TestCase):
         for f in sorted(self.ORCH.glob("*.sh")):
             self.assertNotIn("git remote -v", self._code(f), f.name)
 
+    def test_commit_step_stages_only_an_explicit_manifest(self):
+        # Reviewer Stage-2 ruling: the predecessor 40-commit.sh staged with
+        # `git add -A`, which was measured sweeping an unrelated uncommitted
+        # evidence note into the governed commit (63 staged / 62 governed).
+        # Broad staging is NOT AUTHORIZED. The commit step must stage only the
+        # paths named in a caller-supplied manifest and refuse anything else.
+        code = self._code(self.ORCH / "40-commit.sh")
+        for broad in ("git add -A", "git add -u", "git add .", "git add --all"):
+            self.assertNotIn(broad, code, f"broad staging present: {broad!r}")
+        self.assertIn('git add -- "$p"', code)            # per-path, explicit
+        self.assertIn("STAGED_SET_NOT_EXACT", code)        # post-stage exactness proof
+        self.assertIn("INDEX_NOT_EMPTY", code)             # owns the index it stages
+        self.assertNotIn("<<'MSG'", code)                  # no embedded, stale message
+        # Execution control with unrelated dirt present: exactly the manifest
+        # is staged and committed; the unrelated file is never touched.
+        td = Path(tempfile.mkdtemp(prefix="u6c40-"))
+        try:
+            home = td / "home"; home.mkdir()
+            repo = home / "defender-sentinel-soc-lab"; repo.mkdir()
+            git(repo, "init", "-q", "-b", "main")
+            git(repo, "config", "user.email", "t@t"); git(repo, "config", "user.name", "t")
+            git(repo, "remote", "add", "origin", "https://example.invalid/r.git")
+            (repo / "seed").write_text("s\n"); git(repo, "add", "seed")
+            git(repo, "commit", "-q", "-m", "seed")
+            (repo / "u6" / "orchestrate").mkdir(parents=True)
+            shutil.copy(self.ORCH / "40-commit.sh", repo / "u6" / "orchestrate" / "40-commit.sh")
+            (repo / "governed.txt").write_text("g\n")
+            (repo / "unrelated-note.md").write_text("must not be swept\n")
+            man = td / "manifest"; man.write_text("governed.txt\n")
+            msg = td / "msg"; msg.write_text("test: governed only\n")
+            out = subprocess.run(["bash", str(repo / "u6" / "orchestrate" / "40-commit.sh"), str(man), str(msg)],
+                                 cwd=repo, env=dict(os.environ, HOME=str(home)),
+                                 capture_output=True, text=True).stdout
+            self.assertIn("exact_match=YES", out)
+            self.assertIn("result=LOCAL_ONLY", out)
+            committed = git(repo, "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD").stdout.decode().split()
+            self.assertEqual(committed, ["governed.txt"])
+            self.assertIn("?? unrelated-note.md", git(repo, "status", "--porcelain").stdout.decode())
+        finally:
+            shutil.rmtree(td, ignore_errors=True)
+
+    def _c40_repo(self, td):
+        home = td / "home"; home.mkdir()
+        repo = home / "defender-sentinel-soc-lab"; repo.mkdir()
+        git(repo, "init", "-q", "-b", "main")
+        git(repo, "config", "user.email", "t@t"); git(repo, "config", "user.name", "t")
+        git(repo, "remote", "add", "origin", "https://example.invalid/r.git")
+        (repo / "seed").write_text("s\n"); git(repo, "add", "seed"); git(repo, "commit", "-q", "-m", "seed")
+        (repo / "u6" / "orchestrate").mkdir(parents=True)
+        shutil.copy(self.ORCH / "40-commit.sh", repo / "u6" / "orchestrate" / "40-commit.sh")
+        return home, repo
+
+    def test_commit_step_scratch_never_lands_in_repository(self):
+        # Stage-2 Exchange-2 item 2 (P10-01 class, new scoped occurrence): the
+        # exactness scratch is proven outside the tree BEFORE it is created.
+        code = self._code(self.ORCH / "40-commit.sh")
+        self.assertIn('mktemp -d "$base/u6commit-XXXXXX"', code)
+        self.assertNotIn('mktemp -d "${TMPDIR:-/tmp}/u6commit', code)
+        self.assertIn("tmpdir_rejected=inside_repository", code)
+        td = Path(tempfile.mkdtemp(prefix="u6c40t-"))
+        try:
+            home, repo = self._c40_repo(td)
+            (repo / "g.txt").write_text("g\n")
+            man = td / "m"; man.write_text("g.txt\n"); msg = td / "msg"; msg.write_text("t\n")
+            for tmpdir in (str(repo), str(repo / "docs")):
+                (repo / "docs").mkdir(exist_ok=True)
+                (repo / "g.txt").write_text("g\n")     # recreated: the prior iteration committed it
+                out = subprocess.run(["bash", str(repo / "u6" / "orchestrate" / "40-commit.sh"), str(man), str(msg)],
+                                     cwd=repo, env=dict(os.environ, HOME=str(home), TMPDIR=tmpdir),
+                                     capture_output=True, text=True).stdout
+                self.assertIn("tmpdir_rejected=inside_repository", out)
+                self.assertFalse(list(repo.rglob("u6commit-*")), out)
+                git(repo, "reset", "-q", "--hard", "HEAD~1", check=False)
+        finally:
+            shutil.rmtree(td, ignore_errors=True)
+
+    def test_commit_step_failure_output_names_no_path(self):
+        # Stage-2 Exchange-2 item 3: step 40 is a pasteable surface; refusals
+        # carry counts and categories only, never a manifest or tree path.
+        code = self._code(self.ORCH / "40-commit.sh")
+        self.assertNotIn("path=$p", code)
+        self.assertNotIn("UNEXPECTED_STAGED", code)
+        self.assertIn("absent_paths=", code); self.assertIn("unexpected=", code)
+        td = Path(tempfile.mkdtemp(prefix="u6c40p-"))
+        try:
+            home, repo = self._c40_repo(td)
+            (repo / "present-XYZZY.txt").write_text("p\n")
+            man = td / "m"; man.write_text("present-XYZZY.txt\nabsent-PLUGH.txt\n../esc-FROB\n*.md\n")
+            msg = td / "msg"; msg.write_text("t\n")
+            out = subprocess.run(["bash", str(repo / "u6" / "orchestrate" / "40-commit.sh"), str(man), str(msg)],
+                                 cwd=repo, env=dict(os.environ, HOME=str(home)), capture_output=True, text=True).stdout
+            self.assertIn("MANIFEST_INVALID unsafe_paths=1 glob_paths=1 absent_paths=1", out)
+            for token in ("XYZZY", "PLUGH", "FROB", "*.md"):
+                self.assertNotIn(token, out)
+            # staged-set mismatch path: stage an extra file behind the script's back is
+            # impossible (it owns the index), so exercise the count line by shape.
+            self.assertIn('unexpected=$(comm -13', code)
+        finally:
+            shutil.rmtree(td, ignore_errors=True)
+
+    def test_message_policy_instrument_uses_private_sink_and_qualified_tools(self):
+        # Stage-2 Exchange-2 (message-policy sink): the instrument must route
+        # private detail through u6.runlog (euid account home, no-follow,
+        # 0600, memory fallback), never $HOME, and must use the qualified
+        # executables by absolute path.
+        src = (REPO / "scripts" / "measure-message-policy.sh").read_text()
+        self.assertIn("from u6.runlog import RunLog", src)
+        self.assertNotIn('SINK_DIR="$HOME', src)
+        self.assertNotIn("mkdir -p", src)
+        self.assertIn("PY=/usr/bin/python3.12", src); self.assertIn("GIT=/usr/bin/git", src)
+        self.assertNotIn('shutil.which("git")', src)
+        self.assertNotIn("--format=%s", src)          # never prints subjects
+        for forbidden in ("print(body", "print(term", "log(body", "log(term"):
+            self.assertNotIn(forbidden, src)
+
     def test_step10_refuses_shadow_git_without_executing_it(self):
         # Reviewer remediation-2 item 1: step 10 runs before qualification and
-        # must not execute a PATH-resolved (shadow) git.
+        # must not execute a PATH-resolved (shadow) git. The LOAD-BEARING
+        # assertion is that the shadow is never executed - in EVERY environment.
+        # Whether step 10 then REFUSES (this machine's /usr/bin/git is not the
+        # qualified object) or PROCEEDS through "$GIT" by absolute path (the
+        # operator machine, where /usr/bin/git IS the qualified object) is
+        # decided by the MEASURED identity of /usr/bin/git against the script's
+        # own bound literal - never assumed. The prior version assumed the
+        # unqualified case and therefore failed on the only machine where the
+        # qualified path is real (Stage-2 Exchange-4 execution, 2026-08-26):
+        # a control that passes only where its positive path cannot run is not
+        # a control. The qualified branch is the STRONGER P10-02 proof: a full
+        # git measurement runs and the shadow still never executes.
+        code = self._code(self.ORCH / "10-live-head-compat.sh")
+        m = re.search(r"^QUALIFIED_GIT_SHA=([0-9a-f]{64})$", code, re.M)
+        self.assertIsNotNone(m, "step 10 must bind the qualified git identity literally")
+        expect_qualified = (os.path.realpath("/usr/bin/git") == "/usr/bin/git"
+                            and runtime_bind._sha256("/usr/bin/git") == m.group(1))
         td = Path(tempfile.mkdtemp(prefix="u6shadow-"))
         try:
             repo = td / "defender-sentinel-soc-lab"; repo.mkdir()
@@ -847,10 +979,16 @@ class TestOrchestration(unittest.TestCase):
             env = dict(os.environ, HOME=str(td), PATH=f"{shadow}:{os.environ['PATH']}")
             p = subprocess.run(["bash", str(self.ORCH / "10-live-head-compat.sh")], capture_output=True, env=env)
             out = p.stdout.decode() + p.stderr.decode()
-            self.assertFalse(marker.exists(), f"shadow git executed: {out}")
-            self.assertIn("GIT_UNQUALIFIED", out, out)          # this sandbox's git is not the qualified object
-            self.assertIn("REFUSED_UNQUALIFIED_GIT", out, out)
-            self.assertNotIn("COMPAT_BEGIN", out, out)          # refused before any measurement
+            self.assertFalse(marker.exists(), f"shadow git executed: {out}")   # load-bearing, both branches
+            if expect_qualified:
+                self.assertIn("GIT_QUALIFIED path=/usr/bin/git", out, out)
+                self.assertNotIn("GIT_UNQUALIFIED", out, out)
+                self.assertIn("COMPAT_BEGIN", out, out)      # measurement ran through "$GIT" by absolute path...
+                self.assertFalse(marker.exists(), out)        # ...and the shadow STILL never executed
+            else:
+                self.assertIn("GIT_UNQUALIFIED", out, out)
+                self.assertIn("REFUSED_UNQUALIFIED_GIT", out, out)
+                self.assertNotIn("COMPAT_BEGIN", out, out)    # refused before any measurement
         finally:
             shutil.rmtree(td, ignore_errors=True)
 

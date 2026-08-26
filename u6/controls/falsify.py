@@ -41,6 +41,10 @@ Mutants (id: defect class -> file, exact substitution):
   M29 frozen environment authority absence treated as qualified                [P7-01]
   M30 placement deletes msgctl on failure                                      [P7-04]
   M31 Phase-2 wrapper drops the required rundir argument                       [P7-03]
+  M41 commit step reverts to broad `git add -A` staging                        [Stage-2 ruling]
+  M42 commit-step scratch containment removed (P10-01 class)                   [Stage-2 Ex-2]
+  M43 commit-step refusal output names a manifest path                         [Stage-2 Ex-2]
+  M44 message-policy private sink reverts to $HOME                              [Stage-2 Ex-2]
   (P2-status, P3 and P4 in the current-state checker are redundant with P5/P6
    for every reachable state and therefore have no unique mutant; they are
    retained as defense-in-depth and are NOT claimed as independent controls.)
@@ -127,6 +131,17 @@ MUTANTS = {
             '  GIT=git'),
     "M40": ("u6/orchestrate/25-place-engine.sh", 'echo "REMOTE configured=YES source=.git/config"   # never echo the URL itself',
             'echo "REMOTE url=$url"'),
+    # Reviewer Stage-2 ruling: broad staging reintroduced into the commit step.
+    "M41": ("u6/orchestrate/40-commit.sh", '    git add -- "$p" || staged_ok=0', '    git add -A || staged_ok=0'),
+    # Stage-2 Exchange-2: scratch containment removed from the commit step.
+    "M42": ("u6/orchestrate/40-commit.sh", '    "$repo_real"|"$repo_real"/*|"") base=/tmp; echo "COMMIT tmpdir_rejected=inside_repository fallback=/tmp" ;;',
+            '    "__never__") base=/tmp; echo "COMMIT tmpdir_rejected=inside_repository fallback=/tmp" ;;\n  esac\n  repo_real=__none__\n  case x in\n    y) ;;'),
+    # Stage-2 Exchange-2: a manifest path leaks into pasteable refusal output.
+    "M43": ("u6/orchestrate/40-commit.sh", '    [ -e "$p" ] || { absent=$((absent+1)); continue; }',
+            '    [ -e "$p" ] || { absent=$((absent+1)); echo "COMMIT absent path=$p"; continue; }'),
+    # Stage-2 Exchange-2: message-policy sink reverts to a $HOME path.
+    "M44": ("scripts/measure-message-policy.sh", "from u6.runlog import RunLog          # accepted hardened private sink (P5-03)",
+            'import os as _o\nclass RunLog:\n    def __init__(self, k): self.on_disk=True; self._f=open(_o.path.join(_o.environ.get("HOME","/tmp"),".sink"),"a")\n    def __call__(self, l): self._f.write(l+"\\n")\n    def close(self): self._f.close()'),
     "M14": ("u6/l3_ci_sweep.py", 'if not shas:\n        return _fin(log, R.error(KIND, "UNION_ENUMERATION_FAILED"))  # zero corpus is not clean', "pass"),
 }
 

@@ -1,0 +1,71 @@
+{
+  "id": "2026-08-26-rev2",
+  "status": "PROPOSED",
+  "supersedes": [
+    "2026-08-25-rev1"
+  ],
+  "reviewer_authority": {
+    "file": "REVIEWER_TO_SUPPLY",
+    "sha256": "REVIEWER_TO_SUPPLY"
+  },
+  "governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
+  "repository_baseline": {
+    "origin_main": "b7f8e2ee9484eab613697a7374e14333a2f9c2d6",
+    "predecessor": "5f19815d291279d351292a80ece81a39fbaf846c",
+    "ci_run": "32935277166",
+    "ci_result": "success",
+    "tracked_files_expected": 200,
+    "tree_digest_expected": "96350519e023deb8476eb3eb566483129c14720199e7e6f0fb1b0bd577297d2f",
+    "tree_digest_status": "EXPECTED_FROM_RECONSTRUCTION_NOT_MEASURED_ON_OPERATOR_HOST",
+    "tree_digest_algorithm": "u6/orchestrate/10-live-head-compat.sh (validated: reproduces 273e4b48... on the 137-file base)"
+  },
+  "stage_board": {
+    "1": "CLOSED",
+    "2": "CLOSABLE_WITH_ACCEPTED_LIMITATION",
+    "3": "NOT_STARTED",
+    "4": "NOT_STARTED",
+    "5": "NOT_STARTED",
+    "6": "NOT_STARTED",
+    "7": "NOT_STARTED",
+    "8": "NOT_STARTED"
+  },
+  "gates": {
+    "A": "FROZEN_CLOSED",
+    "B": "FROZEN_CLOSED",
+    "C": "FROZEN_CLOSED",
+    "D": "CLOSABLE_WITH_ACCEPTED_LIMITATION"
+  },
+  "unit6": {
+    "l1_integration": "COMMITTED_INERT",
+    "l2_integration": "COMMITTED_INERT",
+    "l3_integration": "COMMITTED_UNWIRED",
+    "activation": "NONE",
+    "core_hooksPath": "UNSET",
+    "l2_expected_baseline": "NOT_ESTABLISHED",
+    "phase2_readiness": "NOT_DEMONSTRABLE_WITH_AVAILABLE_BYTES",
+    "frozen_authority": "U6-AUTH-001 CLOSED - ACCEPTED CURRENT LIMITATION (1 of 13 identities present)",
+    "provisioning": "COMPLETE_DO_NOT_REPEAT"
+  },
+  "dispositions": {
+    "U6-AUTH-001": "CLOSED_ACCEPTED_CURRENT_LIMITATION",
+    "U6-ORCH-040": "CLOSED",
+    "U6-TEST-010": "CLOSED",
+    "U6-MSG-001": "CLOSED_MEASURED"
+  },
+  "message_policy_measurement": {
+    "commits_scanned": 74,
+    "wordlist_terms": 21,
+    "commits_with_matches": 3,
+    "distinct_term_commit_pairs": 4,
+    "total_occurrences": 5,
+    "identical_to_audit3_wordlist_set": true,
+    "unit6_era_commits_in_match_set": 0,
+    "structural_semantics": "NOT_MEASURED"
+  },
+  "privacy": {
+    "PRIV-001": "OPEN",
+    "PRIV-002": "OPEN"
+  },
+  "ruleset": "DEFERRED_TO_STAGE_8_FINAL_PUBLICATION_REVIEW",
+  "note": "PROPOSED by Builder, Stage-2 Exchange 6. NOT the bound current revision and NOT Reviewer authority. Adoption requires the Reviewer to: set status=CURRENT, bind reviewer_authority {file, sha256}, place this file, the re-expressed 2026-08-25-rev1.json (SUPERSEDED, superseded_by 2026-08-26-rev2) AND the re-expressed 2026-08-22-rev0.json (SUPERSEDED, superseded_by 2026-08-25-rev1) under revisions/ - the checker's P5/P6 require every id in the supersedes chain to exist, and write CURRENT.txt = revisions/2026-08-26-rev2.json. Until then CURRENT.txt is UNBOUND and scripts/check-current-state.py fails closed. status=PROPOSED is rejected by the checker by design."
+}

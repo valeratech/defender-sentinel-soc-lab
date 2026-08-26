@@ -259,7 +259,9 @@ defect per mutant to a temporary copy and requires the suite to fail.
 
 Stage-2 disposition records (missing frozen authority, the corrected commit
 step, the commit-message policy surface) live in `DISPOSITIONS.md` beside this
-file. Records are append-only and Reviewer-adopted.
+file. Records are append-only and Reviewer-adopted. The Stage-2 closure package
+(regression, publication-safety gate, baseline, proposed current-state
+revision, Gate-D and Stage-2 disposition drafts) is `STAGE2-CLOSURE.md`.
 
 ## Operator sequence
 

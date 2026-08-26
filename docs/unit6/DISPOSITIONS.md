@@ -267,3 +267,84 @@ every battery run in both environment classes. Builder notes for the record
 that the container's unqualified git was flagged as an evidence limitation in
 every prior handoff without this test's inverted assumption being connected
 to it; that is a Builder miss.
+
+---
+
+# Reviewer rulings — Stage-2 Exchange 5 (2026-08-26)
+
+Transitions below are the Reviewer's exact rulings, recorded append-only.
+Effective state for each ID is the latest transition. The PROPOSED records
+above remain in place as the originating drafts; they are not rewritten.
+
+## U6-AUTH-001 → CLOSED — ACCEPTED CURRENT LIMITATION
+
+**SCOPE MEASURED**  Builder and Reviewer governed artifact stores available
+during Stage 2; 13 required/relevant identities censused; 1 presently
+available, 12 unavailable; current fail-closed behaviour; historical records
+establishing prior existence.
+
+**SCOPE NOT MEASURED**  Fresh L1/L2/L3 activation against the original
+frozen byte-bearing authority package; fresh effective Unit-6 runtime
+composition; fresh governed structural-message detector execution.
+
+**RULING**  FRESH ACTIVATION / INTEGRATION VERIFICATION IS NOT DEMONSTRABLE
+WITH CURRENTLY AVAILABLE AUTHORITATIVE BYTES. This closes the scoped question
+of what can legitimately be demonstrated under the surviving evidence. It
+does not say Unit-6 activation succeeded, and it is not permission to
+reconstruct.
+
+**REOPENING TRIGGER**  Exact verified byte-bearing frozen authority becomes
+available.
+
+## U6-ORCH-040 → CLOSED
+
+Closure condition met: corrected exact-manifest commit step committed at
+`b7f8e2ee9484eab613697a7374e14333a2f9c2d6`, pushed to `main`, CI run
+`32935277166` success. Broad `git add -A`, scratch-directory containment and
+pasteable-path disclosure corrected and covered by discriminating controls
+(mutants M41–M43).
+
+**REOPENING TRIGGER**  Evidence that the corrected exact-manifest commit path
+stages or exposes material outside its measured contract.
+
+## U6-TEST-010 → CLOSED
+
+Decisive measurement occurred on the operator's qualified host:
+`/usr/bin/git` 2.54.0 qualified object; battery 68/68 PASS inside the locked
+Exchange-4 execution. The control now measures host state rather than
+assuming the Builder sandbox's state. No further work authorized absent
+contradictory evidence.
+
+## U6-MSG-001 → CLOSED / MEASURED
+
+**SCOPE MEASURED**  Current private-wordlist matching across all 74
+published commits: wordlist terms 21; commits with matches 3; distinct
+term/commit relationships 4 (2 + 1 + 1); total occurrences 5 (one term twice
+in one message); private detail sink DISK_PRIVATE_0600.
+
+The Reviewer recovered the frozen Audit-3 set. The three matching commits are
+**exactly the three historical wordlist commits**, with the same 2/1/1
+multiplicity: the published historical wordlist commit set has not grown.
+Audit 3's fifth historical pair was a different detector family
+(public-ipv4-review, structural REVIEW_CONFIRMED) and is outside this
+instrument's scope. The two Unit-6-era commits (`5f19815d…`, `b7f8e2ee…`)
+are absent from the match set.
+
+**SCOPE NOT MEASURED**  Fresh frozen structural-message detector execution;
+immutable detector-semantic comparison for current wordlist entries.
+
+**REOPENING TRIGGER**  Contradictory evidence, or a later governed
+measurement showing a new published wordlist relationship.
+
+---
+
+## Effective register state after Exchange 5
+
+| ID | effective disposition |
+|---|---|
+| U6-AUTH-001 | CLOSED — ACCEPTED CURRENT LIMITATION |
+| U6-ORCH-040 | CLOSED |
+| U6-TEST-010 | CLOSED |
+| U6-MSG-001 | CLOSED / MEASURED |
+
+No Unit-6 disposition item is OPEN.

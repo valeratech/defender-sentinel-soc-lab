@@ -1,0 +1,41 @@
+{
+  "id": "2026-08-25-rev1",
+  "status": "HISTORICAL_COPY",
+  "supersedes": [
+    "2026-08-22-rev0"
+  ],
+  "reviewer_authority": {
+    "file": "01-REVIEWER-CURRENT-STATE-2026-08-25-rev1.md",
+    "sha256": "35d923476ad3d12847e5f4d93d8c8e52bf5022b5f0c5ebbd7972dae6a0163039"
+  },
+  "governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
+  "stage_board": {
+    "1": "CLOSED",
+    "2": "OPEN",
+    "3": "NOT_STARTED",
+    "4": "NOT_STARTED",
+    "5": "NOT_STARTED",
+    "6": "NOT_STARTED",
+    "7": "NOT_STARTED",
+    "8": "NOT_STARTED"
+  },
+  "gates": {
+    "A": "FROZEN_CLOSED",
+    "B": "FROZEN_CLOSED",
+    "C": "FROZEN_CLOSED",
+    "D": "OPEN"
+  },
+  "unit6": {
+    "l1_integration": "CANDIDATE",
+    "l2_integration": "CANDIDATE",
+    "l3_integration": "CANDIDATE",
+    "l2_expected_baseline": "NOT_ESTABLISHED",
+    "phase2_readiness": "NOT_REMEASURED",
+    "provisioning": "COMPLETE_DO_NOT_REPEAT"
+  },
+  "privacy": {
+    "PRIV-001": "OPEN",
+    "PRIV-002": "OPEN"
+  },
+  "note": "Verified copy of the mutable fields of the named Reviewer document. Not the bound current revision. Mirror of the Reviewer current-state authority named above. The unit6.*_integration values read CANDIDATE because this revision ships inside the Stage-2 Pass-2 construction package; they become INTEGRATED only in a later Reviewer-owned revision after acceptance."
+}

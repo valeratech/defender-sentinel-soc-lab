@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Unit-6 L1 - local commit-message enforcement. Installed via
+#   git config core.hooksPath .githooks
+#
+# NO GIT INVOCATION HERE. The repository root is derived from this script's
+# own location (.githooks/<hook>), not from `git rev-parse`, because an
+# unqualified or shadowed git must be rejected by the runtime contract
+# before it is executed (Reviewer Pass-7 P7-01). The qualified interpreter
+# object is exec'd by absolute path and re-verified by identity inside,
+# together with the frozen environment declaration, dependency manifest and
+# U6 implementation (u6/runtime_bind.py Q0-Q5).
+#
+# git passes the path of the message file as $1; its bytes are read verbatim.
+# stdout carries exactly one U6_RETURN line. rc 0 PASS / 1 REJECT / 2 ERROR.
+set -u
+HOOK_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd) || exit 2
+cd "$HOOK_DIR/.." || exit 2
+export GIT_NO_REPLACE_OBJECTS=1
+export GIT_NO_LAZY_FETCH=1
+PY=/usr/bin/python3.12
+[ -x "$PY" ] || { echo "U6_RETURN v1 KIND=L1 STATUS=ERROR CODE=RUNTIME_INTERPRETER_UNQUALIFIED RC=2 COUNTS=-"; exit 2; }
+exec "$PY" -m u6.l1_commit_msg "$1"

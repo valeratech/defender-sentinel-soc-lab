@@ -1,0 +1,11 @@
+{
+  "id": "2026-08-22-rev0",
+  "status": "SUPERSEDED",
+  "supersedes": [],
+  "superseded_by": "2026-08-25-rev1",
+  "reviewer_authority": {
+    "file": "GLOBAL-REVIEWER-TRANSFER-Commit5-rev1.md",
+    "sha256": "41b71032c9ab87c2f674b865e9ba74682a79d82a2b92034ae35cb751ca728683"
+  },
+  "note": "Verified copy of the mutable fields of the named Reviewer document. Not the bound current revision. Historical mirror. Recorded Gate D as NOT OPENED and the E5/109 perishability premise. Retained for provenance only; do not read state from this file."
+}

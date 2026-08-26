@@ -538,6 +538,20 @@ control files require an independent transport boundary.
 
 **Pre-push manual audit** — `git diff --cached` reviewed against Section 1 before every push. Automation catches patterns; it does not catch judgment.
 
+**Commit-message surface (Unit 6)** — pre-commit scans file content, not the commit message. Three layers cover messages; see `docs/unit6/IMPLEMENTATION.md`.
+
+- **L1** `.githooks/commit-msg` — the message bytes as git presents them, against structural rules and the private wordlist. Blocks the commit. Never consumes a baseline.
+- **L2** `.githooks/pre-push` — every commit that would be reachable from the pushed branch (the whole prospective published history, not the new commits), against structural rules, the wordlist, and the accepted exemption baseline. Blocks the push. `refs/heads/*` only; a tag push is refused.
+- **L3** CI job `commit-msg-structural` — structural rules only, over every commit reachable from `HEAD`. Advisory. The CI path is built so that it cannot read the wordlist, the baseline, or the key: it never resolves the private root and binds only the structural engine members.
+
+Each layer prints one `U6_RETURN` line and nothing else. Exit codes separate a policy rejection (1) from a mechanism error (2); an error is never reported as a rejection. Activation: `git config core.hooksPath .githooks`.
+
+### Permanent exposure disclosure (Amendment B)
+
+Commit messages are published history. This repository does not rewrite history, so a commit message that carries a private identifier stays published for as long as the repository exists, regardless of later controls.
+
+The historical audit of this repository's commit messages (Audit 3) found **four** commit-message matches against the private wordlist across **three** commits, each adjudicated as a true positive, plus **one** structural review-confirmed finding on a fourth commit. Those messages remain in history as they were written. The values are not repeated here, the matched prose is not quoted, the wordlist entries and detector identities that matched are not published, and no per-commit annotation is added; this disclosure is policy-level and counts-only by design. The Unit-6 layers above exist so that the count does not grow.
+
 **Server-side** — GitHub secret scanning with push protection enabled.
 
 **Ignored by default** — see `.gitignore`: `.azure/`, `*.tfstate*`, `*.parameters.json`, `*.publishsettings`, `.env`, `*.pfx`, `*.key`.

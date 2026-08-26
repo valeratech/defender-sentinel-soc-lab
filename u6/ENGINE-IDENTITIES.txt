@@ -1,0 +1,27 @@
+# CANONICAL frozen member set. One row per member, no aliases, no duplicates.
+# Immutable facts: every digest below is Reviewer-verified authority (successor
+# transfer §8 for the eight engine members and .gitleaks.toml; Reviewer Pass-7/9
+# for msgctl/u6runtime.py). Literal binding is permitted for immutable facts.
+#
+# The frozen bytes are NOT vendored: they were not in any delivered bundle.
+# u6/engine_bind.py refuses to import any member whose bytes do not match this
+# manifest; u6/orchestrate/25-place-engine.sh places exactly the msgctl/* rows
+# below (9 members) from the Reviewer-verified exact frozen package.
+#
+# The frozen environment declaration (009a5ec8...) and dependency manifest
+# (46e6c9e7...) are NOT listed here: their expected digests are known but their
+# FILENAMES are not established by any recovered authority, and a filename is
+# not manufactured from a digest (Reviewer Pass-9 P9-02). They are resolved
+# identity-addressed under msgctl/ by u6/runtime_bind.py.
+#
+# format: <sha256>  <relative path under repository root>
+0bfb9cd616010069a10bf094544211de1bce809777e5cd79df0d2a2dbafa20b0  msgctl/serialize.py
+ef2fe0662728b243a129b2374eeaf76442676ae43e1e0600366ba23daa170d02  msgctl/crypto.py
+8db5da095feeb00b7d3d1074eb5f76197f8a02fd082a7536352d3afb13635a6e  msgctl/runtime.py
+03950e3e7b9bae731c6d2489bf196e70701c6f7158c9d5cc2977304ab65ff800  msgctl/adapter.py
+15a1d57e7b308c04698497fb963b6bc20642e69d64d901cd9ce4a85bbac733f8  msgctl/wordlist.py
+c66dcbccccb58f8d696d144ba244279017ebe37432db8e32b768fdb26263285d  msgctl/structural.py
+278b8940d4a5bcb06bd43c7940f50b326f5aa3f1c7a35db2ff627f87cc0207d2  msgctl/identity.py
+7f26c4f546aa73481213b5b1724c20a31bd179a1045b028e2502c7fa55090191  msgctl/baseline.py
+35ee40c3b9d794881f45adbbec20e7e5832c0ec9c533de02f107e15fe494a21a  msgctl/u6runtime.py
+c72f1400e16a744704f268350e5a810aa77cd2010bee1ae33d15387b42b12556  .gitleaks.toml

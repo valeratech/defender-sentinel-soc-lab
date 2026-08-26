@@ -1,0 +1,30 @@
+# Qualified Unit-6 runtime (EXPECTED). IMMUTABLE FACTS from Reviewer transfer §9.
+# EFFECTIVE state is derived at run time from the objects actually consumed;
+# these literals are compared against, never substituted for, effective values.
+python    /usr/bin/python3.12      3.12.3  1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118
+git       /usr/bin/git             2.54.0  f54a87f6253aab09ed7b522bd78ddeab509105b1043076209d89127e55877a48
+gitleaks  /usr/local/bin/gitleaks  8.28.0  5fd1b3b0073269484d40078662e921d07427340ab9e6ed526ccd215a565b3298
+# Unit-6 environment = frozen Gate-A BOUNDED_ENV plus exactly these two, nothing else:
+env GIT_NO_REPLACE_OBJECTS=1
+env GIT_NO_LAZY_FETCH=1
+# Frozen authority files consumed by the runtime contract. Their BYTES are not
+# in this repository and are not reconstructed; u6/runtime_bind.py refuses
+# (ENV_AUTHORITY_ABSENT / DEP_AUTHORITY_ABSENT) until they are placed at these
+# identities under msgctl/. The env declaration carries the complete Gate-A
+# BOUNDED_ENV; the dependency manifest closes over {git, gitleaks, python}.
+env_decl      009a5ec831dc2dd85865ce96d9deb8aef739777f3d233680d3b960b079538e33
+dep_manifest  46e6c9e79325bb29cc227214fc37b3bfd846d15aa98417038fccf60b4c795eb5
+# Expected U6 implementation (frozen member u6runtime.py) and expected composed
+# runtime ID. EFFECTIVE composition is performed by the frozen implementation.
+u6_impl     35ee40c3b9d794881f45adbbec20e7e5832c0ec9c533de02f107e15fe494a21a
+u6_runtime  cfc42cb490b9b15e8bf0da34aa14ab949af7832aebc8aea38cffe2ebe8a2584c
+# Frozen authority artifacts required for COMPLETE runtime qualification.
+# Resolved IDENTITY-ADDRESSED under msgctl/ (scan for the file whose bytes hash
+# to the value below). No filename is asserted: the digests are recovered
+# authority, the filenames are not (Reviewer Pass-9 P9-02).
+# Expected identities are immutable facts (Reviewer transfer §9, Pass-7 §"Exact
+# frozen-authority status"). The BYTES are absent from every delivered bundle;
+# until they are placed, qualification refuses activation. They are never
+# reconstructed from prose.
+env_declaration    009a5ec831dc2dd85865ce96d9deb8aef739777f3d233680d3b960b079538e33
+dependency_manifest 46e6c9e79325bb29cc227214fc37b3bfd846d15aa98417038fccf60b4c795eb5

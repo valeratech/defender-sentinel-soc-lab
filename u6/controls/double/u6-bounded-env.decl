@@ -1,0 +1,5 @@
+# LABELLED TEST DOUBLE of the frozen Gate-A BOUNDED_ENV declaration.
+# Not the frozen bytes. Shape only, so the extension check can be exercised.
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+LANG=C.UTF-8
+HOME=/double/home

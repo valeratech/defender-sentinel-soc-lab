@@ -1,20 +1,19 @@
 {
-  "id": "2026-08-27-rev3",
-  "status": "SUPERSEDED",
+  "id": "2026-08-27-rev4",
+  "status": "CURRENT",
   "supersedes": [
-    "2026-08-26-rev2"
+    "2026-08-27-rev3"
   ],
-  "superseded_by": "2026-08-27-rev4",
   "reviewer_authority": {
-    "file": "docs/current-state/reviewer-authority/2026-08-27-stage3-closure.md",
-    "sha256": "426bf05b0f1b5e391d28f384c8236b49dc192ac5552f8d28af4329a9afffe3dd"
+    "file": "docs/current-state/reviewer-authority/2026-08-27-stage4-closure.md",
+    "sha256": "f631a0e2af8c761f1e878dfdb57f1629e5a4ecb8cbe67d96bffb37712401a7d0"
   },
   "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
   "stage_board": {
     "1": "CLOSED",
     "2": "CLOSED_WITH_ACCEPTED_LIMITATION",
     "3": "CLOSED_PASS",
-    "4": "OPEN",
+    "4": "CLOSED_PASS",
     "5": "NOT_STARTED",
     "6": "NOT_STARTED",
     "7": "NOT_STARTED",
@@ -67,5 +66,13 @@
     "ci_result": "success",
     "disposition": "CLOSED_PASS"
   },
-  "note": "Reviewer-owned current revision adopted at Stage-3 closure while Stage 4 is OPEN. Transitional: Stage-4 closure will be recorded by a successor revision, and this revision is not edited. Stage 3 closed after rev2 was adopted, so rev2 is expected historical state. historical_stage2_governed_snapshot_sha256 is the Stage-2 governed tarball identity carried forward as history; it is not a current repository identity. The Stage-2 closure checkpoint is retained on rev2 and not restated here."
+  "stage4_closure": {
+    "baseline": "851137550200b43bcdc658b0438dc5607a74c711",
+    "accepted_commit": "b4b1f2996c82c12433becb36a7b529f1b9efbfe3",
+    "accepted_tree": "5f2b6167b5f218281fdb910e712c890fca1b67cf",
+    "ci_run": "33110057775",
+    "ci_result": "success",
+    "disposition": "CLOSED_PASS"
+  },
+  "note": "Reviewer-owned current revision adopted at Stage-4 closure. Supersedes the transitional rev3. Stage-4 findings S4-01 through S4-11 are dispositioned in the bound closure authority document. The construction commit recorded under stage4_closure is historical by the time this revision is serialized and is not a self-reference. historical_stage2_governed_snapshot_sha256 is carried as history, not as a current repository identity. The Stage-2 closure checkpoint remains on rev2 and is not restated here."
 }

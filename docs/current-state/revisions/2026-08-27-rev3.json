@@ -1,20 +1,19 @@
 {
-  "id": "2026-08-26-rev2",
-  "status": "SUPERSEDED",
+  "id": "2026-08-27-rev3",
+  "status": "CURRENT",
   "supersedes": [
-    "2026-08-25-rev1"
+    "2026-08-26-rev2"
   ],
-  "superseded_by": "2026-08-27-rev3",
   "reviewer_authority": {
-    "file": "docs/current-state/reviewer-authority/2026-08-26-stage2-closeout.md",
-    "sha256": "42e6f75e584c3c132733761bd50a499f1f07a328f14023de5092c09572f2d72f"
+    "file": "docs/current-state/reviewer-authority/2026-08-27-stage3-closure.md",
+    "sha256": "426bf05b0f1b5e391d28f384c8236b49dc192ac5552f8d28af4329a9afffe3dd"
   },
-  "governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
+  "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
   "stage_board": {
     "1": "CLOSED",
     "2": "CLOSED_WITH_ACCEPTED_LIMITATION",
-    "3": "NOT_STARTED",
-    "4": "NOT_STARTED",
+    "3": "CLOSED_PASS",
+    "4": "OPEN",
     "5": "NOT_STARTED",
     "6": "NOT_STARTED",
     "7": "NOT_STARTED",
@@ -60,13 +59,12 @@
     "PRIV-002": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION"
   },
   "ruleset": "DEFERRED_TO_STAGE_8_FINAL_PUBLICATION_REVIEW",
-  "note": "Reviewer-owned current revision adopted at Stage-2 closeout. Stage 2 and Gate D are CLOSED_WITH_ACCEPTED_LIMITATION. Fresh Unit-6 activation was not demonstrated because U6-AUTH-001 closed on currently unavailable frozen byte-bearing authority. The stage2_closure_checkpoint is the measured pre-authority-commit evidence checkpoint and is intentionally not represented as self-current HEAD.",
-  "stage2_closure_checkpoint": {
-    "origin_main_before_authority_commit": "928d22a07eb5382aa8478bdea2dcd871a9fcb41a",
-    "ci_run": "32937882002",
+  "stage3_closure": {
+    "baseline": "291f86fbf4715cba44b6d1cdbfe15d15f6f3c620",
+    "accepted_commit": "851137550200b43bcdc658b0438dc5607a74c711",
+    "ci_run": "33079919207",
     "ci_result": "success",
-    "tracked_files": 205,
-    "builder_defined_tree_digest": "4e1f2cd0c38ac3dc3c82ac0dd3361f3d25cc58f3a3a53f289dfc3652dfae235f",
-    "tree_digest_status": "MEASURED_ON_OPERATOR_HOST_FROM_CLOSURE_CHECKPOINT"
-  }
+    "disposition": "CLOSED_PASS"
+  },
+  "note": "Reviewer-owned current revision adopted at Stage-3 closure while Stage 4 is OPEN. Transitional: Stage-4 closure will be recorded by a successor revision, and this revision is not edited. Stage 3 closed after rev2 was adopted, so rev2 is expected historical state. historical_stage2_governed_snapshot_sha256 is the Stage-2 governed tarball identity carried forward as history; it is not a current repository identity. The Stage-2 closure checkpoint is retained on rev2 and not restated here."
 }

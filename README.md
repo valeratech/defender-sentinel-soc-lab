@@ -34,6 +34,7 @@ The recurring theme, and the reason the posture register exists: **configured is
 | `docs/evidence-notes/` | Topic-named evidence notes — what was configured, established, corrected, and left untestable. Cross-references the labs and register rather than restating them |
 | `scripts/` | Sanitization tooling and the generators for the coverage matrix, posture register, lab-coverage, and open-items reports |
 | `posture.yml` | Source of truth for every security-relevant setting and its state |
+| `docs/current-state/` | The single designated authority for mutable project state: `CURRENT.txt` names one Reviewer-owned revision, checked on every commit and in CI |
 | [`SANITIZATION.md`](SANITIZATION.md) | Redaction policy, placeholder convention, and public-constant allowlist |
 | [`docs/navigation.md`](docs/navigation.md) | Portal path index for every setting configured or verified, with confirmed dates |
 | [`docs/posture-register.md`](docs/posture-register.md) | Every security-relevant setting, its state, and whether it needs revisiting — generated |

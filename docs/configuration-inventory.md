@@ -15,10 +15,12 @@ Where the source guidance and the observed environment disagree, that is recorde
 following the guide correctly still leaves you somewhere other than where the guide
 says you are.
 
-`posture-register.md` is authoritative for state and risk. This file is
+`posture.yml` is authoritative for state and risk; `posture-register.md` is its
+generated projection and carries no authority of its own. This file is
 hand-maintained and nothing enforces that it stays in sync — unlike
 `posture-register.md`, `attack-coverage.md`, and `open-items.md`, which are generated
-from source and CI-checked. If the two disagree, the register is right.
+from source and CI-checked. If this file and `posture.yml` disagree, `posture.yml`
+is right.
 
 ---
 

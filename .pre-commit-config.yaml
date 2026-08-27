@@ -83,6 +83,19 @@ repos:
         pass_filenames: false
         files: '^(labs/|detections/|docs/|posture\.yml|scripts/|README\.md)'
 
+      # Current-state authority gate. The checker proves that CURRENT.txt selects
+      # exactly one CURRENT revision, that superseded state cannot occupy the
+      # current position, and that the selected revision's Reviewer authority
+      # exists in-tree with a byte-exact digest. Dedicated hook because the
+      # generated-docs-fresh trigger does not cover these surfaces; CI also runs
+      # it unconditionally.
+      - id: current-state-authority
+        name: current-state authority relationship holds
+        entry: python3 scripts/check-current-state.py
+        language: system
+        pass_filenames: false
+        files: '^(docs/current-state/|scripts/check-current-state\.py$)'
+
       # AUD-007 anti-drift gate: every surface that names image extensions is
       # contract-checked against scripts/image-formats.sh. Dedicated hook with
       # its own trigger because the generated-docs-fresh trigger does not cover

@@ -9,9 +9,9 @@ permissions:
   contents: read
 
 env:
-  # Single source of truth. The pre-commit hook uses whatever gitleaks is
-  # installed locally; pinning the same version here keeps CI and local honest
-  # about each other.
+  # CI's single source of truth for the gitleaks version. The pre-commit hook
+  # uses whatever gitleaks is installed locally, which is a separate, effective
+  # identity; this pin governs CI only and makes no claim about the local binary.
   GITLEAKS_VERSION: "8.28.0"
 
 jobs:
@@ -213,6 +213,9 @@ jobs:
 
       - name: Verify evidence notes — schema and that every cited handle resolves
         run: python3 scripts/check-evidence-notes.py
+
+      - name: Verify current-state authority relationship (selected revision, in-tree authority, exact digest)
+        run: python3 scripts/check-current-state.py
 
       # Added 2026-08-11. The README lab table drifted to 19 labs and a
       # hardcoded 80 posture entries while the repository held 24 and 98 —

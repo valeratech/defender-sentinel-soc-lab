@@ -30,8 +30,8 @@ unvalidated rule is a hypothesis, not coverage.
 
 | ID | Name | Platform | Type | Severity | Status | Validated |
 |---|---|---|---|---|---|---|
-| [`DET-001`](detections/defender-xdr/DET-001-suspicious-powershell-detection-test.md) | Suspicious PowerShell command line (EDR detection test) | defender-xdr | ml | medium | active | yes |
-| [`DET-002`](detections/defender-xdr/DET-002-asr-wmi-process-creation.md) | ASR — process creation via PSExec/WMI (audit and block observed) | defender-xdr | custom-detection | medium | active | yes |
-| [`DET-003`](detections/defender-xdr/DET-003-mail-forwarding-rule-created.md) | Inbox forwarding/redirect rule created (authored alert policy) | defender-xdr | alert-policy | medium | active | yes |
-| [`DET-004`](detections/sentinel/DET-004-bruteforce-failed-signins.md) | Failed Entra sign-in burst (authored scheduled rule) | sentinel | scheduled-analytics | low | active | yes |
-| [`DET-005`](detections/sentinel/DET-005-bruteforce-azure-portal-template.md) | Brute force attack against Azure Portal (Microsoft template, enabled) | sentinel | scheduled-analytics | medium | active | **no** |
+| [`DET-001`](../detections/defender-xdr/DET-001-suspicious-powershell-detection-test.md) | Suspicious PowerShell command line (EDR detection test) | defender-xdr | ml | medium | active | yes |
+| [`DET-002`](../detections/defender-xdr/DET-002-asr-wmi-process-creation.md) | ASR — process creation via PSExec/WMI (audit and block observed) | defender-xdr | custom-detection | medium | active | yes |
+| [`DET-003`](../detections/defender-xdr/DET-003-mail-forwarding-rule-created.md) | Inbox forwarding/redirect rule created (authored alert policy) | defender-xdr | alert-policy | medium | active | yes |
+| [`DET-004`](../detections/sentinel/DET-004-bruteforce-failed-signins.md) | Failed Entra sign-in burst (authored scheduled rule) | sentinel | scheduled-analytics | low | active | yes |
+| [`DET-005`](../detections/sentinel/DET-005-bruteforce-azure-portal-template.md) | Brute force attack against Azure Portal (Microsoft template, enabled) | sentinel | scheduled-analytics | medium | active | **no** |

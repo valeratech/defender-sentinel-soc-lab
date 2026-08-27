@@ -10,6 +10,13 @@
 
 ---
 
+> **This is the default structure, not a required one.** `docs/documentation-standard.md`
+> §5 states the requirements semantically: a finished lab must discharge each of them
+> under whatever heading it uses. Several published families depart from the numbering
+> below — prediction-led labs register Predictions at §2, phase-structured labs organise
+> the middle sections by measurement phase, and the compact form ends on *What this lab
+> does not establish*. See §5.0 of the standard. Depart deliberately, not accidentally.
+
 ## 1. Objective
 
 What capability this adds to the SOC, in one paragraph. Stated as a capability the environment gains, not as a task performed.
@@ -51,3 +58,20 @@ What this reveals about how the platform actually works. Where the documentation
 ## 8. References
 
 - Microsoft Learn links
+
+---
+
+## Optional sections
+
+Used by published labs where the work warrants them. Not required, and not to be
+added to reach a section count.
+
+**Predictions** — registered *before* portal contact, each with a falsifier, and each
+closed, withdrawn, or recorded as unmeasured by the end of the lab. Where a lab has
+this section, the standard requires the dispositions.
+
+**Teardown / cost** — what was decommissioned, what was left running, and what the
+lab cost. Required in substance wherever a metered resource was opened.
+
+**What this lab does not establish** — the boundary of the measurement. Preferred over
+letting a reader infer conclusions the lab never reached.

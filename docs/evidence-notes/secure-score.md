@@ -27,7 +27,7 @@ risk-accepted; the queue was left untouched at 114 to address.
 Device 49.07%, Apps 40%. Peer comparison 44.68 against 46.75. A thirteen-day-old
 lab tenant with no MFA, no Conditional Access and no compliance policies scores
 **two points below organisations of similar size** — which says more about the
-baseline than about this tenant. `configuration-inventory.md` §3.13.
+baseline than about this tenant. `configuration-inventory.md` §12.9.
 
 **Identity at 16.49% corroborates `POS-001`** from an independent direction —
 Security Defaults off with nothing replacing it, and both top recommendations by

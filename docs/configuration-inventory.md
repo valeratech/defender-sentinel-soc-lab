@@ -1038,7 +1038,15 @@ appears only when genuinely observed and attributed.
 
 ---
 
-### 3.5 Second VM (LAB-SRV-DEFENDER-01) and its access posture - POS-033 ✅ hardened
+## 12. Platform configuration observations — endpoint, Sentinel, Purview, and Defender surfaces
+
+Settings recorded after the section-1 build, grouped by the surface they were observed on
+rather than by the portal that owns them. Numbered separately from `## 3. Azure portal`
+because they are a distinct observation set, not further Azure-portal subsections.
+
+---
+
+### 12.1 Second VM (LAB-SRV-DEFENDER-01) and its access posture - POS-033 ✅ hardened
 
 - [ ] **Path (create):** Virtual machines > Create > Azure virtual machine
 - [ ] **Path (access):** via Azure Bastion as labadmin (no public inbound)
@@ -1047,7 +1055,7 @@ appears only when genuinely observed and attributed.
 - **What we verified (2026-07-25):** Standard_D2s_v3 (smallest generally-available size in West US - B-series and DS1_v2 were unavailable for this subscription), smalldisk WS2022 Datacenter Gen2, **Standard HDD** (changed from the Premium default), Security type **Standard** (POS-018 parity, no vTPM), **inbound None**, **no public IP** (the deployment attached one despite inbound None; dissociated and deleted), auto-shutdown 23:00 Pacific + email, **Manual** patch orchestration, boot diagnostics off. Access is **Azure Bastion as labadmin**.
 - **Access reasoning (Bastion vs RDP):** VM 1 exposes RDP to the internet (POS-019, a weakening). This VM deliberately does not - inbound None + no public IP means it cannot be reached from the internet at all, a **better** posture than VM 1. The tradeoff: Bastion bills per hour (~$0.19/hr Basic, more than the VM while running), so it is a per-session teardown decision; RDP would be free but internet-exposed. Bastion also gives built-in clipboard sharing and, on some SKUs, requires a bare username.
 
-### 3.6 Data Collection Rule (dcr-winsec-lab) - POS-033 ✅ hardened
+### 12.2 Data Collection Rule (dcr-winsec-lab) - POS-033 ✅ hardened
 
 - [ ] **Path:** Content hub > install "Windows Security Events" > Data connectors > Windows Security Events via AMA > Create data collection rule
 - [ ] **Path (verify association):** Monitor > Data Collection Rules > dcr-winsec-lab > Resources
@@ -1055,7 +1063,7 @@ appears only when genuinely observed and attributed.
 - **Why:** The first agent-based ingestion path in the project - distinct from POS-032's connector path.
 - **What we verified (2026-07-25):** DCR `dcr-winsec-lab` in rg-soc-lab, associated to LAB-SRV-DEFENDER-01. Selecting the VM in the DCR's Resources tab **auto-installed the AMA extension** (under 5 min). Collection tier **Common** (not All) - the cost decision, because SecurityEvent has NO free allowance here (that allowance needs Defender for Servers P2, which this environment lacks). Verified: Heartbeat (SCAgentChannel Direct, AMA v1.43), SecurityEvent populated with 4688/4673 events. Data lands in **SecurityEvent**, not WindowsEvent.
 
-### 3.7 Azure Activity connector (diagnostic setting) - POS-034 ✅ hardened
+### 12.3 Azure Activity connector (diagnostic setting) - POS-034 ✅ hardened
 
 - [ ] **Path (Method B, used):** Subscriptions > Azure subscription 1 > Activity log > Export Activity Logs > + Add diagnostic setting > law-lab-01
 - [ ] **Path (Method A, failed):** Data connectors > Azure Activity > Launch Azure Policy Assignment wizard
@@ -1064,7 +1072,7 @@ appears only when genuinely observed and attributed.
 - **Why:** Control-plane monitoring - the record of who did what to the subscription.
 - **What we verified (2026-07-25):** Configured via **Method B (manual diagnostic setting)** after **Method A (Azure Policy) failed twice** - "you need to log in" at submission, 0 policy assignments confirmed both times (managed-identity/session token). Method B (categories Administrative + Security -> law-lab-01) succeeded first try. AzureActivity populated (verified). For one subscription, Method B is the appropriate choice, not a fallback - Method A's policy+identity+remediation machinery only earns itself across many subscriptions.
 
-### 3.8 Microsoft Entra ID connector - POS-034 ✅ hardened
+### 12.4 Microsoft Entra ID connector - POS-034 ✅ hardened
 
 - [ ] **Path:** Data connectors > Microsoft Entra ID > Open connector page > select log types > Apply
 - [ ] **Path (verify):** Entra ID > Monitoring & health > Diagnostic settings (AzureSentinel_law-lab-01 exists)
@@ -1073,7 +1081,7 @@ appears only when genuinely observed and attributed.
 - **What we verified (2026-07-25):** Enabled Sign-In Logs, Audit Logs, Risky Users, User Risk Events (high-volume types left off - the connector-level cost lever). Apply wrote the diagnostic setting AzureSentinel_law-lab-01. Sign-in ingestion needs P1/P2; the E5 trial's P2 is live - **licensing test passed**, 489 sign-in events captured.
 - **Two stores, not two names (corrected 2026-07-26):** **SigninLogs** is a Log Analytics workspace table written by this connector's diagnostic setting, scoped by the log types selected, and billable. **EntraIdSignInEvents** is a Defender XDR lake table written by XDR regardless of this connector, covering every sign-in class, and free. On the unified Defender surface both resolve in one query with very different counts (6 vs 972 on 2026-07-26); in Sentinel > Logs only SigninLogs exists. The original empty SigninLogs was propagation lag (~10-15 min), not a naming mismatch. Diffing one census across both portals is the reusable form of this - see `kql/sentinel/store-partition-diff.kql`.
 
-### 3.9 Unified audit logging - `POS-035` ✅ hardened
+### 12.5 Unified audit logging - `POS-035` ✅ hardened
 
 - [ ] **Path (portal, could not complete):** Defender > System > Audit > Start recording user and admin activity
 - [ ] **Path (used):** Exchange Online PowerShell > `Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true`
@@ -1084,14 +1092,14 @@ appears only when genuinely observed and attributed.
 - **Endpoint trap:** the same cmdlet in Security & Compliance PowerShell returns `False` **even when auditing is on** (Microsoft Learn). Wrong endpoint returns a permanently false value with nothing to distinguish it from a true one.
 - **Cost:** none. Audit data lives in the M365 substrate, not `law-lab-01`. Becomes an ingestion cost only if the Office 365 connector is later added to Sentinel.
 
-### 3.10 Exchange organisation customization (hydration) - `POS-036` ✅ default, irreversible
+### 12.6 Exchange organisation customization (hydration) - `POS-036` ✅ default, irreversible
 
 - [ ] **Path:** Exchange Online PowerShell > `Get-OrganizationConfig` / `Enable-OrganizationCustomization`
 - **What it is:** New tenants ship *dehydrated*, sharing consolidated configuration objects rather than owning unique copies. Hydration is a one-time, **irreversible** move to a customizable state.
 - **Why it is here:** It gates unified audit logging, it is invisible in every portal, and it had already been crossed before this project read the value.
 - **What we verified (2026-07-26):** `IsDehydrated False`, and `Enable-OrganizationCustomization` returned "not required." **But `Set-AdminAuditLogConfig` failed with `InvalidOperationInDehydratedContextException` at the same time** - two sources said hydrated, the one operation that attempted work disagreed. Resolved by waiting ~30 minutes, after which the identical write succeeded. Per-object propagation behind an org-level boolean; Microsoft documents the org flag and says nothing about what sits under it.
 
-### 3.11 Attack simulation campaign - `POS-037` ✅ hardened
+### 12.7 Attack simulation campaign - `POS-037` ✅ hardened
 
 - [ ] **Path:** Defender > Email & collaboration > Attack simulation training > Simulations > Launch a simulation
 - [ ] **Path (report):** same > select the campaign > Report / Users / Details tabs, and View Activity Timeline
@@ -1101,7 +1109,7 @@ appears only when genuinely observed and attributed.
 - **The finding:** the payload is **absent from `EmailEvents` and `EmailUrlInfo` entirely**, while the training notifications either side of it are recorded normally in both. A simulation cannot be hunted - no row means no query, no detection rule, no ATT&CK mapping. Attack simulation training tests **users**; it is not evidence about detection coverage.
 
 
-### 3.12 User reported settings - `POS-040` ✅ default, read-only visit that wrote state
+### 12.8 User reported settings - `POS-040` ✅ default, read-only visit that wrote state
 
 - [ ] **Path:** Defender > Settings > Email & collaboration > User reported settings
 - [ ] **Path (verify):** Exchange Online PowerShell > `Get-ReportSubmissionPolicy` / `Get-ReportSubmissionRule`
@@ -1113,7 +1121,7 @@ appears only when genuinely observed and attributed.
 - **Open:** the reporting mailbox is not a SecOps mailbox, which Learn flags as important specifically when Attack simulation training is in use. Not exercised.
 
 
-### 3.13 Microsoft Secure Score - baseline reading, 2026-07-27 (no configuration)
+### 12.9 Microsoft Secure Score - baseline reading, 2026-07-27 (no configuration)
 
 - [ ] **Path:** Defender > Exposure management > Microsoft Secure Score (Overview / Recommended actions / History / Metrics & trends)
 - **What it is:** Microsoft's own measurement of this tenant's configuration posture, scored as points earned over points available. Read-only; nothing was set, planned, or risk-accepted.
@@ -1127,7 +1135,7 @@ appears only when genuinely observed and attributed.
 - **`Last synced` is per-recommendation, and the page's "up to 24 hours" describes no particular row.** *Ensure Microsoft 365 audit log search is Enabled* still read `0/3 · To address` on 2026-07-28 — but its Last synced is **2026-07-25**, two days before auditing was enabled (`POS-035`). Not evaluated-and-refused; **not re-evaluated**. Its source product is **Microsoft Information Protection**, where the ASR rules are Defender for Endpoint and synced 07-27. A status of *To address* therefore means the control is absent **or** that product has not re-read since it was added — check Last synced before concluding either. Licensing is not the blocker (`Have license? Yes`).
 
 
-### 3.14 Enforcement scope / MDE security settings management - `POS-041` ⬜ default, off
+### 12.10 Enforcement scope / MDE security settings management - `POS-041` ⬜ default, off
 
 - [ ] **Path:** Defender > Settings > Endpoints > Configuration management > Enforcement scope
 - [ ] **Second switch (not visited):** Intune > Endpoint security > Microsoft Defender for Endpoint connector settings — the same page carrying `POS-011`
@@ -1138,7 +1146,7 @@ appears only when genuinely observed and attributed.
 - **Deferred test:** deploying the two ASR rules as policy and watching whether the ASR report starts showing them is a direct test of `POS-031`'s mechanism. Needs a live endpoint, so it batches with custom detections and analytics rules. *(pending)*
 
 
-### 3.15 Threat analytics - read-only survey, 2026-07-27 (no configuration)
+### 12.11 Threat analytics - read-only survey, 2026-07-27 (no configuration)
 
 - [ ] **Path:** Defender > Threat intelligence > Threat analytics
 - [ ] **Path (notifications):** Settings > Microsoft Defender XDR > Email notifications — three tabs, all empty (`POS-042`)
@@ -1149,7 +1157,7 @@ appears only when genuinely observed and attributed.
 - **Adjacent, noted for later:** the Recommended actions tab carries a banner offering to configure Secure Score data visibility by data source in **URBAC** — relevant to `POS-027` and to `POS-002`, the one standing unverified entry.
 
 
-### 3.16 Microsoft Sentinel UEBA - `POS-044` ✅ hardened (enabled 2026-07-28)
+### 12.12 Microsoft Sentinel UEBA - `POS-044` ✅ hardened (enabled 2026-07-28)
 
 - [ ] **Path:** Defender > System > Settings > Microsoft Sentinel > UEBA
 - [ ] **Path (verify residency):** Azure > Sentinel > Logs — `kql/sentinel/store-partition-diff.kql`
@@ -1162,7 +1170,7 @@ appears only when genuinely observed and attributed.
 - **Open:** `BehaviorAnalytics` billability — absent from the billable list, but its only row postdates `Usage`'s reporting lag. *(pending)*
 
 
-### 3.17 Sentinel analytics rules - `POS-045`, `POS-046` ✅ (Lab 11)
+### 12.13 Sentinel analytics rules - `POS-045`, `POS-046` ✅ (Lab 11)
 
 - [ ] **Path:** Defender > Microsoft Sentinel > Configuration > Analytics — three tabs: Active rules, Rule templates, **Anomalies**
 - **Baseline before this lab:** `Active rules: 0`. But see divergence row 41 — that count **excludes anomaly rules**, of which **48 were enabled**.
@@ -1173,7 +1181,7 @@ appears only when genuinely observed and attributed.
 - **Activity span, resolved:** `extend timestamp` (Microsoft's template idiom) does nothing; `extend TimeGenerated = StartTime` works — but yields a point, not a range. **And suppression freezes a mid-burst snapshot:** run 4's alert reports 5 of 7 failures, a 29% undercount (row 38, `POS-046`).
 
 
-### 3.18 Defender for Office 365 threat policies - `POS-047`-`POS-055` (Lab 12)
+### 12.14 Defender for Office 365 threat policies - `POS-047`-`POS-055` (Lab 12)
 
 - [ ] **Path:** Defender > Email & collaboration > Policies & rules > **Threat policies** - Templated policies / Policies / Rules
 - **Baseline before this lab:** no custom threat policy of any type, no rules of any type, both presets off, one Safe Attachments policy and one Safe Links policy (both Built-in protection).
@@ -1188,7 +1196,7 @@ appears only when genuinely observed and attributed.
 - **Withdrawn:** a latency inversion claimed from run 1 and disproved by run 2 - see `labs/12-mdo-threat-policies/README.md` §6.
 
 
-### 3.19 Explorer investigation and Defender-native remediation - `POS-056`, `POS-057` (Lab 13)
+### 12.15 Explorer investigation and Defender-native remediation - `POS-056`, `POS-057` (Lab 13)
 
 - [ ] **Path:** Defender > Email & collaboration > **Explorer** > All email > *(message)* > Open email entity; and Investigation & response > Actions & submissions > **Action center**
 - **The Action Center holds remediations, not investigations** - AIR produced no entry on either tab; a soft delete produced one immediately (row 53). Closes `docs/evidence-notes/actions-and-submissions.md`.
@@ -1369,59 +1377,6 @@ this environment's).
 | 151 | Two KQL stores sit behind one query language, and Defender's advanced hunting cannot see workspace tables | `SecurityAlert` — a Log Analytics workspace table — **ran in Defender's Advanced hunting**, header reading `Selected workspace: law-lab-01`, returning the alert's full `Entities` blob. The schema tree still lists XDR tables only | The store split as this repository recorded it **no longer holds in this build**. Dated rather than amended: the earlier finding was true when observed and this is true now, and collapsing the two would erase the change. Whether workspace tables appear in the schema tree or only resolve at query time is unchecked | **live, 2026-08-08** |
 | 152 | The name a portal renders for an entity is the entity | Four surfaces — incident grid `Impacted assets`, incident-graph node, alert list, and the entity card — all rendered **`labuser`**. The `SecurityAlert` `Entities` object carries `Name`, **`UPNSuffix`**, `UserPrincipalName`, `DisplayName` and `AccountName`, all populated | **Four concurring displays and one authoritative store.** They agreed because they all render the same field, not because they were right. Consequence for the playbook: the template rebuilds the UPN as `concat(Name, '@', UPNSuffix)` — with a `For_each`/`for_each` casing inconsistency repeated five times, resolving only because the expression engine is case-insensitive — while a complete `UserPrincipalName` sits unused in the same object. The reconstruction is the only thing that could produce a malformed URI, and a malformed URI routes to row 144's leaky branch | **live, 2026-08-08** |
 | 153 | Seven failed sign-ins are seven sign-in events | Seven `50126` rows across ten seconds, carrying **three** distinct Request IDs (3 + 1 + 3) — the portal groups retries within one authentication session under a single request | True at the event level, false at the request level. `DET-004` counts `SigninLogs` rows, so the detection still saw seven and the threshold behaved as designed — but "seven failed sign-ins" and "seven sign-in attempts" are not the same claim, and the surface that would tell them apart is a column nobody reads | **live, 2026-08-08** |
-
----
-
-## Navigation drill
-
-Cover the path column. From each portal's home page, find:
-
-1. The toggle deciding whether device risk reaches Intune compliance *(4.2)*
-2. The other half of that same integration *(5.1)*
-3. Where Security Defaults is enabled or disabled *(2.1)*
-4. Where automatic Intune enrolment is scoped — **both** paths *(2.6)*
-5. Where a budget's scope is chosen, and why it cannot be changed later *(3.2)*
-6. Where you would see whether a VM is billing you right now *(3.3)*
-7. Where recurring billing is turned off without cancelling *(1.3)*
-8. Where a custom Defender role's workloads are activated *(5.4)*
-9. Where a device group's automation (remediation) level is set *(5.6)*
-10. Where you confirm raw endpoint events are NOT streaming to Sentinel *(5.8 — DeviceEvents fails to resolve in Sentinel Logs)*
-11. Where device-discovery mode (Basic/Standard) is chosen *(5.7)*
-12. Where a Data Collection Rule's event tier (All/Common/Minimal/Custom) is set *(3.6 — and why Common, not All)*
-13. Where you confirm the Azure Monitor Agent installed on a VM *(VM > Extensions > AzureMonitorWindowsAgent)*
-
-Then, without looking:
-
-- Which two settings compound into a weaker-than-default tenant? → `POS-001` + `POS-003`
-- Which setting makes a compliance policy silently never fire? → `POS-011`
-- Which single mechanism actually stops Azure spend here? → `POS-016`, deallocation
-- Which charge has no alert attached at all? → the M365 conversion, `POS-017`
-- Which settings are asserted but never observed? → `POS-002`, `POS-006` — down from
-  five; `POS-003`, `POS-007`, `POS-008` were verified 2026-07-17
-- Which two independent faults each break device-risk compliance on their own? →
-  `POS-011` (connector off) and `POS-018` (no TPM/Secure Boot to evaluate)
-- Which finding has every precondition satisfied and still never happens? → `POS-022`
-- Which role reads "complete" but enforces nothing until a separate step? → `POS-026`, workload activation
-- Which control blocks live while the console reports the device unprotected? → `POS-031`, locally-set ASR vs the policy-scoped report
-- Which query works in Defender hunting and fails in Sentinel Logs — and why that failure is good news? → `DeviceEvents`; it confirms raw streaming is off (cost-safe), `POS-032`
-- Which two SOC surfaces speak the same KQL over different data stores? → Defender Advanced Hunting (free raw lake, `Timestamp`) and Sentinel Logs (billed workspace, `TimeGenerated`)
-- Which collection tier turns a Windows Security Events DCR into a firehose, and why does it bill fully here? → "All"; SecurityEvent's free allowance needs Defender for Servers P2, which this environment lacks (`POS-033`)
-- Why does `Computer == "LAB-SRV-DEFENDER-01"` return nothing? → the OS hostname truncates to 15 chars (`LAB-SRV-DEFENDE`); use `startswith` (`POS-033`)
-- On a VM nobody logged into, why are there 4624 "successful logon" events? → LogonType 5 service logons (SYSTEM); the meaning is in LogonType, not the count (`POS-033`)
-
-## Device discovery — environment note (Lab, the device-discovery guide)
-
-Device discovery verified **On**, **Standard** mode (active probing), scoped to all
-onboarded devices, 2026-07-19. The **Log4j2 unauthenticated-probing** sub-toggle is
-**off** (default; the more aggressive option, correctly disabled).
-
-**Zero discovered devices.** The single-VM isolated Azure subnet presents no unmanaged
-neighbours, so the capability is active with nothing to act on — configured, effective,
-empty by environment. It will stay empty until a second device shares the segment. The
-Azure fabric (e.g. the WireServer at `168.63.129.16`) is visible in device *telemetry*
-but is not surfaced as a discoverable device. Active-probing rules-of-engagement matter
-in production; moot at n=1. No onboarded second device is produced, so Lab 05's T4
-exclusion test remains blocked.
 | 154 | A capacity that bills from creation is usable from creation | `Create` succeeded at **11:00:07** and the first answer landed at **11:14** — **nine setup screens** between them: `Finish setup in Security Copilot` *Required*, a second `Get started`, `Workspace info` (own name + own data storage location), `Getting ready for you…`, capacity selection, `Help improve Copilot`, M365 data notice, Purview logging, `Assign roles`, `You're all set` | Guides 62 and 64 both go from capacity to prompting. **14 minutes of a paid clock hour elapsed before the product could answer anything** — a quarter of the hour, billed, spent on consent screens | **live, 2026-08-09** |
 | 155 | Overage can be turned off | `Enable Overage Capacity` **will not disable**. ARM confirms the schema: `overageState` + `overageAmount`, with **no `Disabled` value**. Zero is `overageState: "Limited"`, `overageAmount: 0`. Form default is **`Allow Unlimited Overage Capacity`** | Overage is structurally always enabled; the only control is its ceiling. The as-shipped configuration is unbounded. "We disabled overage" would be the wrong sentence — it is bounded, not off (`POS-087`) | **live, 2026-08-09** |
 | 156 | Exceeding provisioned capacity bills overage | Session consumed **1.5 units** against **1** provisioned, with `Overage units used` reading **`0 of 0`** throughout. At-capacity tooltip: *All available units used — we won't charge you for the extra units it took to finish your last operation* | Microsoft absorbs completion of an in-flight operation past the ceiling. **Documented in none of guides 60–65.** An earlier claim that the unlimited default would have billed $6 for the 0.5 is **withdrawn** — unsupported by this evidence | **live, 2026-08-09** |
@@ -1490,3 +1445,56 @@ exclusion test remains blocked.
 | 219 | Bookmark guidance: a bookmark captures "entity mappings and MITRE ATT&CK tactic/technique mappings", and "bookmarked data lands in the `HuntingBookmark` table … enabling you to summarize and join bookmarked data with other data sources using KQL" | `HuntingBookmark` has 21 columns and neither `Tactics` nor `Techniques`. Credential Access / T1110 were set at creation and render correctly in the Defender details pane, so the mappings exist control-plane only. `Entities` **is** present as JSON | The recommended join loses the ATT&CK dimension with no error and no indication. Detection or reporting built on this table cannot filter bookmarks by technique | Lab 26 §4.8 |
 | 220 | Restore is for retrieving data from long-term retention | The `Restoration` table picker offers **14 tables**, none of which holds a byte in long-term retention (every table sits at Analytics 30 / Total 30). The default range is the **last seven days** — fully inside interactive retention and free to query in Logs | The picker does not filter on whether archived data exists, and the shipped default would bill to hydrate data already queryable. The panel warns that charges apply but not that the default range is redundant | `docs/evidence-notes/archived-log-data.md` |
 | 221 | Search page guidance: a search job is asynchronous, runs in the background, has no practical time-out, and writes results to a new `_SRCH` table. The Azure handoff is "transitional — expect the flow to complete inside the Defender portal" | The Defender Search page offers two inputs: a search term and a table chip. No time range, no results-table name. Clicking the table chip **ejects to `portal.azure.com`**, landing in Logs in Simple mode — synchronous, `Time range : Last 24 hours`, `Show : 500000 results`. No search job was initiated and no `_SRCH` table created | The surface documented as the search-job entry point runs an ordinary interactive query in a different portal. The `_SRCH` retention question (14 days per the page's own card, 30 days per the guidance) is therefore untestable here | `docs/evidence-notes/search-jobs.md` |
+
+---
+
+## Navigation drill
+
+Cover the path column. From each portal's home page, find:
+
+1. The toggle deciding whether device risk reaches Intune compliance *(4.2)*
+2. The other half of that same integration *(5.1)*
+3. Where Security Defaults is enabled or disabled *(2.1)*
+4. Where automatic Intune enrolment is scoped — **both** paths *(2.6)*
+5. Where a budget's scope is chosen, and why it cannot be changed later *(3.2)*
+6. Where you would see whether a VM is billing you right now *(3.3)*
+7. Where recurring billing is turned off without cancelling *(1.3)*
+8. Where a custom Defender role's workloads are activated *(5.4)*
+9. Where a device group's automation (remediation) level is set *(5.6)*
+10. Where you confirm raw endpoint events are NOT streaming to Sentinel *(5.8 — DeviceEvents fails to resolve in Sentinel Logs)*
+11. Where device-discovery mode (Basic/Standard) is chosen *(5.7)*
+12. Where a Data Collection Rule's event tier (All/Common/Minimal/Custom) is set *(12.2 — and why Common, not All)*
+13. Where you confirm the Azure Monitor Agent installed on a VM *(VM > Extensions > AzureMonitorWindowsAgent)*
+
+Then, without looking:
+
+- Which two settings compound into a weaker-than-default tenant? → `POS-001` + `POS-003`
+- Which setting makes a compliance policy silently never fire? → `POS-011`
+- Which single mechanism actually stops Azure spend here? → `POS-016`, deallocation
+- Which charge has no alert attached at all? → the M365 conversion, `POS-017`
+- Which settings are asserted but never observed? → `POS-002`, `POS-006` — down from
+  five; `POS-003`, `POS-007`, `POS-008` were verified 2026-07-17
+- Which two independent faults each break device-risk compliance on their own? →
+  `POS-011` (connector off) and `POS-018` (no TPM/Secure Boot to evaluate)
+- Which finding has every precondition satisfied and still never happens? → `POS-022`
+- Which role reads "complete" but enforces nothing until a separate step? → `POS-026`, workload activation
+- Which control blocks live while the console reports the device unprotected? → `POS-031`, locally-set ASR vs the policy-scoped report
+- Which query works in Defender hunting and fails in Sentinel Logs — and why that failure is good news? → `DeviceEvents`; it confirms raw streaming is off (cost-safe), `POS-032`
+- Which two SOC surfaces speak the same KQL over different data stores? → Defender Advanced Hunting (free raw lake, `Timestamp`) and Sentinel Logs (billed workspace, `TimeGenerated`)
+- Which collection tier turns a Windows Security Events DCR into a firehose, and why does it bill fully here? → "All"; SecurityEvent's free allowance needs Defender for Servers P2, which this environment lacks (`POS-033`)
+- Why does `Computer == "LAB-SRV-DEFENDER-01"` return nothing? → the OS hostname truncates to 15 chars (`LAB-SRV-DEFENDE`); use `startswith` (`POS-033`)
+- On a VM nobody logged into, why are there 4624 "successful logon" events? → LogonType 5 service logons (SYSTEM); the meaning is in LogonType, not the count (`POS-033`)
+
+## Device discovery — environment note (the device-discovery guide)
+
+Device discovery verified **On**, **Standard** mode (active probing), scoped to all
+onboarded devices, 2026-07-19. The **Log4j2 unauthenticated-probing** sub-toggle is
+**off** (default; the more aggressive option, correctly disabled).
+
+**Zero discovered devices.** The single-VM isolated Azure subnet presents no unmanaged
+neighbours, so the capability is active with nothing to act on — configured, effective,
+empty by environment. It will stay empty until a second device shares the segment. The
+Azure fabric (e.g. the WireServer at `168.63.129.16`) is visible in device *telemetry*
+but is not surfaced as a discoverable device. Active-probing rules-of-engagement matter
+in production; moot at n=1. No onboarded second device is produced, so Lab 05's T4
+exclusion test remains blocked.

@@ -53,17 +53,66 @@ Incident IDs are the most dangerous of the four because they are the only counte
 
 ## 5. Definition of done
 
-A lab is not `✅` until:
+The requirements below are **semantic**. They say what a finished lab must contain,
+not which section number must contain it.
 
-- [ ] §2 decisions table has no blank rationale
-- [ ] §3 state table matches the live environment
-- [ ] §4 validation records a **result**, not an expectation
-- [ ] §5 evidence is sanitized per `SANITIZATION.md`
-- [ ] §6 records what broke, or explicitly states that nothing did
-- [ ] §7 says something that is not in the vendor's documentation
+That distinction is deliberate and was arrived at by measurement. This standard
+previously keyed the checklist to fixed section identities — §2 decisions, §3 state,
+§4 validation, and so on. Twelve of thirteen published labs put Predictions at §2 and
+moved the rest down; the phase-structured labs (21–24) organise §4–§7 by measurement
+phase; Labs 25 and 26 use a compact six-section form. Measured on the Stage-3 governed
+baseline `291f86fb`: 83 of the 105 `Lab NN §N` cross-references then in the tree
+pointed into those labs. That is a frozen measurement, not a live count — the number
+moves as references are added, and the argument does not depend on its current value. Enforcing the old fixed
+numbering would have meant rewriting thirteen published writeups and invalidating
+those references to preserve a rule the labs had already outgrown. The structure was
+not drifting; the standard was stale.
+
+A lab is not `✅` until it contains, **under whatever heading it uses**:
+
+- [ ] a decisions record covering every **material discretionary** choice the lab
+      introduced: the option chosen, the genuine rejected alternative **where one
+      existed**, and the rationale. A portal constraint, a source-guide requirement,
+      or any other imposed condition is not a discretionary decision and is not given
+      an invented alternative — recording it as a constraint is the accurate move
+- [ ] a state or build record matching the live environment
+- [ ] a validation record carrying a **result**, not an expectation
+- [ ] all evidence it does carry sanitized per `SANITIZATION.md` — a property of the
+      evidence, not a demand for a section named Evidence
+- [ ] every failure, withdrawal, method error, or broken execution path **actually
+      encountered** recorded with its disposition. A lab that encountered none owes no
+      statement to that effect: asserting an absence that was never itself measured is
+      the error §1 exists to prevent
+- [ ] an analysis or findings record saying something that is not in the vendor's
+      documentation
+- [ ] where predictions were registered, their disposition — closed, withdrawn, or
+      unmeasured — for each one
 - [ ] No `*(pending)*` markers remain
 
-`scripts/open-items.py` reports outstanding markers, and CI fails if the report drifts from the writeups. Documentation debt is tracked, not remembered.
+A section may carry more than one requirement, and a requirement may be split across
+sections, provided each is discharged somewhere and can be found.
+
+### 5.0 Legitimate lab structures
+
+These are descriptions of what published labs do, not a permitted-list that closes.
+A new shape is legitimate when it discharges §5; the point of naming these is that a
+reader meeting an unfamiliar lab can tell which family it belongs to.
+
+| Family | Labs | Shape |
+|---|---|---|
+| **Build-order eight-section** | 01–06, 09–13 | The template as written: Objective, Design Decisions, Build, Validation, Evidence, Failures & Fixes, Analysis, References |
+| **Topic-structured** | 00, 07, 08 | Sections named for the thing examined rather than the phase. Lab 00 opens at §0 Provenance; 07 and 08 carry a cost or connector-tier section as the analytical through-line |
+| **Prediction-led** | 14–20 | Predictions registered at §2, before build, with falsifiers. Everything after shifts by one |
+| **Phase-structured** | 21–24 | Prediction-led, with §4 onward organised by measurement phase (Phase A, B, C) rather than by document role. Findings and teardown carry their own sections |
+| **Compact measurement** | 25, 26 | Six sections: Objective, Predictions, Build, Measurements, Teardown, **What this lab does not establish**. Validation and analysis live inside Measurements |
+
+The last of those is load-bearing rather than an abbreviation. Ending on *what this
+lab does not establish* records the boundary of the measurement instead of implying
+conclusions the lab never reached, which is §1's rule applied to the shape of the
+document. Any lab may adopt it.
+
+`labs/_TEMPLATE.md` remains the **default** starting structure. It is where a lab
+begins, not proof that a finished lab must look identical.
 
 ### 5.1 Executive summary — by request, not by default
 
@@ -91,6 +140,14 @@ Rules:
   definition of done.
 
 As of this writing, **Lab 21 is the only lab carrying one.**
+
+### 5.2 Cross-references are lab-local
+
+`Lab 22 §8` means the section numbered 8 **in that lab**, not a globally fixed role.
+A reference resolves against the target lab's own headings. This is why renumbering a
+published lab is expensive and why the numbers are stable after publication (§4).
+
+`scripts/open-items.py` reports outstanding markers, and CI fails if the report drifts from the writeups. Documentation debt is tracked, not remembered.
 
 ## 6. Status vocabulary
 

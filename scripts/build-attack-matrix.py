@@ -19,6 +19,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import re
 import sys
@@ -26,6 +27,14 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DETECTIONS = ROOT / "detections"
 OUTPUT = ROOT / "docs" / "attack-coverage.md"
+TEMPLATE = DETECTIONS / "_TEMPLATE.md"
+
+# Enumerated frontmatter fields. The ALLOWED VALUES ARE NOT DEFINED HERE: they are
+# re-derived from the trailing comment on the corresponding line of the detection
+# template, which is the declared schema authority. Two independently maintained
+# copies of a vocabulary drift apart, and the drift stays invisible until something
+# reads both - so there is one copy, and this reads it.
+ENUM_FIELDS = ("status", "platform", "rule_type", "severity")
 
 TACTIC_NAMES = {
     "TA0001": "Initial Access", "TA0002": "Execution", "TA0003": "Persistence",
@@ -67,6 +76,10 @@ def parse_frontmatter(text: str) -> dict | None:
     return data
 
 
+class SchemaError(Exception):
+    """The declared schema authority is missing or unusable."""
+
+
 def truthy(v) -> bool:
     return str(v).strip().lower() in {"true", "yes", "1"}
 
@@ -81,9 +94,71 @@ def collect() -> list[dict]:
             continue
         if str(fm.get("id")).strip() == "DET-000":  # untouched template copy
             continue
-        fm["_path"] = path.relative_to(ROOT).as_posix()
+        fm["_path"] = os.path.relpath(path, OUTPUT.parent).replace(os.sep, "/")
+        fm["_abs"] = path
         specs.append(fm)
     return specs
+
+
+def declared_vocabulary() -> dict[str, list[str]]:
+    """Read the allowed values for each enumerated field off the detection template.
+
+    The template line carries them as a trailing comment:
+
+        rule_type: scheduled      # scheduled | nrt | custom-detection | ...
+
+    Deriving them here rather than restating them means the template stays the one
+    place a value is declared. A field with no parseable comment is reported rather
+    than silently treated as unconstrained.
+    """
+    if not TEMPLATE.exists():
+        raise SchemaError(f"schema authority missing: {TEMPLATE.relative_to(ROOT)}")
+    vocab: dict[str, list[str]] = {}
+    for line in TEMPLATE.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^(\w+):\s*\S+\s*#\s*(.+)$", line)
+        if m and m.group(1) in ENUM_FIELDS:
+            vocab[m.group(1)] = [v.strip() for v in m.group(2).split("|") if v.strip()]
+    missing = [f for f in ENUM_FIELDS if f not in vocab]
+    if missing:
+        raise SchemaError(
+            f"{TEMPLATE.relative_to(ROOT)} declares no allowed values for: "
+            + ", ".join(missing)
+        )
+    return vocab
+
+
+def validate_schema(specs: list[dict]) -> list[str]:
+    """Every spec's enumerated fields must hold a value the template declares."""
+    vocab = declared_vocabulary()
+    errors = []
+    for s in specs:
+        for field in ENUM_FIELDS:
+            value = str(s.get(field, "")).strip()
+            if value not in vocab[field]:
+                errors.append(
+                    f"{s['_path']}: {field}={value!r} is not in the vocabulary declared "
+                    f"by {TEMPLATE.relative_to(ROOT)} ({' | '.join(vocab[field])})"
+                )
+    return errors
+
+
+def validate_links(specs: list[dict]) -> list[str]:
+    """Every generated detection link must resolve from the generated document.
+
+    A generator and its output agreeing with each other proves only that they were
+    produced by the same code. This resolves each emitted href against the directory
+    the document lives in, so a generator that is wrong and an artifact that is wrong
+    in the same way still fail.
+    """
+    errors = []
+    for s in specs:
+        target = (OUTPUT.parent / s["_path"]).resolve()
+        if not target.is_file():
+            errors.append(
+                f"{OUTPUT.relative_to(ROOT)}: link for {s['id']} -> {s['_path']} "
+                f"does not resolve from {OUTPUT.parent.relative_to(ROOT)}/"
+            )
+    return errors
 
 
 def render(specs: list[dict]) -> str:
@@ -168,7 +243,20 @@ def main() -> int:
                     help="exit 1 if committed matrix is stale")
     args = ap.parse_args()
 
-    content = render(collect())
+    specs = collect()
+
+    try:
+        problems = validate_schema(specs) + validate_links(specs)
+    except SchemaError as exc:
+        print(f"detection schema: {exc}", file=sys.stderr)
+        return 1
+    if problems:
+        for p in problems:
+            print(f"detection schema/link: {p}", file=sys.stderr)
+        print(f"{len(problems)} defect(s); refusing to generate.", file=sys.stderr)
+        return 1
+
+    content = render(specs)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
 
     if args.check:

@@ -4,7 +4,7 @@ id: DET-000
 name: Short detection name
 status: proposed          # proposed | built | tuning | active | retired
 platform: sentinel        # sentinel | defender-xdr
-rule_type: scheduled      # scheduled | nrt | custom-detection | ti | ml | anomaly
+rule_type: scheduled      # scheduled | scheduled-analytics | nrt | custom-detection | alert-policy | ti | ml | anomaly
 severity: medium          # informational | low | medium | high
 tactics:
   - TA0006               # MITRE ATT&CK tactic IDs

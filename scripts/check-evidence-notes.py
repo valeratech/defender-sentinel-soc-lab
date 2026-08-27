@@ -27,6 +27,81 @@ REQUIRED = {"title", "date", "artifacts", "corrections"}
 RETIRED = {"module", "section", "verdict"}
 KNOWN_ARTIFACTS = {"labs", "posture", "divergences", "kql", "detections"}
 
+
+def divergence_table(inv_text, inv_rel):
+    """Return (member_row_ids, defects) for the CANONICAL divergence table.
+
+    A divergence row is a MEMBER of one specific Markdown table, not any line in the
+    file that happens to be pipe-delimited with a leading integer. The distinction is
+    load-bearing: 68 governed rows once sat after two intervening prose sections,
+    rendered as paragraph text by every GFM renderer, and were still accepted here
+    because the old test was a line shape.
+
+    The table is located structurally - the header row whose first cell is the row-id
+    column, immediately followed by a delimiter row - and membership ends at the first
+    line that is not a table row. Nothing about the table's SIZE is asserted: the row
+    count is whatever the document currently defines, so this stays true as rows are
+    added.
+    """
+    lines = inv_text.splitlines()
+    start = None
+    for i in range(len(lines) - 1):
+        if (re.match(r"^\|\s*#\s*\|", lines[i])
+                and re.match(r"^\|[\s:|-]+\|\s*$", lines[i + 1])):
+            start = i + 2
+            break
+    if start is None:
+        return set(), [f"{inv_rel}: canonical divergence table not found "
+                       f"(no '| # |' header followed by a delimiter row)"]
+
+    members, order = set(), []
+    end = start
+    for i in range(start, len(lines)):
+        if not lines[i].startswith("|"):
+            end = i
+            break
+        m = re.match(r"^\|\s*(\d+)\s*\|", lines[i])
+        if m:
+            members.add(int(m.group(1)))
+            order.append(int(m.group(1)))
+    else:
+        end = len(lines)
+
+    defects = []
+    if len(order) != len(members):
+        dupes = sorted({r for r in order if order.count(r) > 1})
+        defects.append(f"{inv_rel}: duplicate divergence row id(s) {dupes}")
+
+    # The row-id namespace is a dense ascending sequence from 1. Enforced against the
+    # table's OWN current contents: the expected id at each position is derived from
+    # the previous row, so the rule stays true at any table size and no maximum is
+    # bound here. A gap or a swap is a namespace defect even when every surviving row
+    # still resolves for every citation.
+    if order:
+        if order[0] != 1:
+            defects.append(f"{inv_rel}: divergence rows start at {order[0]}, expected 1")
+        for prev, cur in zip(order, order[1:]):
+            if cur != prev + 1:
+                defects.append(
+                    f"{inv_rel}: divergence row {cur} follows {prev} "
+                    f"({'gap' if cur > prev + 1 else 'out of order'}; expected {prev + 1})"
+                )
+
+    # A row-shaped line ANYWHERE else in the document is a divergence record that has
+    # fallen out of the table. Reporting it is the whole point: it is invisible to a
+    # reader of the rendered page and was invisible to this checker before.
+    for i, line in enumerate(lines):
+        if start <= i < end:
+            continue
+        m = re.match(r"^\|\s*(\d+)\s*\|", line)
+        if m:
+            defects.append(
+                f"{inv_rel}:{i + 1}: divergence row {m.group(1)} is outside the "
+                f"canonical divergence table (renders as prose, not a table row)"
+            )
+    return members, defects
+
+
 def main():
     args = sys.argv[1:]
     if args and args != ["--check"]:
@@ -40,10 +115,9 @@ def main():
     posture = open(os.path.join(ROOT, "posture.yml"), encoding="utf-8").read()
     pos_ids = set(re.findall(r"id:\s*\"?(POS-\d+)\"?", posture))
     inv = open(os.path.join(ROOT, "docs", "configuration-inventory.md"), encoding="utf-8").read()
-    div_rows = set()
-    for line in inv.splitlines():
-        m = re.match(r"^\|\s*(\d+)\s*\|", line)
-        if m: div_rows.add(int(m.group(1)))
+    inv_rel = os.path.join("docs", "configuration-inventory.md")
+    div_rows, div_defects = divergence_table(inv, inv_rel)
+    errors.extend(div_defects)
     labs = {os.path.basename(d.rstrip("/")).split("-")[0]
             for d in glob.glob(os.path.join(ROOT, "labs", "*", ""))}
     det_specs = set()
@@ -104,7 +178,7 @@ def main():
             if not (isinstance(d, int) or (isinstance(d, str) and d.isdigit())):
                 errors.append(f"{rel}: malformed divergence row ref {d!r}")
             elif int(d) not in div_rows:
-                errors.append(f"{rel}: cited divergence row {d} not found")
+                errors.append(f"{rel}: cited divergence row {d} is not a member of the canonical divergence table")
         kql_root = os.path.realpath(os.path.join(ROOT, "kql"))
         for q in aslist("kql"):
             qs = str(q)

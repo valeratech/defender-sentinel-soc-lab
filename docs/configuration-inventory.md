@@ -1028,7 +1028,7 @@ authoritative.
       expectation ≠ observed result; every decision names its rejected alternative;
       every lab-only weakening names the production answer
 - [ ] **Status vocabulary** — 🔜 not built · 🔨 built, documenting · ✅ done and
-      validated · *(pending)* = fact not yet known
+      validated · `*(pending)*` = fact not yet known
 - [ ] **Organisation** — by SOC capability + exam domain + ATT&CK, deliberately not by
       lecture order
 - [ ] **Numbering** — follows actual build order, not the exam blueprint

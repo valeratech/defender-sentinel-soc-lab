@@ -1,7 +1,7 @@
 # Purview DLP — Terms, Mechanisms, and Where Each Was Measured
 
-<!-- DRAFT — commits with Lab 14. POS-059+ references resolve when the Lab 14
-posture entries land in the same commit. -->
+<!-- Committed with Lab 14; the POS-059+ references resolved when the Lab 14 posture
+entries landed. -->
 
 Every term below was encountered live during Lab 14 (`docs/evidence-notes/dlp-policies.md`). This is a
 reference, not a narrative — the narrative is the lab README. Each section says

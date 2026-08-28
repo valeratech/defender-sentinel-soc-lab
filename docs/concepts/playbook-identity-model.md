@@ -1,7 +1,7 @@
 # Playbook Identity Model — Connections, Connectors, and Who Each Action Runs As
 
-<!-- DRAFT — commits with Lab 19 (`docs/evidence-notes/sentinel-playbooks.md`). POS-081+ references resolve when
-the Lab 19 posture entries land in the same commit. Sections marked PREDICTED
+<!-- Committed with Lab 19 (`docs/evidence-notes/sentinel-playbooks.md`); the POS-081+
+references resolved when the Lab 19 posture entries landed. Sections marked PREDICTED
 were written before the observation phase and are settled in the lab README. -->
 
 **A playbook does not have one identity.** Each connector and each action can

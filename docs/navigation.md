@@ -1,7 +1,9 @@
 # Portal Navigation Index
 
-Portal paths for every setting this project configures or verifies, each with the
-date the path was last confirmed present. **Azure and Defender rename and relocate
+Portal paths for settings this project configures or verifies, most carrying the
+date the path was last confirmed present; a row with no date carries a `*(pending)*`
+marker instead and is tracked in `docs/open-items.md`. Whether this index covers every
+entry in the posture register has not been measured, and no gate checks it. **Azure and Defender rename and relocate
 these regularly** (this project has already hit "core folders" → "system folders"
 in the ASR levels, and Microsoft is migrating Sentinel into the Defender portal by
 2027). A path with a *confirmed* date says "this was true on this date" — if it has

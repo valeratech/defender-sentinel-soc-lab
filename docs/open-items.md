@@ -5,7 +5,50 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-**24 open item(s) across 13 file(s).**
+Scope: every tracked `.md` file in the repository, as listed by `git ls-files`, excluding `docs/current-state/` (authority chain), `u6/` (frozen, inert), the two `_TEMPLATE.md` files, and this report. Untracked working-tree files are not part of the corpus.
+
+**27 open item(s) across 15 file(s).**
+
+## `docs/configuration-inventory.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 1148 | 12.10 Enforcement scope / MDE security settings management - `POS-041` ⬜ default, off | - **Deferred test:** deploying the two ASR rules as policy and watching whether the ASR report start |
+| 1172 | 12.12 Microsoft Sentinel UEBA - `POS-044` ✅ hardened (enabled 2026-07-28) | - **Open:** `BehaviorAnalytics` billability — absent from the billable list, but its only row postda |
+
+## `docs/evidence-notes/analytics-rules.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 93 | What could not be tested | summarized result. *(pending)* |
+
+## `docs/evidence-notes/entities-and-ueba.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 99 | What could not be tested | evidence. *(pending)* |
+
+## `docs/evidence-notes/incident-investigation.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 57 | What could not be tested | until the admin-side comparison is read (tracked as *(pending)* in Lab 17). |
+
+## `docs/navigation.md`
+
+Status: —
+
+| Line | Section | Item |
+|---|---|---|
+| 212 | Email & collaboration — Attack simulation training (Lab 09) | Repeat offender & training thresholds / Attack simulation training → Settings / *(pending — tab not  |
 
 ## `labs/00-tenant-licensing-identity/README.md`
 
@@ -97,27 +140,3 @@ Status: ✅ Built and measured — three reads across three dates, zero cost, no
 |---|---|---|
 | 395 | 9. What this cost, and what was left behind | *(pending — per-licence service-plan expansion, and whether `Apps (175)` moves when Office 365 E5 is |
 | 409 | 9. What this cost, and what was left behind | *(pending — acquisition-order prediction resolves on a future clean tenant, not in this repository)* |
-
-## `docs/evidence-notes/analytics-rules.md`
-
-Status: —
-
-| Line | Section | Item |
-|---|---|---|
-| 93 | What could not be tested | summarized result. *(pending)* |
-
-## `docs/evidence-notes/entities-and-ueba.md`
-
-Status: —
-
-| Line | Section | Item |
-|---|---|---|
-| 99 | What could not be tested | evidence. *(pending)* |
-
-## `docs/evidence-notes/incident-investigation.md`
-
-Status: —
-
-| Line | Section | Item |
-|---|---|---|
-| 57 | What could not be tested | until the admin-side comparison is read (tracked as *(pending)* in Lab 17). |

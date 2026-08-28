@@ -20,13 +20,44 @@ from __future__ import annotations
 import argparse
 import pathlib
 import re
+import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / "docs" / "open-items.md"
-SCAN_DIRS = ["labs", "detections", "docs/evidence-notes"]  # docs/ is reference prose except evidence-notes, which carry tracked pending items
+# The corpus is the TRACKED repository, taken from git, not whatever Markdown
+# happens to sit in the working tree. A three-directory allowlist was the
+# previous scope and silently omitted live debt in docs/configuration-inventory.md
+# and docs/navigation.md; scanning the filesystem instead swings the other way and
+# lets an untracked scratch file fail the gate. Neither is the corpus this report
+# claims authority over. Exclusions below are explicit paths and path prefixes,
+# never a filename pattern, so a future tracked file cannot escape the census by
+# being named a particular way.
+EXCLUDED_PREFIXES = (
+    "docs/current-state/",  # governed authority chain: revision records, not documentation debt
+    "u6/",                  # frozen Stage-2 territory, inert and out of scope
+)
+EXCLUDED_PATHS = frozenset({
+    "docs/open-items.md",      # this report
+    "labs/_TEMPLATE.md",       # template artifacts, named individually and not by prefix
+    "detections/_TEMPLATE.md",
+})
+SCOPE_NOTE = (
+    "Scope: every tracked `.md` file in the repository, as listed by "
+    "`git ls-files`, excluding `docs/current-state/` (authority chain), "
+    "`u6/` (frozen, inert), the two `_TEMPLATE.md` files, and this report. "
+    "Untracked working-tree files are not part of the corpus."
+)
 
-PENDING = re.compile(r"\*?\(pending[^)]*\)\*?", re.I)
+# The convention is `*(pending)*` / `*(pending — why)*`. Require the LEADING
+# emphasis asterisk: it is what separates a marker from product UI text that
+# merely contains the word, e.g. the Action center's "(pending / history)" tab.
+# The closing `)*` is deliberately NOT required. A marker whose text contains a
+# nested parenthetical closes that inner paren first, so `[^)]*` terminates
+# early and a trailing `\*` then fails against the rest of the line — which is
+# exactly what labs/01 line 95 does. Requiring the closing asterisk drops that
+# real marker from the census.
+PENDING = re.compile(r"\*\(pending[^)]*\)", re.I)
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
 STATUS = re.compile(r"^\|\s*\*\*Status\*\*\s*\|\s*(.+?)\s*\|", re.M)
 # A marker inside backticks is prose *about* the convention, not a use of it.
@@ -60,24 +91,33 @@ def scan(path: pathlib.Path) -> list[tuple[int, str, str]]:
     return hits
 
 
+def tracked_markdown() -> list[pathlib.Path]:
+    """The tracked .md corpus, from git. Fails closed rather than guessing.
+
+    git ls-files reads the index, so a file staged in a pre-commit run counts
+    and an untracked working-tree file does not. If git cannot answer, this
+    raises instead of falling back to the filesystem: a census that silently
+    changes corpus is the defect this function exists to prevent.
+    """
+    out = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "-z", "--", "*.md"],
+        capture_output=True, check=True,
+    )
+    return [ROOT / p for p in out.stdout.decode("utf-8").split("\0") if p]
+
+
 def collect() -> dict[str, dict]:
     out: dict[str, dict] = {}
-    for d in SCAN_DIRS:
-        base = ROOT / d
-        if not base.exists():
+    for path in sorted(tracked_markdown()):
+        rel = path.relative_to(ROOT).as_posix()
+        if rel.startswith(EXCLUDED_PREFIXES) or rel in EXCLUDED_PATHS:
             continue
-        for path in sorted(base.rglob("*.md")):
-            if path.name.startswith("_") or path.name == "open-items.md":
-                continue
-            body = path.read_text(encoding="utf-8")
-            hits = scan(path)
-            if not hits:
-                continue
-            m = STATUS.search(body)
-            out[path.relative_to(ROOT).as_posix()] = {
-                "status": m.group(1) if m else "—",
-                "hits": hits,
-            }
+        body = path.read_text(encoding="utf-8")
+        hits = scan(path)
+        if not hits:
+            continue
+        m = STATUS.search(body)
+        out[rel] = {"status": m.group(1) if m else "—", "hits": hits}
     return out
 
 
@@ -90,6 +130,8 @@ def render(data: dict[str, dict]) -> str:
         "",
         "Outstanding `*(pending)*` markers. Each one is a fact the writeup does not",
         "have and will not invent. See `docs/documentation-standard.md` §5.",
+        "",
+        SCOPE_NOTE,
         "",
         f"**{total} open item(s) across {len(data)} file(s).**",
         "",

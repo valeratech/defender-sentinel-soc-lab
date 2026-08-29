@@ -1,12 +1,12 @@
 {
-  "id": "2026-08-28-rev5",
-  "status": "SUPERSEDED",
+  "id": "2026-08-29-rev6",
+  "status": "CURRENT",
   "supersedes": [
-    "2026-08-27-rev4"
+    "2026-08-28-rev5"
   ],
   "reviewer_authority": {
-    "file": "docs/current-state/reviewer-authority/2026-08-28-stage5-closure.md",
-    "sha256": "1e870ef608607210cde5c07d19a0008d5e672045afbdf7c23e0eca5b0cba6a8f"
+    "file": "docs/current-state/reviewer-authority/2026-08-29-stage6-closure.md",
+    "sha256": "85692ce3fe2c2188513ad7e7981abe2bad0bd9a288d0e4f36f854c0a42613a88"
   },
   "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
   "stage_board": {
@@ -15,7 +15,7 @@
     "3": "CLOSED_PASS",
     "4": "CLOSED_PASS",
     "5": "CLOSED_PASS",
-    "6": "NOT_STARTED",
+    "6": "CLOSED_PASS",
     "7": "NOT_STARTED",
     "8": "NOT_STARTED"
   },
@@ -74,7 +74,7 @@
     "ci_result": "success",
     "disposition": "CLOSED_PASS"
   },
-  "note": "Reviewer-owned current revision adopted at Stage-5 closure. Supersedes rev4. Stage-5 findings S5-P01 through S5-P08 and S5-P10 through S5-P13 are dispositioned in the bound closure authority document; S5-P09 was intentionally never assigned. Stage-5 remediation corrected repository claims to the implementation that exists and manufactured no artifacts. historical_stage2_governed_snapshot_sha256 and the stage3/stage4 closure records are carried forward as history, not as current repository identities. The Stage-2 accepted limitation remains unrepaired and Unit 6 remains inert.",
+  "note": "Reviewer-owned current revision adopted at Stage-6 closure. Supersedes rev5. Stage-6 findings S6-P01 through S6-P07 are dispositioned in the bound closure authority document: P01, P02, P03 and P07 remediated; P04 folded into P01; P05 accepted historical variation; P06 accepted design. Stage-6 remediation corrected documentation-state claims and manufactured no artifacts. CI run 33278881350 was verified by named job and named step conclusion, not by run-level status alone. historical_stage2_governed_snapshot_sha256 and the stage3/stage4/stage5 closure records are carried forward as history, not as current repository identities. The Stage-2 accepted limitation remains unrepaired, S3-07C remains deferred to Stage 7, and Unit 6 remains inert.",
   "stage5_closure": {
     "baseline": "0f42eeb08dc98fdf1a37233bacd89dfae9a31856",
     "accepted_commit": "e7821b4a68ed9e1e67df1d8dff0554034a177013",
@@ -83,5 +83,15 @@
     "ci_result": "success",
     "disposition": "CLOSED_PASS"
   },
-  "superseded_by": "2026-08-29-rev6"
+  "stage6_closure": {
+    "baseline": "0c71f4a21f59da4d8688d3c90a7ed3bab55ba73b",
+    "baseline_tree": "a459b26f79ffbb90e56d7b25a3be25d85c223c8a",
+    "accepted_commit": "259643d33b46a96f795245c79bbf2ef13421817b",
+    "accepted_tree": "2e3334096c21de493f8b056aeb44d2b8d90a7f95",
+    "changed_paths": 9,
+    "ci_run": "33278881350",
+    "ci_result": "success",
+    "ci_named_gates_verified": 12,
+    "disposition": "CLOSED_PASS"
+  }
 }

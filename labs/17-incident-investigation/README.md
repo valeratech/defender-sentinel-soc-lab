@@ -5,7 +5,7 @@
 | **Domain** | Response / SOC operations |
 | **Objectives** | Investigate and triage the queue's richest incident end-to-end (the incident-investigation assignment §2–§6); spring and sidestep §5's classification trap on our own telemetry; demonstrate §1's permission model live — grant Microsoft Sentinel Responder to the scoped analyst and test both sides of the boundary |
 | **Depends on** | Lab 03 (the incident under investigation *is* Lab 03's onboarding validation), Lab 11 (`DET-004`, whose incidents are the boundary-test corpus), `POS-027` (the analyst identity), `POS-002` (the gap this lab's grant pattern speaks to) |
-| **Status** | ✅ Built and measured — classification written, boundary crossed twice, one headline claim withdrawn on its second read |
+| **Status** | 🔨 Built, documentation in progress — classification written, boundary crossed twice, one headline claim withdrawn on its second read |
 | **Built** | 2026-08-05 (triage + grant + activation 1) · 2026-08-06 (re-activation + the read that killed the headline) |
 
 > The incident that looked like the queue's scariest item — Medium, multi-stage,
@@ -109,10 +109,8 @@ Portal-only throughout (paths in `docs/navigation.md`). Condensed sequence:
    (`POS-074`)
 10. **Prohibited-edit read** — Detection Rules (unified portal) as analyst:
     both analytics rules readable in full (query, logic, schedule); the
-    detail pane's toolbar carries no edit control. *(pending — whether an
-    edit control exists on this pane for an identity that holds authoring
-    rights has not been read; until the admin-side comparison is made, the
-    bare toolbar is a description, not a boundary)*
+    detail pane's toolbar carries no edit control.
+    *(pending — whether an edit control exists on this pane for an identity that holds authoring rights has not been read; until the admin-side comparison is made, the bare toolbar is a description, not a boundary)*
 
 ## 5. Validation
 

@@ -5,7 +5,7 @@
 | **Domain** | Data protection / insider risk |
 | **Objectives** | Build an IRM policy from the Data leaks template; measure the org-level indicator baseline before enabling anything; wire the policy's triggering event to Lab 14's simulation-mode DLP policy; determine whether a simulation-mode DLP match functions as an IRM triggering event |
 | **Depends on** | Lab 14 (the DLP policy this lab's trigger points at, and the SITs used as priority content), `POS-002` (the identity this lab expands), `POS-061` (the role-group grant that made the alert surfaces readable) |
-| **Status** | ✅ Built and measured — null verdict, confirmed twice on three surfaces |
+| **Status** | 🔨 Built, documentation in progress — null verdict, confirmed twice on three surfaces |
 | **Built** | 2026-08-03 (build) · 2026-08-04 – 2026-08-05 (observation) |
 
 > The lab was built to answer one question and it answered it: **a

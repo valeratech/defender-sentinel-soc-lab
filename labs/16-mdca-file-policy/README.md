@@ -5,7 +5,7 @@
 | **Domain** | Data protection / cloud app security |
 | **Objectives** | Census MDCA's shipped policy state before building anything; build a file policy using Data Classification Service inspection with advanced settings left as shipped; re-trigger with the exact file Purview already matched; compare two products' default calibrations on identical bytes |
 | **Depends on** | Lab 14 (the file, the three SITs, and the DLP policy whose creation provisioned half of what this lab found), Lab 15 (`POS-065`, the sibling cross-product grant) |
-| **Status** | ✅ Built and measured — divergence confirmed, mechanism open |
+| **Status** | 🔨 Built, documentation in progress — divergence confirmed, mechanism open |
 | **Built** | 2026-08-04 (census, build, trigger) · 2026-08-04 – 2026-08-05 (observation) |
 
 > The lab was designed as a calibration experiment: point two products' shipped

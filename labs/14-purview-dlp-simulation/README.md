@@ -1,7 +1,5 @@
 # Lab 14 — Purview DLP: a US Financial Policy in Simulation
 
-<!-- DRAFT through Phase C. Sections marked ⏳ complete after Phase D. -->
-
 | Field | Value |
 |---|---|
 | **Domain** | Data protection |

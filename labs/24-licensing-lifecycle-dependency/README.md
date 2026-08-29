@@ -5,7 +5,7 @@
 | **Domain** | Microsoft 365 admin center billing surfaces / trial subscription lifecycle / licence assignment and entitlement |
 | **Objectives** | Determine whether Office 365 E5 was required only to *acquire* Microsoft 365 E5 or is an *ongoing* dependency for retaining it; measure what the tenant's surfaces render across a trial subscription's stated expiration date |
 | **Depends on** | `POS-017` (acquisition order, operator-reported), `POS-027` (`analyst` unlicensed by design), `POS-077` (M365 E5 extension consumed), `POS-078` (billing surface state), `POS-079`/`POS-080` (Power Automate Free) |
-| **Status** | ✅ Built and measured — three reads across three dates, zero cost, no tenant object modified |
+| **Status** | 🔨 Built, documentation in progress — three reads across three dates, zero cost, no tenant object modified |
 | **Built** | 2026-08-12 through 2026-08-14 |
 | **Cost** | $0. No provisioning, no consumption meter touched, no subscription control operated. The only actions were reads and one view-filter change |
 

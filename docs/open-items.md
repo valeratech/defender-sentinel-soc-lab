@@ -7,7 +7,7 @@ have and will not invent. See `docs/documentation-standard.md` §5.
 
 Scope: every tracked `.md` file in the repository, as listed by `git ls-files`, excluding `docs/current-state/` (authority chain), `u6/` (frozen, inert), the two `_TEMPLATE.md` files, and this report. Untracked working-tree files are not part of the corpus.
 
-**27 open item(s) across 15 file(s).**
+**28 open item(s) across 16 file(s).**
 
 ## `docs/configuration-inventory.md`
 
@@ -117,7 +117,7 @@ Status: 🔨 Built, documentation in progress
 
 ## `labs/15-insider-risk-policy/README.md`
 
-Status: ✅ Built and measured — null verdict, confirmed twice on three surfaces
+Status: 🔨 Built, documentation in progress — null verdict, confirmed twice on three surfaces
 
 | Line | Section | Item |
 |---|---|---|
@@ -126,15 +126,23 @@ Status: ✅ Built and measured — null verdict, confirmed twice on three surfac
 
 ## `labs/16-mdca-file-policy/README.md`
 
-Status: ✅ Built and measured — divergence confirmed, mechanism open
+Status: 🔨 Built, documentation in progress — divergence confirmed, mechanism open
 
 | Line | Section | Item |
 |---|---|---|
 | 112 | How the zero must be read | *(pending)* — the MDE-side discovery toggle (Settings → Endpoints → Advanced |
 
+## `labs/17-incident-investigation/README.md`
+
+Status: 🔨 Built, documentation in progress — classification written, boundary crossed twice, one headline claim withdrawn on its second read
+
+| Line | Section | Item |
+|---|---|---|
+| 113 | 4. Build | *(pending — whether an edit control exists on this pane for an identity that holds authoring rights  |
+
 ## `labs/24-licensing-lifecycle-dependency/README.md`
 
-Status: ✅ Built and measured — three reads across three dates, zero cost, no tenant object modified
+Status: 🔨 Built, documentation in progress — three reads across three dates, zero cost, no tenant object modified
 
 | Line | Section | Item |
 |---|---|---|

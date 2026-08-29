@@ -8,7 +8,7 @@
 | **Status** | 🔨 Built, documentation in progress |
 | **Built** | *(pending — see Environment Clock below)* |
 
-> Sections marked *(pending)* are work completed but not yet written up.
+> Sections marked `*(pending)*` are work completed but not yet written up.
 
 ---
 

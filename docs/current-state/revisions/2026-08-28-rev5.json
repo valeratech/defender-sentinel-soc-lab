@@ -1,13 +1,12 @@
 {
-  "id": "2026-08-27-rev4",
-  "status": "SUPERSEDED",
+  "id": "2026-08-28-rev5",
+  "status": "CURRENT",
   "supersedes": [
-    "2026-08-27-rev3"
+    "2026-08-27-rev4"
   ],
-  "superseded_by": "2026-08-28-rev5",
   "reviewer_authority": {
-    "file": "docs/current-state/reviewer-authority/2026-08-27-stage4-closure.md",
-    "sha256": "f631a0e2af8c761f1e878dfdb57f1629e5a4ecb8cbe67d96bffb37712401a7d0"
+    "file": "docs/current-state/reviewer-authority/2026-08-28-stage5-closure.md",
+    "sha256": "1e870ef608607210cde5c07d19a0008d5e672045afbdf7c23e0eca5b0cba6a8f"
   },
   "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
   "stage_board": {
@@ -15,7 +14,7 @@
     "2": "CLOSED_WITH_ACCEPTED_LIMITATION",
     "3": "CLOSED_PASS",
     "4": "CLOSED_PASS",
-    "5": "NOT_STARTED",
+    "5": "CLOSED_PASS",
     "6": "NOT_STARTED",
     "7": "NOT_STARTED",
     "8": "NOT_STARTED"
@@ -75,5 +74,13 @@
     "ci_result": "success",
     "disposition": "CLOSED_PASS"
   },
-  "note": "Reviewer-owned current revision adopted at Stage-4 closure. Supersedes the transitional rev3. Stage-4 findings S4-01 through S4-11 are dispositioned in the bound closure authority document. The construction commit recorded under stage4_closure is historical by the time this revision is serialized and is not a self-reference. historical_stage2_governed_snapshot_sha256 is carried as history, not as a current repository identity. The Stage-2 closure checkpoint remains on rev2 and is not restated here."
+  "note": "Reviewer-owned current revision adopted at Stage-5 closure. Supersedes rev4. Stage-5 findings S5-P01 through S5-P08 and S5-P10 through S5-P13 are dispositioned in the bound closure authority document; S5-P09 was intentionally never assigned. Stage-5 remediation corrected repository claims to the implementation that exists and manufactured no artifacts. historical_stage2_governed_snapshot_sha256 and the stage3/stage4 closure records are carried forward as history, not as current repository identities. The Stage-2 accepted limitation remains unrepaired and Unit 6 remains inert.",
+  "stage5_closure": {
+    "baseline": "0f42eeb08dc98fdf1a37233bacd89dfae9a31856",
+    "accepted_commit": "e7821b4a68ed9e1e67df1d8dff0554034a177013",
+    "accepted_tree": "1ca2fca5822b182d3d8325a0acfd0cb12048d17a",
+    "ci_run": "33208390400",
+    "ci_result": "success",
+    "disposition": "CLOSED_PASS"
+  }
 }

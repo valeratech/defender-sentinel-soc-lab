@@ -5,7 +5,7 @@
 | **Domain** | Response / SOC automation |
 | **Objectives** | Build automation rules from both creation surfaces to observe their constraint models (`docs/evidence-notes/create-automation-rules.md`); verify serial execution, ordering, and non-retroactivity against a live trigger; confirm the decision-layer concepts of the automation rules and playbooks guide in the tenant |
 | **Depends on** | Lab 11 (`DET-004` / `LAB-Bruteforce-Failed-Signins` — the rule these automations condition on), Lab 17 (`POS-074` analyst as assignee; the Activities-tab audit trail this lab reads at millisecond resolution) |
-| **Status** | ✅ Built and measured — both rules fired on one trigger, retroactivity verified, one audit-only anomaly surfaced |
+| **Status** | ✅ Built, documented, validated — both rules fired on one trigger, retroactivity verified, one audit-only anomaly surfaced |
 | **Built** | 2026-08-06 |
 
 > Two automation rules, built through two different doors on purpose. The

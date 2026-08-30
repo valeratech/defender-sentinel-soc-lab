@@ -5,7 +5,7 @@
 | **Domain** | Response / SOC automation |
 | **Objectives** | Deploy a Microsoft-supplied Sentinel playbook (the Sentinel-playbooks guide, G57); establish the four identities a playbook needs and observe what each grant actually buys; trigger it live and read the result at every surface it writes to |
 | **Depends on** | Lab 11 (`DET-004` / `LAB-Bruteforce-Failed-Signins` — the detection this playbook responds to), Lab 18 (Orders 1 and 2 on the same analytic rule; this lab adds Order 3), Lab 17 (`POS-074` analyst as assignee) |
-| **Status** | ✅ Built and measured — refused, granted, fired, observed across seven surfaces, remediated |
+| **Status** | ✅ Built, documented, validated — refused, granted, fired, observed across seven surfaces, remediated |
 | **Built** | 2026-08-06 → 2026-08-08 |
 
 > The prediction was that the automation rule would create cleanly and the

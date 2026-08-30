@@ -11,6 +11,10 @@ finding that landed in the filing system and never reached the document it
 belongs to. It fails no gate: the generators verify generated docs against
 their sources, and prose is neither.
 
+The lab axis below is every lab directory in the repository, unioned with
+any lab ID the register names. A lab that owns no register entry renders
+`0/0`: that is a legitimate state and not a claim that it should own one.
+
 **81 of 103 entries cited in their own lab.**
 
 | Lab | Status | Cited | Uncited |
@@ -40,18 +44,20 @@ their sources, and prose is neither.
 | 22 | ✅ | 3/3 | — |
 | 23 | ✅ | 4/4 | — |
 | 24 | 🔨 | 2/2 | — |
+| 25 | ✅ | 0/0 | — |
+| 26 | ✅ | 0/0 | — |
 
 ## Enforcement
 
 | Lab status | Uncited entry |
 |---|---|
 | 🔜 planned | not counted |
-| 🔨 built, documenting | **debt** — reported here, does not fail CI |
-| ✅ built, documented | **fails CI** |
+| 🔨 built, documentation in progress | **debt** — reported here, does not fail CI |
+| ✅ built, documented, validated | **fails CI** |
 
 Marking a lab ✅ is the claim that its writeup is complete. An entry the
 register assigns to that lab and the lab never mentions contradicts the claim,
 so that is where the gate bites. Until then the debt is tracked rather than
 remembered — `docs/documentation-standard.md` §5.
 
-No published lab has an uncited entry.
+No published lab has an uncited entry. Labs owning no register entry are in scope of this statement and cannot be blocked by it.

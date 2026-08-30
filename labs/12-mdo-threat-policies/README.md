@@ -5,7 +5,7 @@
 | **Domain** | Response |
 | **Objectives** | Read the inherited mail-security baseline; build a scoped Safe Attachments policy; prove by observation which policy acts on a delivered message |
 | **Depends on** | Lab 00 (E5 licensing), Lab 10 (`POS-043` — the alert policy whose preventive counterpart is `POS-053`) |
-| **Status** | 🔨 Built, documenting |
+| **Status** | 🔨 Built, documentation in progress |
 | **Built** | 2026-08-01 |
 
 > The first lab in this repository where **a correctly configured control was

@@ -5,7 +5,7 @@
 | **Domain** | Microsoft Sentinel hunting — hunts, hunting queries, bookmarks, and the `HuntingBookmark` table |
 | **Objectives** | Build the full hunt → query → results → bookmark chain, and determine at which link it breaks and why |
 | **Depends on** | `POS-034` (Entra ID connector, `SigninLogs` connector-fed), `POS-045`/`POS-046` (the tenant's two analytics rules), `DET-004` (validated brute-force detection, same logic as the hunting query authored here), Lab 11 (the trigger method reused) |
-| **Status** | ✅ Built and measured — four source guides, three sittings, every registered prediction closed |
+| **Status** | ✅ Built, documented, validated — four source guides, three sittings, every registered prediction closed |
 | **Built** | 2026-08-14 through 2026-08-16 |
 | **Cost** | $0.00. Hunts and queries are control-plane objects; one bookmark row; six sign-in events. Query execution is not billed |
 

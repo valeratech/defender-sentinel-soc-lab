@@ -971,16 +971,20 @@ Design premise: **any single gate will be bypassed, disabled, or wrong.**
      and pre-commit were scanning with different engines and different default rules.
 - **The fix:** install the binary, run `gitleaks git .`, pin the version once in `env:`
   as `GITLEAKS_VERSION: 8.28.0` — same as local, and no range arithmetic to get wrong.
-- **What to check in the log:** `5 commits scanned`. The old job reported *no leaks
-  found* while scanning zero bytes. The commit count is what distinguishes a gate that
-  looked from one that didn't.
+- **What to check in the log:** not a number — a relationship. The step parses the
+  scan summary and fails closed on three conditions: the summary must parse at all,
+  commits scanned must be non-zero, and bytes scanned must be non-zero. The old job
+  reported *no leaks found* while scanning zero bytes, so a clean verdict over
+  nothing is what the gate exists to reject. An expected count is deliberately not
+  recorded here: it moves with every commit, and a stale literal in this document
+  would send a reader looking for the wrong evidence.
 
 ---
 
 ## 9. Generated documentation
 
-Three docs are **built from source and CI-enforced**. Editing them by hand fails the
-build — they cannot drift.
+Four documents and one region of `README.md` are **built from source and
+CI-enforced**. Editing them by hand fails the build — they cannot drift.
 
 - [ ] `python3 scripts/build-posture-register.py` → `docs/posture-register.md`
       ← `posture.yml`
@@ -988,8 +992,24 @@ build — they cannot drift.
       ← detection frontmatter
 - [ ] `python3 scripts/open-items.py` → `docs/open-items.md`
       ← `*(pending)*` markers in writeups
+- [ ] `python3 scripts/check-lab-coverage.py` → `docs/lab-coverage.md`
+      ← `posture.yml` `lab:` fields ∪ the `labs/` directories
+- [ ] `python3 scripts/build-lab-index.py` → the lab-index block **inside**
+      `README.md` ← each lab's own `README.md`
 
-All three take `--check`, which is what CI runs.
+The last is a generated *region*, not a generated file: the rest of `README.md`
+is authored and stays authored. It is delimited by the `BEGIN GENERATED LAB
+INDEX` / `END GENERATED LAB INDEX` comments, and only what lies between them is
+derived.
+
+All five take `--check`, and CI runs all five. `scripts/check-evidence-notes.py`
+sits beside them in the same CI job and accepts `--check` for invocation
+uniformity, but it is a validator rather than a generator: it produces no
+document and there is nothing to regenerate.
+
+`docs/instruments.md` records the invocation contract for every instrument CI
+runs, including which ones need a live Git index and what a PASS from each one
+actually establishes.
 
 `attack-coverage.md` distinguishes **CLAIMED / PARTIAL / COVERED** — only *validated*
 detections count as coverage. A matrix that counts unvalidated rules as green is a
@@ -1027,8 +1047,9 @@ authoritative.
 - [ ] **`docs/documentation-standard.md`** — never assert what wasn't observed; vendor
       expectation ≠ observed result; every decision names its rejected alternative;
       every lab-only weakening names the production answer
-- [ ] **Status vocabulary** — 🔜 not built · 🔨 built, documenting · ✅ done and
-      validated · `*(pending)*` = fact not yet known
+- [ ] **Status vocabulary** — 🔜 not built · 🔨 built, documentation in progress ·
+      ✅ built, documented, validated · `*(pending)*` = fact not yet known.
+      `docs/documentation-standard.md` §6 is the authority for these renderings
 - [ ] **Organisation** — by SOC capability + exam domain + ATT&CK, deliberately not by
       lecture order
 - [ ] **Numbering** — follows actual build order, not the exam blueprint

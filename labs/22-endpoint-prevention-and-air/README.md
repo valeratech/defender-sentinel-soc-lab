@@ -5,7 +5,7 @@
 | **Domain** | Defender for Endpoint prevention controls / automated investigation and response (AIR) / incident investigation surfaces |
 | **Objectives** | Exercise endpoint prevention on a live client (guides G67–G68); capture the **Defender for Endpoint AIR standalone experience before its 2026-09-01 retirement**; measure what each surface reports about the same two files |
 | **Depends on** | Lab 03 (EDR detection test, onboarding latencies), Lab 06 (ASR audit-vs-block already isolated), Lab 13 (**MDO** AIR — a different product, explicitly not the capability being retired), Lab 17 (incident workflow), `POS-033` (hostname truncation), `POS-019`/`POS-020` (RDP exposure on this VM) |
-| **Status** | ✅ Built and measured — four phases, one metered window of 68 minutes |
+| **Status** | ✅ Built, documented, validated — four phases, one metered window of 68 minutes |
 | **Built** | 2026-08-10 |
 | **Cost** | `LAB-WIN11-01` compute only, 16:25 → 17:33. No Bastion. Public IP billing continues past teardown — see §9 and `POS-094`, closed on the mechanism 2026-08-12 at $0.12/day on 29 of 29 days. `P89-10` closed the same day (`POS-099`) |
 

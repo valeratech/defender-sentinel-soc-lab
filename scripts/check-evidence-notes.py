@@ -17,15 +17,45 @@ Schema enforced EXACTLY as documented:
     divergences -> integer row present in docs/configuration-inventory.md
     kql         -> path is under kql/ AND exists
     detections  -> DET-NNN has a real spec file under detections/
-  Malformed values are controlled FAILs, never tracebacks.
+  Malformed values are controlled FAILs, never tracebacks. So are missing
+  prerequisites: posture.yml, docs/configuration-inventory.md and the
+  evidence-notes directory itself each fail closed with one stated line.
+
+Repository root is derived from this file's own location, so the result does
+not depend on the caller's working directory.
 """
 import glob, re, sys, os
 
-ROOT = os.getcwd()
+# Root is derived from THIS FILE, not the caller's working directory. Under
+# os.getcwd() the corpus moved with wherever the checker happened to be run
+# from, and a wrong CWD surfaced as an uncaught FileNotFoundError instead of
+# a stated failure. The other Python instruments in scripts/ derive root this
+# way; the shell instruments that call bare `git ls-files` do NOT, and their
+# corpus still moves with the caller. See docs/instruments.md.
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NOTES = os.path.join(ROOT, "docs", "evidence-notes")
 REQUIRED = {"title", "date", "artifacts", "corrections"}
 RETIRED = {"module", "section", "verdict"}
 KNOWN_ARTIFACTS = {"labs", "posture", "divergences", "kql", "detections"}
+
+
+def require(rel):
+    """Read a required input, or fail in the documented one-line form.
+
+    A missing prerequisite is a controlled FAIL like any other defect. It is
+    never a traceback and never a pass: a checker that cannot reach its own
+    inputs has measured nothing.
+    """
+    path = os.path.join(ROOT, rel)
+    try:
+        return open(path, encoding="utf-8").read()
+    except OSError as exc:
+        print(
+            f"FAIL: required input {rel} is unreadable under {ROOT}: "
+            f"{exc.strerror}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 def divergence_table(inv_text, inv_rel):
@@ -112,9 +142,9 @@ def main():
         import yaml
     except ImportError:
         print("FAIL: PyYAML unavailable", file=sys.stderr); sys.exit(1)
-    posture = open(os.path.join(ROOT, "posture.yml"), encoding="utf-8").read()
+    posture = require("posture.yml")
     pos_ids = set(re.findall(r"id:\s*\"?(POS-\d+)\"?", posture))
-    inv = open(os.path.join(ROOT, "docs", "configuration-inventory.md"), encoding="utf-8").read()
+    inv = require(os.path.join("docs", "configuration-inventory.md"))
     inv_rel = os.path.join("docs", "configuration-inventory.md")
     div_rows, div_defects = divergence_table(inv, inv_rel)
     errors.extend(div_defects)
@@ -125,6 +155,13 @@ def main():
         m = re.search(r"(DET-\d+)", os.path.basename(p))
         if m: det_specs.add(m.group(1))
 
+    if not os.path.isdir(NOTES):
+        print(
+            f"FAIL: evidence-notes directory absent under {ROOT} "
+            f"(expected docs/evidence-notes/)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
     notes = sorted(glob.glob(os.path.join(NOTES, "*.md")))
     if not notes: errors.append(f"no notes found under {NOTES}")
     for p in notes:

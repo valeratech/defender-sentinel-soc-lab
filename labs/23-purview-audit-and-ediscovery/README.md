@@ -5,7 +5,7 @@
 | **Domain** | Microsoft Purview Audit (unified audit log) / Microsoft Purview eDiscovery (content search) / Purview RBAC and case membership |
 | **Objectives** | Close the read side of the unified audit pipeline enabled in Lab 09; measure what a content search returns against a known planted population; measure what the eDiscovery access boundary does on grant and on revoke |
 | **Depends on** | Lab 09 (`POS-035` unified audit ingestion enabled by cmdlet; `POS-036` Exchange hydration), `POS-027` (`analyst` unlicensed by design), Lab 20 (`POS-091` Copilot capacity torn down), Lab 22 (negative-then-positive control precedent; deliberately-left-evidence precedent) |
-| **Status** | ✅ Built and measured — two phases, zero cost, both VMs deallocated throughout |
+| **Status** | ✅ Built, documented, validated — two phases, zero cost, both VMs deallocated throughout |
 | **Built** | 2026-08-11 |
 | **Cost** | $0. No compute, no consumption meter touched, no capacity provisioned. The only expenditures were a temporary privilege expansion (reverted) and three small files left in place as evidence |
 

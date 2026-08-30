@@ -139,21 +139,21 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [09](labs/09-attack-simulation-training/) | Attack Simulation Training | 🔨 Built, documentation in progress |
 | [10](labs/10-alert-policies/) | Microsoft 365 Alert Policies | 🔨 Built, documentation in progress |
 | [11](labs/11-sentinel-analytics-rules/) | Sentinel Analytics Rules | 🔨 Built, documentation in progress |
-| [12](labs/12-mdo-threat-policies/) | Defender for Office 365 Threat Policies | 🔨 Built, documenting |
-| [13](labs/13-explorer-air-remediation/) | Explorer Investigation and Defender-Native Remediation | 🔨 Built, documenting |
-| [14](labs/14-purview-dlp-simulation/) | Purview DLP: a US Financial Policy in Simulation | ✅ Built and measured, Phases A–D complete |
+| [12](labs/12-mdo-threat-policies/) | Defender for Office 365 Threat Policies | 🔨 Built, documentation in progress |
+| [13](labs/13-explorer-air-remediation/) | Explorer Investigation and Defender-Native Remediation | 🔨 Built, documentation in progress |
+| [14](labs/14-purview-dlp-simulation/) | Purview DLP: a US Financial Policy in Simulation | ✅ Built, documented, validated |
 | [15](labs/15-insider-risk-policy/) | Insider Risk Management: a Trigger That Never Fires | 🔨 Built, documentation in progress |
 | [16](labs/16-mdca-file-policy/) | MDCA File Policy: Two Products, One Engine, One File | 🔨 Built, documentation in progress |
 | [17](labs/17-incident-investigation/) | Incident Investigation: the Trap, the Audit Trail, and the Role That Wasn't There Yet | 🔨 Built, documentation in progress |
-| [18](labs/18-sentinel-automation-rules/) | Sentinel Automation Rules: Two Doors, One Trigger, and a Duplicate Only the Audit Log Saw | ✅ Built and measured |
-| [19](labs/19-sentinel-playbooks/) | Sentinel Playbooks: A Permission Checked Before Anything Ran, and a Credential in Three Places | ✅ Built and measured |
-| [20](labs/20-security-copilot/) | Security Copilot: A Better Witness Than the Portal, and Confidently Incomplete | ✅ Built and measured |
-| [21](labs/21-nrt-execution-semantics/) | NRT Execution Semantics: The Hour That Never Holds an Hour | ✅ Built and measured |
-| [22](labs/22-endpoint-prevention-and-air/) | Endpoint Prevention and Automated Investigation: What Audit Mode Did Not Audit | ✅ Built and measured |
-| [23](labs/23-purview-audit-and-ediscovery/) | Purview Audit and eDiscovery: Two Data Planes, and the File Neither One Reports | ✅ Built and measured |
+| [18](labs/18-sentinel-automation-rules/) | Sentinel Automation Rules: Two Doors, One Trigger, and a Duplicate Only the Audit Log Saw | ✅ Built, documented, validated |
+| [19](labs/19-sentinel-playbooks/) | Sentinel Playbooks: A Permission Checked Before Anything Ran, and a Credential in Three Places | ✅ Built, documented, validated |
+| [20](labs/20-security-copilot/) | Security Copilot: A Better Witness Than the Portal, and Confidently Incomplete | ✅ Built, documented, validated |
+| [21](labs/21-nrt-execution-semantics/) | NRT Execution Semantics: The Hour That Never Holds an Hour | ✅ Built, documented, validated |
+| [22](labs/22-endpoint-prevention-and-air/) | Endpoint Prevention and Automated Investigation: What Audit Mode Did Not Audit | ✅ Built, documented, validated |
+| [23](labs/23-purview-audit-and-ediscovery/) | Purview Audit and eDiscovery: Two Data Planes, and the File Neither One Reports | ✅ Built, documented, validated |
 | [24](labs/24-licensing-lifecycle-dependency/) | Licensing Lifecycle: A Subscription Past Its Stated Expiration Date and Still Active | 🔨 Built, documentation in progress |
-| [25](labs/25-threat-intelligence-indicators/) | Threat Intelligence: An Indicator Nothing Was Joined To | ✅ Built and measured |
-| [26](labs/26-hunts-queries-bookmarks/) | Hunts, Queries and Bookmarks: A Documented Path That Routes to the Wrong Store | ✅ Built and measured |
+| [25](labs/25-threat-intelligence-indicators/) | Threat Intelligence: An Indicator Nothing Was Joined To | ✅ Built, documented, validated |
+| [26](labs/26-hunts-queries-bookmarks/) | Hunts, Queries and Bookmarks: A Documented Path That Routes to the Wrong Store | ✅ Built, documented, validated |
 
 *27 labs. Generated from each lab's own `README.md` by `scripts/build-lab-index.py` and CI-enforced — the lab pages are authoritative for their titles and statuses; this table mirrors them.*
 

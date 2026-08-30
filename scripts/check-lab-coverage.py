@@ -39,14 +39,24 @@ the OCR IP heuristic at warning tier (SANITIZATION.md section 4).
 So the gate follows the repository's own 🔨/✅ semantics, where the gap between
 them is load-bearing (documentation-standard.md section 6):
 
-  🔨 built, documenting  — reported as debt in docs/lab-coverage.md. Does not fail.
-  ✅ built, documented   — uncited entry FAILS. Publishing a lab is the claim
+  🔨 built, documentation in progress — reported as debt in
+                                       docs/lab-coverage.md. Does not fail.
+  ✅ built, documented, validated     — uncited entry FAILS. Publishing a lab
+                                       is the claim
                            that its writeup is complete; an orphaned finding
                            means it is not.
 
 The debt is tracked rather than remembered, and the gate bites at exactly the
 moment the claim goes public. `--strict` fails on any uncited entry regardless
 of status, for when the backlog is cleared.
+
+Two further contracts, both added in Stage 7:
+
+  * The lab axis is every lab DIRECTORY unioned with every lab ID the register
+    names — not the register alone. A published lab owning no entry used to be
+    absent from this report entirely rather than shown as 0/0.
+  * A lab whose status cannot be parsed FAILS. Only "✅" triggers the uncited
+    check, so "unknown" was a silent exemption from gating.
 
 Usage:
     python3 scripts/check-lab-coverage.py            # regenerate
@@ -83,6 +93,30 @@ def lab_readme(lab: str) -> pathlib.Path | None:
     return None
 
 
+def directory_labs() -> list[str]:
+    """Lab IDs that exist as directories, independent of the register.
+
+    The register is not the lab universe. Deriving the axis only from
+    posture.yml made a lab that owns no entry invisible here — it could not
+    appear, could not be counted, and could not be gated. Labs 25 and 26 were
+    both published in that state. A lab with no entries is a legitimate
+    outcome and renders 0/0; what is not legitimate is the report silently
+    covering 25 of 27 labs while reading as though it covered all of them.
+
+    Membership is the DIRECTORY, not the README inside it. Requiring a README
+    here would rebuild the same hole one level down: a lab owning no register
+    entry would drop out of the axis the moment its README went missing, and
+    the register half of the union could not carry it. Whether the README
+    exists is a question for lab_readme() and the missing-status gate, which
+    is where it can be reported instead of disappearing.
+    """
+    return sorted(
+        d.name.split("-", 1)[0]
+        for d in LABS.glob("[0-9][0-9]-*")
+        if d.is_dir()
+    )
+
+
 def lab_status(text: str) -> str:
     """Published (✅), documenting (🔨), planned (🔜), or unknown."""
     m = STATUS_RE.search(text)
@@ -96,7 +130,10 @@ def lab_status(text: str) -> str:
 
 
 def audit(entries: list[dict]) -> list[dict]:
-    labs = sorted({e["lab"] for e in entries})
+    # Union: every lab directory, plus any lab ID the register names even if
+    # no such directory exists (a dangling lab: field must stay visible, not
+    # be quietly dropped by switching the axis).
+    labs = sorted(set(directory_labs()) | {e["lab"] for e in entries})
     rows = []
     for lab in labs:
         path = lab_readme(lab)
@@ -134,6 +171,10 @@ def render(rows: list[dict]) -> str:
         "belongs to. It fails no gate: the generators verify generated docs against",
         "their sources, and prose is neither.",
         "",
+        "The lab axis below is every lab directory in the repository, unioned with",
+        "any lab ID the register names. A lab that owns no register entry renders",
+        "`0/0`: that is a legitimate state and not a claim that it should own one.",
+        "",
         f"**{cited} of {total} entries cited in their own lab.**",
         "",
         "| Lab | Status | Cited | Uncited |",
@@ -150,8 +191,8 @@ def render(rows: list[dict]) -> str:
         "| Lab status | Uncited entry |",
         "|---|---|",
         "| 🔜 planned | not counted |",
-        "| 🔨 built, documenting | **debt** — reported here, does not fail CI |",
-        "| ✅ built, documented | **fails CI** |",
+        "| 🔨 built, documentation in progress | **debt** — reported here, does not fail CI |",
+        "| ✅ built, documented, validated | **fails CI** |",
         "",
         "Marking a lab ✅ is the claim that its writeup is complete. An entry the",
         "register assigns to that lab and the lab never mentions contradicts the claim,",
@@ -165,7 +206,11 @@ def render(rows: list[dict]) -> str:
             L.append(f"- Lab {r['lab']} (✅) — {', '.join('`'+i+'`' for i in r['uncited'])}")
         L.append("")
     else:
-        L += ["No published lab has an uncited entry.", ""]
+        L += [
+            "No published lab has an uncited entry. Labs owning no register entry "
+            "are in scope of this statement and cannot be blocked by it.",
+            "",
+        ]
 
     return "\n".join(L)
 
@@ -191,6 +236,28 @@ def main() -> int:
     else:
         OUTPUT.write_text(content, encoding="utf-8")
         print(f"Wrote {OUTPUT.relative_to(ROOT)}")
+
+    # S7-P06 — a lab whose status cannot be read drops out of enforcement
+    # entirely: only "✅" fails, so "unknown" and "missing" were a silent
+    # exemption. The gate must not decide a lab is safe because it could not
+    # read it.
+    unreadable = [r for r in rows if r["status"] in ("unknown", "missing")]
+    if unreadable:
+        for r in unreadable:
+            if r["status"] == "missing":
+                print(
+                    f"FAIL lab {r['lab']}: no labs/{r['lab']}-*/README.md. The lab "
+                    f"cannot be gated because it cannot be read.",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    f"FAIL lab {r['lab']} ({r['path']}): no **Status** row carrying "
+                    f"a ✅/🔨/🔜 marker. Status governs whether an uncited entry "
+                    f"fails, so an unreadable status cannot be treated as safe.",
+                    file=sys.stderr,
+                )
+        return 1
 
     failing = [
         r for r in rows

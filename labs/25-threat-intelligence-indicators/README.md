@@ -5,7 +5,7 @@
 | **Domain** | Microsoft Sentinel threat intelligence / Intel management / STIX object creation / TI table schema and billing flag |
 | **Objectives** | Determine whether a manually created threat indicator reaches a workspace table, which table receives it, whether it is marked billable, and whether any analytics rule in this tenant joins against it |
 | **Depends on** | `POS-034` (Entra ID connector, `SigninLogs` billable and connector-fed), `POS-045`/`POS-046` (the tenant's only two analytics rules, both `SigninLogs`-based) |
-| **Status** | ✅ Built and measured — created 2026-08-14, revoked 2026-08-16, seven predictions registered before portal contact |
+| **Status** | ✅ Built, documented, validated — created 2026-08-14, revoked 2026-08-16, seven predictions registered before portal contact |
 | **Built** | 2026-08-14 through 2026-08-16 |
 | **Cost** | Effectively $0. `_BilledSize: 786` bytes, `_IsBillable: True`. Query execution unbilled. No connector, no solution, no feed |
 

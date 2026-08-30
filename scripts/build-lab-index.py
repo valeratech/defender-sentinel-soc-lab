@@ -43,8 +43,8 @@ Two deliberate omissions:
   taxonomy would mean hand-maintaining a mapping *inside this script*, which
   moves the drift rather than removing it.
 * **Status is truncated at the em-dash.** Lab statuses carry an elaboration
-  ("✅ Built and measured — two phases, zero cost, both VMs deallocated
-  throughout"). The claim is the part before the dash; the elaboration belongs
+  ("✅ Built, documented, validated — two phases, zero cost, both VMs
+  deallocated throughout"). The claim is the part before the dash; the elaboration belongs
   on the lab page, not the index.
 
 Usage:

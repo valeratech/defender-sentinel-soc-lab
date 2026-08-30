@@ -5,7 +5,7 @@
 Outstanding `*(pending)*` markers. Each one is a fact the writeup does not
 have and will not invent. See `docs/documentation-standard.md` §5.
 
-Scope: every tracked `.md` file in the repository, as listed by `git ls-files`, excluding `docs/current-state/` (authority chain), `u6/` (frozen, inert), the two `_TEMPLATE.md` files, and this report. Untracked working-tree files are not part of the corpus.
+Scope: every tracked `.md` file in the repository, as listed by `git ls-files`, excluding `docs/current-state/` (authority chain), `u6/` (frozen, inert), the two `_TEMPLATE.md` files, and this report. Untracked working-tree files are not part of the corpus. A marker must open and close on one source line; one that does not is reported as an escape and fails this report rather than being silently dropped.
 
 **28 open item(s) across 16 file(s).**
 
@@ -15,8 +15,8 @@ Status: —
 
 | Line | Section | Item |
 |---|---|---|
-| 1148 | 12.10 Enforcement scope / MDE security settings management - `POS-041` ⬜ default, off | - **Deferred test:** deploying the two ASR rules as policy and watching whether the ASR report start |
-| 1172 | 12.12 Microsoft Sentinel UEBA - `POS-044` ✅ hardened (enabled 2026-07-28) | - **Open:** `BehaviorAnalytics` billability — absent from the billable list, but its only row postda |
+| 1169 | 12.10 Enforcement scope / MDE security settings management - `POS-041` ⬜ default, off | - **Deferred test:** deploying the two ASR rules as policy and watching whether the ASR report start |
+| 1193 | 12.12 Microsoft Sentinel UEBA - `POS-044` ✅ hardened (enabled 2026-07-28) | - **Open:** `BehaviorAnalytics` billability — absent from the billable list, but its only row postda |
 
 ## `docs/evidence-notes/analytics-rules.md`
 

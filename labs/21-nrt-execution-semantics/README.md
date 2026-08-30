@@ -5,7 +5,7 @@
 | **Domain** | Sentinel analytics rules / anomaly rule lifecycle / detection engineering |
 | **Objectives** | Test Sentinel's Flighting/Production anomaly-rule lifecycle (the NRT guide, G66); build the course's hour-aggregation NRT rule as a **falsification test** and measure what it actually detects |
 | **Depends on** | `POS-046` / `DET-004` (the aggregation limit, reached from `SigninLogs`), `POS-044` + divergence row 41 (anomaly inventory, `docs/evidence-notes/enabling-ueba.md` — reused, not re-measured), `POS-033` (hostname truncation; AMA+DCR collection), Lab 07 (`SecurityEvent` path), `docs/evidence-notes/entities-and-ueba.md` (store partitions) |
-| **Status** | ✅ Built and measured — two phases, one metered window of 3 h 18 m |
+| **Status** | ✅ Built, documented, validated — two phases, one metered window of 3 h 18 m |
 | **Built** | 2026-08-10 |
 | **Cost** | VM 2 for 3 h 18 m; one Bastion Developer SKU host created and deleted inside the window. **Bastion charge $0 — no meter rows emitted, confirmed 2026-08-12 (`P89-10` closed, `POS-099`)** |
 

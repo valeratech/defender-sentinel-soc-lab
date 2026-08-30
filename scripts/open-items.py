@@ -46,7 +46,9 @@ SCOPE_NOTE = (
     "Scope: every tracked `.md` file in the repository, as listed by "
     "`git ls-files`, excluding `docs/current-state/` (authority chain), "
     "`u6/` (frozen, inert), the two `_TEMPLATE.md` files, and this report. "
-    "Untracked working-tree files are not part of the corpus."
+    "Untracked working-tree files are not part of the corpus. A marker must "
+    "open and close on one source line; one that does not is reported as an "
+    "escape and fails this report rather than being silently dropped."
 )
 
 # The convention is `*(pending)*` / `*(pending — why)*`. Require the LEADING
@@ -58,6 +60,17 @@ SCOPE_NOTE = (
 # exactly what labs/01 line 95 does. Requiring the closing asterisk drops that
 # real marker from the census.
 PENDING = re.compile(r"\*\(pending[^)]*\)", re.I)
+# The census is line-oriented, and a marker wrapped across source lines
+# escapes it silently — which is exactly how the Lab-17 instance survived
+# until Stage 6 found it by hand. OPENING matches the marker's opening
+# token alone. Every opening token must be either counted by PENDING or
+# suppressed by a stated rule below; anything else is an escape, and
+# escapes fail loudly rather than quietly shrinking the census.
+#
+# This is deliberately NOT multiline parsing. The contract stays one
+# marker, one line; the detector makes a violation of that contract
+# visible instead of invisible.
+OPENING = re.compile(r"\*\(pending", re.I)
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
 STATUS = re.compile(r"^\|\s*\*\*Status\*\*\s*\|\s*(.+?)\s*\|", re.M)
 # A marker inside backticks is prose *about* the convention, not a use of it.
@@ -91,6 +104,33 @@ def scan(path: pathlib.Path) -> list[tuple[int, str, str]]:
     return hits
 
 
+def escapes(path: pathlib.Path) -> list[tuple[int, str]]:
+    """Return (line_no, text) for opening markers the census cannot see.
+
+    Applies scan()'s own suppression rules first, so convention prose in a
+    blockquote or inside inline code is not reported: those are legitimately
+    excluded, not escaped. What remains is a marker that opens on a line and
+    does not close on it.
+
+    The test is per TOKEN, not per line. Asking whether the line holds any
+    complete marker lets one masked the other: on
+
+        *(pending — complete)* and *(pending
+
+    the first marker satisfies a line-level test while the second escapes
+    silently. So every complete marker is removed first, and whatever opening
+    token survives that removal is unaccounted for.
+    """
+    out = []
+    for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if line.lstrip().startswith(">"):
+            continue
+        residue = PENDING.sub("", INLINE_CODE.sub("", line))
+        if OPENING.search(residue):
+            out.append((i, line.strip()[:100]))
+    return out
+
+
 def tracked_markdown() -> list[pathlib.Path]:
     """The tracked .md corpus, from git. Fails closed rather than guessing.
 
@@ -106,12 +146,30 @@ def tracked_markdown() -> list[pathlib.Path]:
     return [ROOT / p for p in out.stdout.decode("utf-8").split("\0") if p]
 
 
-def collect() -> dict[str, dict]:
-    out: dict[str, dict] = {}
+def corpus() -> list[pathlib.Path]:
+    """The census corpus: tracked Markdown minus the governed exclusions."""
+    keep = []
     for path in sorted(tracked_markdown()):
         rel = path.relative_to(ROOT).as_posix()
         if rel.startswith(EXCLUDED_PREFIXES) or rel in EXCLUDED_PATHS:
             continue
+        keep.append(path)
+    return keep
+
+
+def audit_escapes() -> list[tuple[str, int, str]]:
+    """Every escaped opening marker in the corpus, as (path, line, text)."""
+    found = []
+    for path in corpus():
+        rel = path.relative_to(ROOT).as_posix()
+        found += [(rel, i, s) for i, s in escapes(path)]
+    return found
+
+
+def collect() -> dict[str, dict]:
+    out: dict[str, dict] = {}
+    for path in corpus():
+        rel = path.relative_to(ROOT).as_posix()
         body = path.read_text(encoding="utf-8")
         hits = scan(path)
         if not hits:
@@ -162,6 +220,21 @@ def main() -> int:
     ap.add_argument("--check", action="store_true", help="exit 1 if report stale")
     ap.add_argument("--list", action="store_true", help="print, do not write")
     args = ap.parse_args()
+
+    escaped = audit_escapes()
+    if escaped:
+        for rel, line_no, text in escaped:
+            print(
+                f"ESCAPE {rel}:{line_no} — pending marker opens and does not "
+                f"close on this line, so the census cannot see it: {text}",
+                file=sys.stderr,
+            )
+        print(
+            "\nA marker split across source lines is invisible to this report. "
+            "Reflow it onto one line; the census is line-oriented by contract.",
+            file=sys.stderr,
+        )
+        return 1
 
     content = render(collect())
 

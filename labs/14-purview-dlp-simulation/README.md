@@ -5,7 +5,7 @@
 | **Domain** | Data protection |
 | **Objectives** | Build a DLP policy from the U.S. Financial Data template on wizard defaults; measure what a tenant classifies before any policy exists; validate synthetic content against the SITs independently of the policy; observe the simulation report |
 | **Depends on** | Lab 12 (the provisioning-window pattern; Built-in protection as the `default`-kind precedent), `POS-002` (the identity this lab quantifies) |
-| **Status** | ✅ Built and measured, Phases A–D complete |
+| **Status** | ✅ Built, documented, validated — Phases A–D complete |
 | **Built** | 2026-08-01 – 2026-08-03 (A: 08-01 · B–C: 08-02 · D: 08-03) |
 
 > The policy is deliberately **all defaults** — the only human inputs in the

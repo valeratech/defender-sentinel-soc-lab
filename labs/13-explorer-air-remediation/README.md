@@ -5,7 +5,7 @@
 | **Domain** | Response |
 | **Objectives** | Investigate a message whose ground truth is already known; run AIR and a remediation against it; establish what the Action Center actually holds |
 | **Depends on** | Lab 12 (the four messages and their measured policy paths), Lab 03 (`docs/evidence-notes/actions-and-submissions.md` — the empty Action Center this lab explains) |
-| **Status** | 🔨 Built, documenting |
+| **Status** | 🔨 Built, documentation in progress |
 | **Built** | 2026-08-01 |
 
 > Built on top of Lab 12 rather than beside it. Four messages with fully known

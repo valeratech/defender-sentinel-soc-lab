@@ -5,7 +5,7 @@
 | **Domain** | AI-assisted investigation / metered capacity |
 | **Objectives** | Provision Security Copilot capacity against a fixed cost ceiling (the capacity-creation guide, G62); interrogate a *previously documented* incident and score the answers against the committed record (the Copilot investigation guide, G64); tear down inside one clock hour (the capacity-teardown guide, G65) |
 | **Depends on** | Lab 19 (incident 24 — the measurement target, documented across seven surfaces), Lab 18 (Orders 1 and 2 still on the incident), Lab 11 (`DET-004`, the detection), `POS-016` (delete-to-stop billing), `POS-033` (Defender for Cloud declined — forecloses the sample-alerts exercise), `POS-058` (Azure credit structurally unreachable) |
-| **Status** | ✅ Built and measured — provisioned 11:00:07, torn down inside the same clock hour |
+| **Status** | ✅ Built, documented, validated — provisioned 11:00:07, torn down inside the same clock hour |
 | **Built** | 2026-08-09 |
 | **Cost** | 1 provisioned SCU, 1 clock hour. **$4.00 accrued and attributed** — single `Provisioned Security Compute Unit` meter row dated 08-09, matching this lab's resource group total. Invoice confirmation still open (`P20-11`) |
 

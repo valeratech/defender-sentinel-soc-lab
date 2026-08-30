@@ -1,12 +1,12 @@
 {
-  "id": "2026-08-29-rev6",
-  "status": "SUPERSEDED",
+  "id": "2026-08-30-rev7",
+  "status": "CURRENT",
   "supersedes": [
-    "2026-08-28-rev5"
+    "2026-08-29-rev6"
   ],
   "reviewer_authority": {
-    "file": "docs/current-state/reviewer-authority/2026-08-29-stage6-closure.md",
-    "sha256": "85692ce3fe2c2188513ad7e7981abe2bad0bd9a288d0e4f36f854c0a42613a88"
+    "file": "docs/current-state/reviewer-authority/2026-08-30-stage7-closure.md",
+    "sha256": "94f11d95bf2ff1a2297a6bb8a3c660cd46f8c924db4d07ccf2a724413b706aa5"
   },
   "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
   "stage_board": {
@@ -16,7 +16,7 @@
     "4": "CLOSED_PASS",
     "5": "CLOSED_PASS",
     "6": "CLOSED_PASS",
-    "7": "NOT_STARTED",
+    "7": "CLOSED_PASS",
     "8": "NOT_STARTED"
   },
   "gates": {
@@ -74,7 +74,7 @@
     "ci_result": "success",
     "disposition": "CLOSED_PASS"
   },
-  "note": "Reviewer-owned current revision adopted at Stage-6 closure. Supersedes rev5. Stage-6 findings S6-P01 through S6-P07 are dispositioned in the bound closure authority document: P01, P02, P03 and P07 remediated; P04 folded into P01; P05 accepted historical variation; P06 accepted design. Stage-6 remediation corrected documentation-state claims and manufactured no artifacts. CI run 33278881350 was verified by named job and named step conclusion, not by run-level status alone. historical_stage2_governed_snapshot_sha256 and the stage3/stage4/stage5 closure records are carried forward as history, not as current repository identities. The Stage-2 accepted limitation remains unrepaired, S3-07C remains deferred to Stage 7, and Unit 6 remains inert.",
+  "note": "Reviewer-owned current revision adopted at Stage-7 closure. Supersedes rev6. Stage-7 findings S7-P01 through S7-P14 are dispositioned in the bound closure authority document: P01, P02, P04, P05, P06, P11, P12, P13 and P14 remediated; P03 informational; P07 accepted design; P08, P09 and P10 not repository findings. S3-07C is discharged by P01 and P02 and is no longer deferred. Measurement decisions S7-D01 and S7-D02 ruled DO NOT MEASURE, so the Stage-6 gitleaks scan-count characterization and table timezone-labelling conformance both remain NOT MEASURED and are not converted to a pass. CI run 33336796015 was verified by named job and named step conclusion, not by run-level status alone, with step names matched within their own job. The sanitize standing condition was measured and holds at the accepted commit; the R3 Step-3a runner reported zero REVIEW hits because it could not observe ANSI-formatted output, which is recorded as S7-EXEC-3A-01 and was corrected in the R4 revision rather than treated as a sanitize failure. CAL-XFER-01 and CAL-XFER-02 remain OPEN as successor-transfer calibration corrections and are not closed by this repository closure. The scratch-retention question remains outstanding. historical_stage2_governed_snapshot_sha256 and the stage3 through stage6 closure records are carried forward as history, not as current repository identities. The Stage-2 accepted limitation remains unrepaired and Unit 6 remains inert, with core.hooksPath measured UNSET at every hook-reachable execution stop.",
   "stage5_closure": {
     "baseline": "0f42eeb08dc98fdf1a37233bacd89dfae9a31856",
     "accepted_commit": "e7821b4a68ed9e1e67df1d8dff0554034a177013",
@@ -94,5 +94,17 @@
     "ci_named_gates_verified": 12,
     "disposition": "CLOSED_PASS"
   },
-  "superseded_by": "2026-08-30-rev7"
+  "stage7_closure": {
+    "baseline": "f159e3f88cf116e51a3bb30d07c60ebe7b88de33",
+    "baseline_tree": "a73073188c8dac7b586942b24e5675390fa94988",
+    "accepted_commit": "8b91467eded415f61d5cd965e389a2898aac6589",
+    "accepted_tree": "e67d860f4bb50d6dc3afb19a74dccfa60330ec8e",
+    "changed_paths": 20,
+    "changed_paths_under_u6": 0,
+    "ci_run": "33336796015",
+    "ci_result": "success",
+    "ci_named_gates_verified": 12,
+    "sanitize_standing_condition": "MEASURED_HOLDS",
+    "disposition": "CLOSED_PASS"
+  }
 }

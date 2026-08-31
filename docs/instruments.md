@@ -44,7 +44,7 @@ Produce no document. There is nothing to regenerate.
 
 | Instrument | Invocation | Preconditions | Surface | A PASS establishes |
 |---|---|---|---|---|
-| `check-evidence-notes.py` | `python3 scripts/check-evidence-notes.py` | PyYAML; `posture.yml`, `docs/configuration-inventory.md` and `docs/evidence-notes/` must be readable — each fails closed with one stated line if not | CI | every evidence note carries exactly the required frontmatter keys and every cited handle resolves to a real lab, posture ID, divergence row, KQL path, or detection spec. Accepts `--check` as a no-op alias for uniformity |
+| `check-evidence-notes.py` | `python3 scripts/check-evidence-notes.py` | PyYAML; `posture.yml`, `docs/configuration-inventory.md` and `docs/evidence-notes/` must be readable — each fails closed with one stated line if not | CI, pre-commit | every evidence note carries exactly the required frontmatter keys and every cited handle resolves to a real lab, posture ID, divergence row, KQL path, or detection spec. Accepts `--check` as a no-op alias for uniformity |
 | `check-current-state.py` | `python3 scripts/check-current-state.py` | none beyond Python 3 | CI, pre-commit | `CURRENT.txt` selects exactly one revision with `status=CURRENT`; supersession is reciprocal; the selected revision binds a Reviewer authority document inside the owned namespace by exact SHA-256. `UNBOUND` fails closed |
 | `check-image-format-parity.py` | `python3 scripts/check-image-format-parity.py` | none beyond Python 3 | CI, pre-commit | every surface naming image extensions agrees with `scripts/image-formats.sh`, and the policy scripts source that authority rather than enumerating independently. It compares **declarations**, not images, and holds whether or not any image exists |
 

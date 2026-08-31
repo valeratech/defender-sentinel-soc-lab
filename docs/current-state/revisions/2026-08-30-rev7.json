@@ -1,6 +1,6 @@
 {
   "id": "2026-08-30-rev7",
-  "status": "CURRENT",
+  "status": "SUPERSEDED",
   "supersedes": [
     "2026-08-29-rev6"
   ],
@@ -106,5 +106,6 @@
     "ci_named_gates_verified": 12,
     "sanitize_standing_condition": "MEASURED_HOLDS",
     "disposition": "CLOSED_PASS"
-  }
+  },
+  "superseded_by": "2026-08-31-rev8"
 }

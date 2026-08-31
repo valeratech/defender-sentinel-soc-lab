@@ -1,0 +1,156 @@
+{
+  "id": "2026-08-31-rev8",
+  "status": "CURRENT",
+  "supersedes": [
+    "2026-08-30-rev7"
+  ],
+  "reviewer_authority": {
+    "file": "docs/current-state/reviewer-authority/2026-08-31-stage8-closure.md",
+    "sha256": "971b53f37352aa00bc7ace9db18bfe829bb34e708739a7345dc02f35609bb3c6"
+  },
+  "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
+  "stage_board": {
+    "1": "CLOSED",
+    "2": "CLOSED_WITH_ACCEPTED_LIMITATION",
+    "3": "CLOSED_PASS",
+    "4": "CLOSED_PASS",
+    "5": "CLOSED_PASS",
+    "6": "CLOSED_PASS",
+    "7": "CLOSED_PASS",
+    "8": "CLOSED_PASS"
+  },
+  "gates": {
+    "A": "FROZEN_CLOSED",
+    "B": "FROZEN_CLOSED",
+    "C": "FROZEN_CLOSED",
+    "D": "CLOSED_WITH_ACCEPTED_LIMITATION"
+  },
+  "unit6": {
+    "l1_integration": "COMMITTED_INERT",
+    "l2_integration": "COMMITTED_INERT",
+    "l3_integration": "COMMITTED_UNWIRED",
+    "activation": "NONE",
+    "core_hooksPath": "UNSET",
+    "l2_expected_baseline": "NOT_ESTABLISHED",
+    "phase2_readiness": "NOT_DEMONSTRABLE_WITH_AVAILABLE_BYTES",
+    "frozen_authority": "U6-AUTH-001 CLOSED - ACCEPTED CURRENT LIMITATION (1 of 13 identities present)",
+    "provisioning": "COMPLETE_DO_NOT_REPEAT"
+  },
+  "dispositions": {
+    "U6-AUTH-001": "CLOSED_ACCEPTED_CURRENT_LIMITATION",
+    "U6-ORCH-040": "CLOSED",
+    "U6-TEST-010": "CLOSED",
+    "U6-MSG-001": "CLOSED_MEASURED",
+    "PRIV-001": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION",
+    "PRIV-002": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION",
+    "S8-C01": "CLOSED_REMEDIATED_LOW",
+    "S8-C02": "NOT_A_FINDING",
+    "S8-J01": "CLOSED_DECIDED_PROTECTION_NOT_REQUIRED_FOR_GOVERNANCE_CLOSURE",
+    "S8-M01": "NOT_MEASURED_CLASSIC_BRANCH_PROTECTION",
+    "S8A-EXEC-3A-01": "CLOSED_FAIL_CLOSED_PRE_RUNNER_STOP"
+  },
+  "message_policy_measurement": {
+    "commits_scanned": 74,
+    "wordlist_terms": 21,
+    "commits_with_matches": 3,
+    "distinct_term_commit_pairs": 4,
+    "total_occurrences": 5,
+    "identical_to_audit3_wordlist_set": true,
+    "unit6_era_commits_in_match_set": 0,
+    "structural_semantics": "NOT_MEASURED"
+  },
+  "privacy": {
+    "PRIV-001": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION",
+    "PRIV-002": "CLOSED_HISTORICAL_ACCEPTED_LIMITATION"
+  },
+  "ruleset": "CLOSED_DECIDED_NOT_REQUIRED_FOR_GOVERNANCE_CLOSURE",
+  "ruleset_disposition": {
+    "id": "S8-J01",
+    "decision": "NO_RULESET_OR_CLASSIC_BRANCH_PROTECTION_REQUIRED_FOR_FINAL_GOVERNANCE_CLOSURE",
+    "repository_rulesets": "MEASURED_NONE_DURING_STAGE8_MEASUREMENT",
+    "classic_branch_protection": "NOT_MEASURED",
+    "historical_observation_2026-08-19": "RETAINED_AS_HISTORICAL_EVIDENCE_ONLY",
+    "github_settings_mutation": "NOT_REQUIRED",
+    "unit6_dependency": "NONE"
+  },
+  "stage3_closure": {
+    "baseline": "291f86fbf4715cba44b6d1cdbfe15d15f6f3c620",
+    "accepted_commit": "851137550200b43bcdc658b0438dc5607a74c711",
+    "ci_run": "33079919207",
+    "ci_result": "success",
+    "disposition": "CLOSED_PASS"
+  },
+  "stage4_closure": {
+    "baseline": "851137550200b43bcdc658b0438dc5607a74c711",
+    "accepted_commit": "b4b1f2996c82c12433becb36a7b529f1b9efbfe3",
+    "accepted_tree": "5f2b6167b5f218281fdb910e712c890fca1b67cf",
+    "ci_run": "33110057775",
+    "ci_result": "success",
+    "disposition": "CLOSED_PASS"
+  },
+  "note": "Reviewer-owned current revision adopted at Stage-8 closure. Supersedes rev7. Stage 8 was the final publication review and project-audit closure against the governed rev7 state, and was published in two commits so that no record asserts closure before the remediation it closes on has landed: the implementation commit cb989eed3b0f75646fa4b62ba640940d6ddb7699 (tree b15ceda2bd5b57ec5cb5d068956af7bcc2e57d48, parent a53856ed1652ba18c665897fa0a414ff56df0186, one changed path docs/instruments.md, none under u6/) was published and verified by CI run 33432244452 — workflow scrub, event push, branch main, completed/success, exactly one matching run, three jobs, twelve of twelve required gates success, none skipped — before this closure revision was serialized. Findings are dispositioned in the bound closure authority: S8-C01 remediated (LOW; the docs/instruments.md Surface cell for check-evidence-notes.py now reads CI, pre-commit); S8-C02 not a finding (README unchanged); S8-J01 decided (no ruleset or classic branch protection is required as a condition of governance closure; repository rulesets measured none during Stage-8 measurement; classic branch protection NOT MEASURED and not inferred absent; the 2026-08-19 SANITIZATION.md observation retained as historical evidence only). S7-D01 and S7-D02 stand, so the Stage-6 gitleaks scan-count characterization and table timezone-labelling conformance remain NOT MEASURED. The Stage-2 accepted limitation remains unrepaired. S3-05 remains closed and untouched, S3-09 remains an untouched nonblocking historical carry-forward, and S3-07C remains discharged by S7-P01 and S7-P02. CAL-XFER-01 and CAL-XFER-02 remain OPEN with their corrections incorporated into the successor Global Transfer; this repository closure does not close them. The scratch-retention question remains outstanding and now additionally covers six Stage-8 Phase-A execution directories. Unit 6 remains inert with u6/ unchanged; core.hooksPath was measured UNSET at every hook-reachable Stage-8 stop. The commit that publishes this revision cannot record its own identity, Step-3a sanitize measurement, or CI verification; those are recorded in the Stage-8 final Reviewer ruling and the successor Global Transfer. This closure is governance closure, not a claim of documentation completeness. historical_stage2_governed_snapshot_sha256 and the stage3 through stage7 closure records are carried forward as history, not as current repository identities.",
+  "stage5_closure": {
+    "baseline": "0f42eeb08dc98fdf1a37233bacd89dfae9a31856",
+    "accepted_commit": "e7821b4a68ed9e1e67df1d8dff0554034a177013",
+    "accepted_tree": "1ca2fca5822b182d3d8325a0acfd0cb12048d17a",
+    "ci_run": "33208390400",
+    "ci_result": "success",
+    "disposition": "CLOSED_PASS"
+  },
+  "stage6_closure": {
+    "baseline": "0c71f4a21f59da4d8688d3c90a7ed3bab55ba73b",
+    "baseline_tree": "a459b26f79ffbb90e56d7b25a3be25d85c223c8a",
+    "accepted_commit": "259643d33b46a96f795245c79bbf2ef13421817b",
+    "accepted_tree": "2e3334096c21de493f8b056aeb44d2b8d90a7f95",
+    "changed_paths": 9,
+    "ci_run": "33278881350",
+    "ci_result": "success",
+    "ci_named_gates_verified": 12,
+    "disposition": "CLOSED_PASS"
+  },
+  "stage7_closure": {
+    "baseline": "f159e3f88cf116e51a3bb30d07c60ebe7b88de33",
+    "baseline_tree": "a73073188c8dac7b586942b24e5675390fa94988",
+    "accepted_commit": "8b91467eded415f61d5cd965e389a2898aac6589",
+    "accepted_tree": "e67d860f4bb50d6dc3afb19a74dccfa60330ec8e",
+    "changed_paths": 20,
+    "changed_paths_under_u6": 0,
+    "ci_run": "33336796015",
+    "ci_result": "success",
+    "ci_named_gates_verified": 12,
+    "sanitize_standing_condition": "MEASURED_HOLDS",
+    "disposition": "CLOSED_PASS"
+  },
+  "stage8_implementation": {
+    "baseline": "a53856ed1652ba18c665897fa0a414ff56df0186",
+    "baseline_tree": "d71c7046e10c2a290c9f5416480e7dabf20acda1",
+    "commit": "cb989eed3b0f75646fa4b62ba640940d6ddb7699",
+    "tree": "b15ceda2bd5b57ec5cb5d068956af7bcc2e57d48",
+    "parent": "a53856ed1652ba18c665897fa0a414ff56df0186",
+    "parents": 1,
+    "ahead_of_baseline": 1,
+    "changed_paths": 1,
+    "changed_paths_under_u6": 0,
+    "finding": "S8-C01",
+    "ci_run": "33432244452",
+    "ci_workflow": "scrub",
+    "ci_event": "push",
+    "ci_branch": "main",
+    "ci_matching_runs": 1,
+    "ci_jobs": 3,
+    "ci_named_gates_verified": 12,
+    "ci_gates_skipped": 0,
+    "ci_result": "success",
+    "push": "FAST_FORWARD_ONE_COMMIT_NO_FORCE",
+    "sanitize_standing_condition": "MEASURED_HOLDS",
+    "core_hooksPath": "UNSET_AT_ALL_HOOK_REACHABLE_STOPS"
+  },
+  "stage8_closure": {
+    "publishing_commit": "SELF_NOT_SELF_RECORDABLE",
+    "ci_verification": "EXACT_SHA_VERIFICATION_OF_PUBLISHING_COMMIT_RECORDED_OUTSIDE_THIS_REVISION",
+    "sanitize_standing_condition": "MEASURED_AT_STEP_3A_RECORDED_OUTSIDE_THIS_REVISION",
+    "changed_paths": 4,
+    "changed_paths_under_u6": 0,
+    "disposition": "CLOSED_PASS"
+  }
+}

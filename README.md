@@ -6,6 +6,8 @@ This is a working lab, not a course notebook. Every capability here was built an
 
 > Structured coursework alongside this build came from an instructor-led SC-200 course on Udemy — a solid path through the material. Everything in this repo is my own build, structure, measurement, and analysis.
 
+> **Note on screenshots:** This project intentionally contains few or no Microsoft Defender XDR / Microsoft Sentinel portal screenshots because the training environment frequently displayed sensitive information. Rather than repeatedly capturing, redacting, and editing screenshots, I chose to minimize screenshots so I could focus the limited paid/trial period on building and validating the lab environment. Additional screenshots may be added while the tenant subscription remains active, but their availability cannot be guaranteed because the environment is time- and cost-limited.
+
 ---
 
 ## What this repository demonstrates

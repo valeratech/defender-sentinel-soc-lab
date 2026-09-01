@@ -1,12 +1,12 @@
 {
-  "id": "2026-08-31-rev8",
-  "status": "SUPERSEDED",
+  "id": "2026-09-01-rev9",
+  "status": "CURRENT",
   "supersedes": [
-    "2026-08-30-rev7"
+    "2026-08-31-rev8"
   ],
   "reviewer_authority": {
-    "file": "docs/current-state/reviewer-authority/2026-08-31-stage8-closure.md",
-    "sha256": "971b53f37352aa00bc7ace9db18bfe829bb34e708739a7345dc02f35609bb3c6"
+    "file": "docs/current-state/reviewer-authority/2026-09-01-closeout-serialization.md",
+    "sha256": "a86af81c917b6b6db0b05c73dbd74b8b20658eef1e350782dd520faae8a3fb5a"
   },
   "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
   "stage_board": {
@@ -47,7 +47,10 @@
     "S8-C02": "NOT_A_FINDING",
     "S8-J01": "CLOSED_DECIDED_PROTECTION_NOT_REQUIRED_FOR_GOVERNANCE_CLOSURE",
     "S8-M01": "NOT_MEASURED_CLASSIC_BRANCH_PROTECTION",
-    "S8A-EXEC-3A-01": "CLOSED_FAIL_CLOSED_PRE_RUNNER_STOP"
+    "S8A-EXEC-3A-01": "CLOSED_FAIL_CLOSED_PRE_RUNNER_STOP",
+    "POST-AUDIT-README-01": "CLOSED_PASS_PUBLISHED_CI_VERIFIED",
+    "CAL-XFER-01": "CLOSED_AS_CORRECTED",
+    "CAL-XFER-02": "CLOSED_AS_CORRECTED"
   },
   "message_policy_measurement": {
     "commits_scanned": 74,
@@ -88,7 +91,7 @@
     "ci_result": "success",
     "disposition": "CLOSED_PASS"
   },
-  "note": "Reviewer-owned current revision adopted at Stage-8 closure. Supersedes rev7. Stage 8 was the final publication review and project-audit closure against the governed rev7 state, and was published in two commits so that no record asserts closure before the remediation it closes on has landed: the implementation commit cb989eed3b0f75646fa4b62ba640940d6ddb7699 (tree b15ceda2bd5b57ec5cb5d068956af7bcc2e57d48, parent a53856ed1652ba18c665897fa0a414ff56df0186, one changed path docs/instruments.md, none under u6/) was published and verified by CI run 33432244452 \u2014 workflow scrub, event push, branch main, completed/success, exactly one matching run, three jobs, twelve of twelve required gates success, none skipped \u2014 before this closure revision was serialized. Findings are dispositioned in the bound closure authority: S8-C01 remediated (LOW; the docs/instruments.md Surface cell for check-evidence-notes.py now reads CI, pre-commit); S8-C02 not a finding (README unchanged); S8-J01 decided (no ruleset or classic branch protection is required as a condition of governance closure; repository rulesets measured none during Stage-8 measurement; classic branch protection NOT MEASURED and not inferred absent; the 2026-08-19 SANITIZATION.md observation retained as historical evidence only). S7-D01 and S7-D02 stand, so the Stage-6 gitleaks scan-count characterization and table timezone-labelling conformance remain NOT MEASURED. The Stage-2 accepted limitation remains unrepaired. S3-05 remains closed and untouched, S3-09 remains an untouched nonblocking historical carry-forward, and S3-07C remains discharged by S7-P01 and S7-P02. CAL-XFER-01 and CAL-XFER-02 remain OPEN with their corrections incorporated into the successor Global Transfer; this repository closure does not close them. The scratch-retention question remains outstanding and now additionally covers six Stage-8 Phase-A execution directories. Unit 6 remains inert with u6/ unchanged; core.hooksPath was measured UNSET at every hook-reachable Stage-8 stop. The commit that publishes this revision cannot record its own identity, Step-3a sanitize measurement, or CI verification; those are recorded in the Stage-8 final Reviewer ruling and the successor Global Transfer. This closure is governance closure, not a claim of documentation completeness. historical_stage2_governed_snapshot_sha256 and the stage3 through stage7 closure records are carried forward as history, not as current repository identities.",
+  "note": "Reviewer-owned current revision adopted at post-audit closeout serialization. Supersedes rev8. This is not an audit stage: the eight-stage audit closed at Stage 8 and is not reopened here. This revision exists so the repository's own current-state chain, rather than a working handoff document or conversation history, records the closeout dispositions. POST-AUDIT-README-01 is CLOSED / PASS / PUBLISHED / CI VERIFIED at commit 2824e076ed658d6ed11bfb550e52f8845421e063, CI run 33524115154, three jobs, twelve of twelve required gates success, none skipped. CAL-XFER-01 and CAL-XFER-02 are CLOSED AS CORRECTED by this durable serialization; they were OPEN under rev8 precisely because no current-state record yet carried them. Scratch is RETAIN / DO NOT REUSE with no cleanup required for project closeout. Stage 2 remains CLOSED WITH ACCEPTED LIMITATION by permanent Operator decision, unrepaired and not reassessed. The Stage-8 records carried in this revision are history and are not rewritten to resemble Publication-1 state; the stage3 through stage8 closure records and historical_stage2_governed_snapshot_sha256 are carried forward as history, not as current repository identities. Unit 6 remains inert with u6/ unchanged at deb025cf611164476c2e7c0365b41f74818ba838. S7-D01, S7-D02 and S8-M01 remain NOT MEASURED and are not converted to a pass. The commit that publishes this revision cannot record its own identity, sanitize measurement, or CI verification. Those post-publication facts are recorded after publication in the final Reviewer ruling and successor Global Transfer; this bound authority does not self-bind the commit that publishes it. The final Global Transfer freeze, the final mechanical re-derivation of mutable repository facts, and administrative project closeout remain outstanding and are not performed here.",
   "stage5_closure": {
     "baseline": "0f42eeb08dc98fdf1a37233bacd89dfae9a31856",
     "accepted_commit": "e7821b4a68ed9e1e67df1d8dff0554034a177013",
@@ -153,5 +156,31 @@
     "changed_paths_under_u6": 0,
     "disposition": "CLOSED_PASS"
   },
-  "superseded_by": "2026-09-01-rev9"
+  "scratch_disposition": "RETAIN_DO_NOT_REUSE_NO_CLEANUP_REQUIRED_FOR_PROJECT_CLOSEOUT",
+  "publication1": {
+    "id": "POST-AUDIT-README-01",
+    "baseline": "186e9aa421838637c2873ac28c63ad5c31dfaf32",
+    "baseline_tree": "23204c1259765fe98cbc458768b6e25f352ebc86",
+    "commit": "2824e076ed658d6ed11bfb550e52f8845421e063",
+    "tree": "c8fd0d7cee6d8724f81eb130ec9cce175ec141a0",
+    "parent": "186e9aa421838637c2873ac28c63ad5c31dfaf32",
+    "parents": 1,
+    "ahead_of_baseline": 1,
+    "changed_paths": 1,
+    "changed_paths_under_u6": 0,
+    "u6_subtree": "deb025cf611164476c2e7c0365b41f74818ba838",
+    "push": "FAST_FORWARD_ONE_COMMIT_NO_FORCE",
+    "ci_run": "33524115154",
+    "ci_workflow": "scrub",
+    "ci_event": "push",
+    "ci_branch": "main",
+    "ci_matching_runs": 1,
+    "ci_jobs": 3,
+    "ci_named_gates_verified": 12,
+    "ci_gates_skipped": 0,
+    "ci_result": "success",
+    "sanitize_standing_condition": "MEASURED_HOLDS_AT_STEP_3A_AND_AGAIN_IMMEDIATELY_BEFORE_PUSH",
+    "core_hooksPath": "UNSET_AT_ALL_HOOK_REACHABLE_STOPS",
+    "disposition": "CLOSED_PASS_PUBLISHED_CI_VERIFIED"
+  }
 }

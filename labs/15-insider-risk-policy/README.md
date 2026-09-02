@@ -123,10 +123,11 @@ the tie. So the leading candidate rests on choosing which of two contradictory
 readings to believe — the persistent one, over 49 h, on the field named for the
 question — and that choice is recorded here as a choice.
 
-*(pending)* — **IRM → Users → Users** was never read. If that page enumerates
-the scoped population directly, it is a third surface and the tie breaks on
-evidence rather than on judgment. It also determines whether candidates (a) and
-(b) are reachable at all: if scope is genuinely zero, they were never evaluated.
+**Resolved by read, 2026-09-01:** the IRM **Users** page renders **0 items**, empty state "You don't have any risky users yet", with columns for insider risk severity, active alerts, confirmed violations, case and policy — a **risk-activity list, not a scope roster**. The contradiction resolves definitionally: zero rows and "all active users covered" describe different populations, and both historical readings stand. The question as originally posed — whether that page enumerates
+the scoped population directly — is answered: it does not. The historical contradiction
+(policy scope reading all active users, the Users page showing zero rows) was two
+surfaces describing different populations, not a malfunction, and no further read is
+required.
 
 What is not in doubt: the trigger's precondition occurred, and nothing
 downstream followed. The mechanism is open.
@@ -190,11 +191,10 @@ without being asked — Lab 16 holds the first. And the GA-insufficiency family
 gained a member that runs the other way: an automated process *added* privilege
 that still does not satisfy the role Purview demands elsewhere.
 
-*(pending)* — whether holding `Purview Workload Content Reader` changes what
+**Converted to a decision, 2026-09-01** (`PC-REM-01`, Reviewer-locked). The premise changed under measurement: the role-group store no longer carries the recorded names (69-group census), while `Purview Workload Content Reader` exists in the **Entra directory-role** store and is already held by the admin identity — which also holds Global Administrator, confounding any visibility comparison. An unconfounded read would require a role mutation on a non-GA identity. **Scope measured:** current role-group census; Entra role-store presence; the admin assignment; the GA confounding state. **Scope not measured:** the visibility effect of that role alone on an unprivileged identity. **Reopening trigger:** a separately authorized role-isolation test on a non-GA identity with assignment/removal and restoration controls. The question as originally posed — whether holding `Purview Workload Content Reader` changes what
 the DLP match detail renders. Lab 14's Match summary demanded `Data
 Classification Content Viewer` for sensitive-info details; the auto-granted role
-is a different one. Re-reading that pane now would establish whether the two are
-related or merely similarly named.
+is a different one. Whether the two are related or merely similarly named is not established; per the 2026-09-01 conversion above, the unconfounded comparison is not pursued in this repository.
 
 **Retained as a measurement, not as a control.** `POS-064` is not a working
 insider-risk capability and is not represented as one.

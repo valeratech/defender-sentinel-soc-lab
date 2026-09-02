@@ -1,8 +1,11 @@
 # Portal Navigation Index
 
 Portal paths for settings this project configures or verifies, most carrying the
-date the path was last confirmed present; a row with no date carries a `*(pending)*`
-marker instead and is tracked in `docs/open-items.md`. Whether this index covers every
+date the path was last confirmed present. A row without a confirmation date either
+carries a tracked `*(pending)*` marker when verification remains an open project item
+(surfaced in `docs/open-items.md`), or explicitly identifies itself as unverified or
+inherited when the path was intentionally not measured — an unverified row is never
+silently promoted to verified fact. Whether this index covers every
 entry in the posture register has not been measured, and no gate checks it. **Azure and Defender rename and relocate
 these regularly** (this project has already hit "core folders" → "system folders"
 in the ASR levels, and Microsoft is migrating Sentinel into the Defender portal by
@@ -209,7 +212,7 @@ before querying, and mind the column-name difference.
 | Campaign timeline | *(campaign)* → View Activity Timeline | 2026-07-26 |
 | Excluded users | *(campaign)* → Report → View excluded users or groups | 2026-07-26 |
 | Payload / training / notification library | Attack simulation training → Content library | 2026-07-26 |
-| Repeat offender & training thresholds | Attack simulation training → Settings | *(pending — tab not opened)* |
+| Repeat offender & training thresholds | Attack simulation training → Settings | 2026-09-01 |
 | Unified audit logging (portal) | System → Audit → Start recording user and admin activity | 2026-07-26 — **could not complete, see below** |
 | Exchange message trace | Email & collaboration → Exchange message trace | 2026-07-26 |
 | Action center (pending / history) | Actions and submissions → Action center | 2026-07-27 |

@@ -196,11 +196,11 @@ VMs are deallocated. When tested, it is a direct test of this section's mechanis
 deploy the same two rules as policy and see whether the ASR report begins reporting
 them. Note in advance that policy-managed ASR may conflict with the locally-set
 rules already present on the endpoint.
-*(pending — MDE security settings management path untested; `POS-041`)*
+**Converted to a decision, 2026-09-01** (`PC-REM-01`, Reviewer-locked). A clean test of the MDE Security Settings Management → ASR path would require activation/configuration and potentially endpoint or VM participation — disproportionate to post-closure documentation remediation. **Scope measured:** the historical management-path inventory and the recorded switched-off MDE Security Settings Management state (`POS-041`). **Scope not measured:** effective ASR deployment and reporting behaviour through that path. **Reopening trigger:** a separately authorized live MDE Security Settings Management / ASR validation with policy and endpoint mutation explicitly in scope.
 
 This is the most consequential instance of the repository's recurring pattern
 (configured-vs-effective, `POS-011`), and it is a **direct downstream consequence of
-`POS-022`**: because Intune enrolment never fires, the only available way to set ASR
+`POS-022`**: because Intune enrolment never fires, the only way *exercised* here to set ASR
 here is local PowerShell — precisely the way the reporting UI cannot see. A defect
 found in Lab 01 silently determines the visibility of every ASR rule set in Lab 06.
 

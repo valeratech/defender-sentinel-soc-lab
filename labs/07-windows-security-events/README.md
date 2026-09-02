@@ -5,7 +5,7 @@
 | **Domain** | Ingest data into Microsoft Sentinel |
 | **Objectives** | Deploy a Windows Server VM cost-safely; install the Azure Monitor Agent via a Data Collection Rule; ingest Windows Security events into `SecurityEvent` at a scoped (Common) tier; verify the pipeline and read what the telemetry actually says |
 | **Depends on** | Lab 04 (Sentinel workspace, the ingestion target), POS-015 (budgets raised for this VM) |
-| **Status** | 🔨 Built, documentation in progress |
+| **Status** | ✅ Built, documented, validated |
 | **Built** | 2026-07-25 |
 
 > The first ingestion lab of the Sentinel half. Where Lab 04 proved the

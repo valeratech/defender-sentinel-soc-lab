@@ -96,7 +96,7 @@ billable tables. Left off.
 
 **`BehaviorAnalytics` billability** — absent from the billable list, but its only
 row postdates `Usage`'s reporting lag. Absence from a lagging table is not
-evidence. *(pending)*
+evidence. **Resolved by read, 2026-09-01:** lag-cleared, `BehaviorAnalytics` holds 579 rows and `Usage` reports 143 records for it with **IsBillable = true** — billable at very small measured volume (rounds to 0.000 GB at 3 dp).
 
 ## Cost
 

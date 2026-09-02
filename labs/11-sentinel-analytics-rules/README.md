@@ -103,7 +103,7 @@ stamped at `StartTime` inside its own burst. The template's idiom is stale.
 
 But it yields a **point, not a range**: one `TimeGenerated` per summarized row, so
 a 0-second span for a 90-second event. Neither 60 minutes nor zero is right.
-*(pending — whether an alert can carry an event range from a summarized result)*
+**Resolved by read, 2026-09-01 — configured ≠ effective, both halves measured.** *Configured:* the committed rule computes distinct event-range columns from the summarized source events, `StartTime = min(TimeGenerated)` and `EndTime = max(TimeGenerated)`. *Effective:* an existing fired alert from this rule renders **First activity and Last activity identical to the second** — a zero-second displayed span, on two independent surfaces (incident panel and alert details), for a burst of seven sign-ins. The rule also re-projects `TimeGenerated = StartTime`; whether that re-projection, platform field mapping, or another rendering rule causes the collapse **was not isolated** (NOT MEASURED), and nothing here generalizes beyond this rule and alert.
 
 **Two calls made during this lab were wrong.** Run 3 was read as contaminated by
 an artifact alert; it had succeeded. And when run 4 reported *"5 failed sign-ins

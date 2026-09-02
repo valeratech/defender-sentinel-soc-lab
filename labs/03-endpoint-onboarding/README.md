@@ -5,7 +5,7 @@
 | **Domain** | Configure protections and detections |
 | **Objectives** | Onboard a Windows endpoint to Defender for Endpoint; verify sensor health and telemetry; observe the detection→alert→incident chain |
 | **Depends on** | Lab 00, Lab 01, Lab 02 |
-| **Status** | 🔨 Built, documentation in progress |
+| **Status** | ✅ Built, documented, validated |
 | **Built** | 2026-07-18 |
 
 ---
@@ -285,9 +285,11 @@ controls do not, and both are defaults rather than decisions.
 Worth recording while it is still observable: AIR ceases to be a separate,
 manually-triggerable investigation experience for Defender for Endpoint on
 **2026-09-01** (Microsoft Learn; Defender for Office 365 AIR is unaffected).
-This tenant expires **2026-09-14** (extended once on 2026-08-06 from 2026-08-13,
-`POS-077`), so everything above is necessarily a pre-retirement observation and
-cannot be re-checked here against the after-state. The extension does not change
+The trial term runs to **2026-09-14** (extended once on 2026-08-06 from 2026-08-13,
+`POS-077`); measured 2026-09-01, that is the rendered expiration date with recurring
+billing On and a paid conversion configured for 2026-09-15, so whether this tenant
+remains available after that date is not established either way. Everything above is
+a pre-retirement observation and has not been re-checked against the after-state. The extension does not change
 that: 2026-09-01 still falls inside the tenant's life, so the retirement itself
 is now *observable* here where it previously was not — but the after-state window
 is a fortnight, and no second onboarded device exists to observe it with.

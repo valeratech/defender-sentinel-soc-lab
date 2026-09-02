@@ -109,7 +109,7 @@ open, not as a calibration result.**
 What survives either reading: **content Purview flags at Medium confidence is
 invisible to a default-configured MDCA file policy at 27 hours.**
 
-*(pending)* — the MDE-side discovery toggle (Settings → Endpoints → Advanced
+**Resolved by read, 2026-09-01:** the MDE-side toggle, rendered **"Microsoft Defender for Cloud Apps"** under Settings → Endpoints → **Optional features** (label drifted from "Advanced features"), reads **Off** — the integration is disabled at the MDE end too at the measured current state. Its state at this lab's build time is NOT MEASURED; no backward inference. Original item: the MDE-side discovery toggle (Settings → Endpoints → Advanced
 features) was never read, so only one direction of the `POS-070` integration is
 measured. Reading it would establish whether the endpoint feed is off at both
 ends or only at the MDCA end.

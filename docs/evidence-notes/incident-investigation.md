@@ -54,7 +54,7 @@ survive its second read, and recording that is the lab.
 
 Whether the unified Detection Rules pane carries an edit control for an
 identity with authoring rights — the analyst's bare toolbar is a description
-until the admin-side comparison is read (tracked as *(pending)* in Lab 17).
+until the admin-side comparison was read. **Read 2026-09-01:** under an identity holding Global Administrator the pane renders `Create detection rule` and the selected-rule edit workflow opens with fields editable, so the analyst's bare toolbar is a permission effect. See Lab 17 for the full chain and the provenance note.
 Whether the T+17 min write refusal was hours-scale propagation or token
 staleness — the morning re-read came through a sign-out/in, so the two cannot
 be separated here; the bounded window (17 min – 12 h) and the operational

@@ -99,7 +99,7 @@ Product names are used precisely throughout. "Defender" alone is avoided whereve
 | Endpoints | Windows 11 VM onboarded to Defender (local script, sensor Active); Windows Server VM added for agent-based ingestion (inbound None + no public IP, Bastion access — a tighter posture than the Win11 box) |
 | Device management | Entra device join configured; **Intune auto-enrolment never fires** — every precondition verified (`POS-022`). Forecloses all Intune-managed paths |
 | Device groups | Rule-based group, Semi remediation, scoped to the analyst via an Entra group |
-| ASR | Two rules enforcing via local PowerShell (the only available path here) |
+| ASR | Two rules enforcing via local PowerShell (the only path *exercised* here; MDE security settings management existed, switched off — `POS-041`) |
 | Sentinel | Workspace `law-lab-01` (West US, PAYG); Sentinel enabled |
 | Ingestion | Four paths, each a different tier of source: Defender XDR connector (same-platform, auto-connected, alerts/incidents only — raw `Device*` streaming OFF, cost-safe); Windows Security Events via AMA + a Common-tier DCR (`SecurityEvent`); Azure Activity via diagnostic setting (`AzureActivity`); Entra ID connector (`SigninLogs`/`AuditLogs`/risk) |
 
@@ -107,15 +107,15 @@ Product names are used precisely throughout. "Defender" alone is avoided whereve
 
 | Clock | Behavior at expiry |
 |---|---|
-| **M365 E5 trial** | 2026-07-14 → **2026-09-14** — **the binding constraint**; ends the telemetry source. Extended once on 2026-08-06 from 2026-08-13; the extension is one-time and now spent, so this date is a hard floor (`POS-077`) |
-| **Office 365 E5 trial** | 2026-07-14 → **2026-08-13** — deliberately not extended. Lapses on `admin`, the only holder, who also holds M365 E5; no workload in this lab depends on it (`POS-017`) |
-| **Azure pay-as-you-go** | Never expires, never stops — bills continuously for whatever runs (no free-credit safety net; the offer was unavailable) |
+| **M365 E5 trial** | 2026-07-14 → **2026-09-14** — the **rendered trial expiration date**, not a measured termination of the tenant or its telemetry. Measured 2026-09-01: recurring billing is **On** and the admin center states the trial converts to a **paid subscription on 2026-09-15**; whether payment posts or service continues past that date has not been measured. Extended once on 2026-08-06 from 2026-08-13; the extension is one-time and now spent, so this date is a hard floor (`POS-077`) |
+| **Office 365 E5 trial** | 2026-07-14 → **2026-08-13** — deliberately not extended. Measured 2026-09-01: the subscription renders **Disabled** (rendered expiry 2026-08-13) while its assignment to `admin` persisted — subscription lifecycle and assignment lifecycle are separate states. Held by `admin`, the only holder, who also holds M365 E5; no workload in this lab depends on it (`POS-017`) |
+| **Azure pay-as-you-go** | Never expires, never stops — bills continuously for whatever runs (no spending-limit safety net: a $200 sign-up credit existed on a different billing profile — `POS-058` — but pay-as-you-go has no spending limit, so nothing pauses services; the free-account offer was unavailable) |
 | **Sentinel 31-day trial** | 2026-07-19 → 2026-08-19, 10 GB/day free on both Sentinel and Log Analytics |
 
 Two consequences shape how this repository is written:
 
-1. **Evidence is captured as it is produced.** When the trials lapse, every incident, timeline, and query result not already committed here is gone. The repository is designed to outlive the tenant that produced it.
-2. **Queries, specs, and measured findings are the durable artifacts.** Portal state is not. Anything that cannot be redeployed or re-derived from this repository is treated as lost by default.
+1. **Evidence is captured as it is produced.** Trial lapse removes trial-scoped surfaces, and what survives is surface-specific: measured 2026-09-01, the Log Analytics workspace remains operational under pay-as-you-go with tables still queryable (retention 30/30 except `Usage` and `AzureActivity` at 90/90), and Microsoft 365 E5 is configured to convert to a paid subscription rather than simply disappear. What is not committed here is treated as at risk rather than assumed recoverable. The repository is designed to outlive the tenant that produced it.
+2. **Queries, specs, and measured findings are the durable artifacts.** Portal state is not. Anything that cannot be redeployed or re-derived from this repository is treated as **at risk** by default, and what actually survives is surface-specific rather than universal — measured 2026-09-01, the workspace and its retained tables were still queryable.
 
 Teardown is a single action: everything lives in one resource group, so `az group delete` on it stops all Azure spend at once.
 
@@ -132,17 +132,17 @@ Labs are numbered in build order. Where build order and the exam blueprint disag
 | [00](labs/00-tenant-licensing-identity/) | Tenant, Licensing, and Identity Foundation | 🔨 Built, documentation in progress |
 | [01](labs/01-device-registration-intune-enrollment/) | Device Registration and Intune Auto-Enrollment | 🔨 Built, documentation in progress |
 | [02](labs/02-mde-intune-integration/) | Defender for Endpoint ↔ Intune Integration | 🔨 Built, documentation in progress |
-| [03](labs/03-endpoint-onboarding/) | Endpoint Onboarding and First Alerts | 🔨 Built, documentation in progress |
-| [04](labs/04-sentinel-workspace/) | Sentinel Workspace: Deployment and the Defender Pipeline | 🔨 Built, documentation in progress |
-| [05](labs/05-device-groups-scoped-access/) | Device Groups, Automation, and Scoped Access | 🔨 Built, documentation in progress |
+| [03](labs/03-endpoint-onboarding/) | Endpoint Onboarding and First Alerts | ✅ Built, documented, validated |
+| [04](labs/04-sentinel-workspace/) | Sentinel Workspace: Deployment and the Defender Pipeline | ✅ Built, documented, validated |
+| [05](labs/05-device-groups-scoped-access/) | Device Groups, Automation, and Scoped Access | ✅ Built, documented, validated |
 | [06](labs/06-attack-surface-reduction/) | Attack Surface Reduction Rules | 🔨 Built, documentation in progress |
-| [07](labs/07-windows-security-events/) | Windows Security Events via AMA | 🔨 Built, documentation in progress |
-| [08](labs/08-entra-azure-activity-connectors/) | Entra ID and Azure Activity Connectors | 🔨 Built, documentation in progress |
+| [07](labs/07-windows-security-events/) | Windows Security Events via AMA | ✅ Built, documented, validated |
+| [08](labs/08-entra-azure-activity-connectors/) | Entra ID and Azure Activity Connectors | ✅ Built, documented, validated |
 | [09](labs/09-attack-simulation-training/) | Attack Simulation Training | 🔨 Built, documentation in progress |
 | [10](labs/10-alert-policies/) | Microsoft 365 Alert Policies | 🔨 Built, documentation in progress |
 | [11](labs/11-sentinel-analytics-rules/) | Sentinel Analytics Rules | 🔨 Built, documentation in progress |
-| [12](labs/12-mdo-threat-policies/) | Defender for Office 365 Threat Policies | 🔨 Built, documentation in progress |
-| [13](labs/13-explorer-air-remediation/) | Explorer Investigation and Defender-Native Remediation | 🔨 Built, documentation in progress |
+| [12](labs/12-mdo-threat-policies/) | Defender for Office 365 Threat Policies | ✅ Built, documented, validated |
+| [13](labs/13-explorer-air-remediation/) | Explorer Investigation and Defender-Native Remediation | ✅ Built, documented, validated |
 | [14](labs/14-purview-dlp-simulation/) | Purview DLP: a US Financial Policy in Simulation | ✅ Built, documented, validated |
 | [15](labs/15-insider-risk-policy/) | Insider Risk Management: a Trigger That Never Fires | 🔨 Built, documentation in progress |
 | [16](labs/16-mdca-file-policy/) | MDCA File Policy: Two Products, One Engine, One File | 🔨 Built, documentation in progress |

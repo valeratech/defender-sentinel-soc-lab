@@ -5,7 +5,7 @@
 | **Domain** | Response |
 | **Objectives** | Read the inherited mail-security baseline; build a scoped Safe Attachments policy; prove by observation which policy acts on a delivered message |
 | **Depends on** | Lab 00 (E5 licensing), Lab 10 (`POS-043` — the alert policy whose preventive counterpart is `POS-053`) |
-| **Status** | 🔨 Built, documentation in progress |
+| **Status** | ✅ Built, documented, validated |
 | **Built** | 2026-08-01 |
 
 > The first lab in this repository where **a correctly configured control was
@@ -65,6 +65,17 @@ Get-HostedOutboundSpamFilterPolicy | fl AutoForwardingMode
 Get-MalwareFilterPolicy | fl ZapEnabled,EnableFileFilter,QuarantineTag
 Get-DkimSigningConfig; Get-ArcConfig                        # both return nothing
 ```
+
+#### Phase A baseline — what the defaults actually did
+
+Four default policies were read before anything was configured. Each is recorded because in three of the four cases the status label and the effective behaviour disagreed.
+
+| Default policy | Rendered state | What the read established |
+|---|---|---|
+| Anti-phishing — impersonation protection (`POS-049`) | Always on, `Enabled: True` | Underneath, three independent layers do nothing: no protected users, no protected domains, and mailbox intelligence not acting on impersonation. Enabled describes the policy object, not any protection. |
+| Anti-spam, inbound content filter (`POS-050`) | Default policy, on | Four of Configuration analyzer's 18 recommendations land here, and the schema confirms each: three actions weaker than the standard baseline, and a fourth absent safety-tips setting. |
+| Anti-malware (`POS-051`) | Default policy, on | The one default in this lab that ships in a defensible state — recorded deliberately, because a register that only records failures cannot be trusted when it reports a pass. |
+| DKIM signing, default domain (`POS-052`) | Row present, toggle **Disabled** | `Get-DkimSigningConfig` returns `NoDKIMKeys` — the domain has no keys to sign with, so the toggle is not a switch left off but a control with nothing behind it. |
 
 ### Phase B — the scope object
 

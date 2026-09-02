@@ -147,7 +147,7 @@ established: Purview endpoint activities require devices onboarded to *Purview*,
 which is a separate onboarding from MDE's. If so it is `POS-011`'s shape again — a
 capability present, listed, and unreachable because a second thing nobody
 mentioned was never done.
-*(pending — Purview device onboarding state not checked)*
+**Resolved by read, 2026-09-01, current-state scoped.** Device onboarding → Devices renders "No devices onboarded yet — To onboard devices for use in compliance solutions, you first need to turn on device onboarding." At the measured current state the feature is not enabled and no devices are onboarded. Whether historical retained endpoint activity could exist is a separate question this read does not establish, and neither is the historical lifetime configuration.
 
 **This is the tenant's first working security notification path.** `POS-042`
 records that Defender XDR has no notification rules at all: incidents, actions and

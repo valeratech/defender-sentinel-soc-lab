@@ -386,13 +386,13 @@ subscription control operated.
 first:
 
 - **Office 365 E5 not extended.** Its one trial extension has never been used and
-  `Extend trial end date` remains live (`P24-15`). The lapse is a standing choice.
+  `Extend trial end date` rendered live on 2026-08-14 (`P24-15`), and on that date the lapse was a standing choice. Measured 2026-09-01: the Office 365 E5 subscription renders **Disabled** with rendered expiry 2026-08-13 while its assignment persisted; whether the extension control remained live at that later date was **not remeasured**.
 - **The pending PUA quarantine** on Investigation #2 (`f_000045`) — still
   unapproved and uncancelled, confirmed present on 2026-08-14.
 
 **Not captured, and cheap only until Office 365 E5 goes:**
 
-*(pending — per-licence service-plan expansion, and whether `Apps (175)` moves when Office 365 E5 is removed; capturable only while all three licences are present)*
+**Converted to a decision, 2026-09-01** (`PC-REM-01`, Reviewer-locked). The capture condition required all three products simultaneously Active and assigned; measured state was Microsoft 365 E5 Active/assigned, **Office 365 E5 Disabled** (rendered expiry 2026-08-13) yet still assigned, Power Automate Free assigned. Assignment-level persistence does not satisfy active coexistence, so no service-plan census was captured and none is reconstructed. **Scope measured:** the present licensing split state; current assignments; aggregate **Apps (175)**, unchanged while Office 365 E5 is subscription-Disabled but still assigned; active-coexistence closure 2026-08-13, assignment persistence observed 2026-09-01. **Scope not measured:** the per-licence service-plan census while all three products were simultaneously active. **Reopening trigger:** none for this repository — the window closed before the census was authorized.
 
 **Registered prediction, to be tested on a future clean tenant:**
 
@@ -406,7 +406,7 @@ course convention rather than a platform requirement. The Microsoft Sentinel
 Training Lab tenant is a separate portfolio piece with no connection to this
 repository, so the result lands there and is cross-referenced back.
 
-*(pending — acquisition-order prediction resolves on a future clean tenant, not in this repository)*
+**Converted to a decision, 2026-09-01** (`PC-REM-01`, Reviewer-locked). The question requires a tenant with no licensing history; this one is definitionally not that. The registered prediction stands as registered — unresolved, not withdrawn. **Scope measured:** this tenant's recorded acquisition sequence and `POS-017`'s operator-reported prerequisite. **Scope not measured:** whether Microsoft 365 E5 acquisition on a clean tenant requires a prior Office 365 E5 subscription. **Reopening trigger:** a separately authorized future clean-tenant acquisition-order test.
 
 ---
 

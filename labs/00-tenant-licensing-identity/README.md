@@ -6,7 +6,7 @@
 | **Objectives** | Tenant provisioning, licensing activation, identity baseline |
 | **Depends on** | — |
 | **Status** | 🔨 Built, documentation in progress |
-| **Built** | *(pending — see Environment Clock below)* |
+| **Built** | 2026-07-14 — tenant provisioned; term ledger in the Environment Clock below |
 
 > Sections marked `*(pending)*` are work completed but not yet written up.
 
@@ -31,8 +31,9 @@ points where those disagree. The most consequential:
 
 - **G1 describes an Azure safety net this subscription does not have** (see §3). The
   free-account credit model it assumes — services paused at exhaustion, card never
-  auto-charged — does not apply to pay-as-you-go. Budget and deallocation discipline
+  auto-charged — does not apply to pay-as-you-go. Budget and deallocation discipline (A $200 credit did exist on another billing profile, `POS-058`; what pay-as-you-go lacks is the spending limit, not the credit.)
   exist here because that assumption failed, not because a guide called for them.
+- **The cost and authority boundaries this build accepted are recorded, not assumed.** Elevate access to all Azure subscriptions is **Off** (`POS-004`) — the Global Administrator cannot silently assume User Access Administrator across every subscription, the one identity boundary here that holds by configuration rather than habit. On the spend side, pay-as-you-go carries no spending limit (`POS-005`, corrected 2026-08-01 for the credit's placement without disturbing that conclusion), and the control that does work is deallocation, which ends **compute** spend only — managed disks and public IPs bill until deleted (`POS-016`).
 - **G3 states the MDE↔Intune connection lets Intune enforce compliance on Defender's
   device risk, then gives two steps that do not enable it.** The toggle that does is
   never mentioned. See Lab 02 and `POS-011`.
@@ -85,12 +86,12 @@ The third is the one that surprises people: an intentionally weakened box left r
 |---|---|
 | M365 E5 trial term | **2026-07-14 to 2026-09-14** (25 licenses; extended once on 2026-08-06 from 2026-08-13 — `POS-077`) |
 | O365 E5 trial term | **2026-07-14 to 2026-08-13** — deliberately not extended (`POS-017`) |
-| M365 recurring billing | *(pending — see `POS-017`)* |
-| Azure budget, resource-group scope | Configured — `$15/month`, actual alerts at 50/80/100% |
-| Azure budget, subscription scope | *(pending — see `POS-015`)* |
-| Azure budget, forecasted alert | *(pending — see `POS-015`)* |
+| M365 recurring billing | **On** — trial converts to a paid subscription 2026-09-15; expiration rendered 2026-09-14; next invoice 2026-09-15 (measured 2026-09-01, `POS-017`) |
+| Azure budget, resource-group scope | Configured — **`$40/month`**, actual alerts at 50/80/100% plus a forecasted alert at 100% (measured 2026-09-01; `$15/month` was the amount at first configuration, pre-2026-07-19) |
+| Azure budget, subscription scope | Configured — `$50/month`, actual alerts at 50/80/100% (measured 2026-09-01, `POS-015`) |
+| Azure budget, forecasted alert | Configured — forecasted-cost alert at 100% on both the resource-group and subscription budgets; every condition's action group is None, so the configured effect is recipient email only (measured 2026-09-01, `POS-015`) |
 
-**The tenant expires 2026-09-14.** That is the project's clock, not merely a billing date. Evidence must be committed before it, because a lapsed trial takes every incident, timeline and query result with it. Nothing here is reconstructable afterwards. The extension was one-time and is now spent, so this date is a floor rather than a target.
+**The trial term runs to 2026-09-14.** That was the project's planning clock, and it drove the discipline of committing evidence as it was produced — the working assumption being that a lapse takes trial-scoped incidents, timelines and query results with it. **Measured 2026-09-01:** 2026-09-14 is the rendered expiration date, recurring billing is On, and the admin center states the subscription converts to paid on 2026-09-15; the Log Analytics workspace runs under pay-as-you-go with its tables still queryable. What survives a lapse is surface-specific, and what happens after the conversion date has not been measured. The extension was one-time and is now spent, so this date is a floor rather than a target.
 
 ### 3.1 Licensing audit — 2026-08-06
 
@@ -150,7 +151,7 @@ testable in isolation, on a date when nothing else happens.
 
 ## 4. Build
 
-*(pending — configuration state recorded below; narrative to follow)*
+The build is four acts on one day plus one correction two weeks later. On 2026-07-14 the tenant was provisioned in the United States, the Microsoft 365 E5 trial added (25 seats) with Office 365 E5 alongside it — the acquisition sequence `POS-017` records, prerequisite or path artifact, Lab 24's question. The E5 licence went to the admin account the same day. The Azure subscription attached pay-as-you-go after the free-account offer did not present — recorded at the time as "no free credit." A later 2026-08-01 read found a $200 sign-up credit on a **different billing profile** from the one carrying lab spend (`POS-058`, configuration inventory §3.1); that correction did not provide a spending-limit safety mechanism to the PAYG subscription. Security Defaults were disabled and nothing replaced them; no Conditional Access was written. The resulting state table below is what those choices left behind, and §7 prices the identity posture they add up to.
 
 **Resulting state:**
 
@@ -168,15 +169,17 @@ testable in isolation, on a date when nothing else happens.
 
 ## 5. Validation
 
-*(pending)*
+Two expectations in this section were inherited from the course's free-trial model and are kept as written; the Result column records the environment that actually existed, on the dates its evidence was recorded.
+
+**Current cross-check — 2026-09-01.** Subscription Active (pay-as-you-go); Microsoft 365 E5 Active with recurring billing On, converting to a paid subscription 2026-09-15; Office 365 E5 subscription Disabled (rendered expiry 2026-08-13) while its assignment persisted. Dated present-state facts only — they do not amend what the original build validation observed.
 
 | Check | Method | Expected | Result |
 |---|---|---|---|
 | Security Defaults state | Entra ID → Overview → Properties | Known, either way | **Disabled** — confirmed by inspection |
-| E5 provisioned and assigned | Admin center → Billing → Licenses | E5 assigned to admin user | |
-| Azure subscription active in tenant | Azure portal → Subscriptions | Free Trial subscription, expected directory | |
-| Defender Endpoints workload present | Defender portal → Settings → Endpoints | Endpoints section renders | |
-| Credit balance | Cost Management + Billing → Azure credits | ~$200 remaining | |
+| E5 provisioned and assigned | Admin center → Billing → Licenses | E5 assigned to admin user | ✅ Assigned to admin 2026-07-14 |
+| Azure subscription active in tenant | Azure portal → Subscriptions | Free Trial subscription, expected directory | ❌ **Expectation falsified** — pay-as-you-go, not Free Trial; same directory (`POS-005`) |
+| Defender Endpoints workload present | Defender portal → Settings → Endpoints | Endpoints section renders | ✅ Rendered after a wait of more than an hour plus a re-authentication; which of the two made it appear is not established (§6) |
+| Credit balance | Cost Management + Billing → Azure credits | ~$200 remaining | ❌ First read 2026-07-16 recorded **no credit**; withdrawn 2026-08-01 (`POS-058`) — a $200 credit existed on a different billing profile and provided no pay-as-you-go spending-limit protection |
 
 ## 6. Failures & Fixes
 
@@ -195,9 +198,17 @@ Because both the wait and the re-authentication happened, the two are not isolat
 
 **Azure free credit unavailable.**
 
-Not a failure of the build. The free account offer was not available to this account, so the subscription was created pay-as-you-go. Recorded because it removes the cost safety net every lab guide assumes is present (§3).
+Not a failure of the build. The free account offer was not available to this account, so the subscription was created pay-as-you-go. Recorded because it removes the cost safety net every lab guide assumes is present (§3). **Corrected 2026-08-01 (`POS-058`):** a $200 sign-up credit did exist, on a **different billing profile** from the one carrying lab spend, invisible to the cost surface consulted here. The dated observation above stands as first read; what the correction changes is the reason — the missing safety net is the pay-as-you-go **spending limit**, unavailable on this offer, not the absence of credit.
 
-**Security Defaults** — confirmed **disabled**. Entra ID → Overview → Properties reports *"Your organization is not protected by security defaults."* Undocumented at build time and recovered by inspection rather than from notes, which is itself the finding: an identity-posture change that nobody wrote down is indistinguishable from an accident six weeks later.
+**Security Defaults** (`POS-001`) — confirmed **disabled**, and nothing replaced it: no Conditional Access policy exists in this tenant (`POS-003`, inferred from the Manage security defaults control remaining available rather than observed policy-by-policy), so the tenant runs with no baseline identity protection at all. Entra ID → Overview → Properties reports *"Your organization is not protected by security defaults."* Undocumented at build time and recovered by inspection rather than from notes, which is itself the finding: an identity-posture change that nobody wrote down is indistinguishable from an accident six weeks later.
+
+### Permissions model and the second identity
+
+Two identity findings belong to this lab's tenant-level scope and were measured after the initial build.
+
+**Unified RBAC (`POS-026`).** The guide states unified role-based access control is the default permissions model for new tenants. It was measured here rather than assumed: the workloads were activated 2026-07-17, and the activation persists — re-read 2026-09-01, Email & collaboration (Defender for Office 365 and Exchange Online permissions) and Cloud Apps all render **Active**. The same read establishes two things it does not resolve: the Microsoft Sentinel workload renders **"No active workspaces"** on that surface while the lab workspace is demonstrably operational elsewhere in the same portal, and no Endpoints workload row renders there at all. Both are recorded as dated cross-surface observations; neither is evidence that a workload is inactive, and the meaning of each is **NOT MEASURED**.
+
+**The scoped analyst identity (`POS-027`).** A custom Defender role, `SOC Analyst - Read Only`, exists with one member and no groups — created so portal work stops requiring the Global Administrator. It does not replace it. Measured 2026-09-01, that role remains the only custom unified role in the tenant and the admin identity is not a member of it: the admin account's authority still comes from **Global Administrator**, held directly and permanently in Entra, and that is what renders authoring controls in the portal. The scoped identity is real and its boundary is observable — it is the identity that saw a read-only toolbar where the Global Administrator sees an editable one — but the account doing the work is still the one with total authority.
 
 ## 7. Analysis
 

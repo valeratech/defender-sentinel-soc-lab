@@ -5,7 +5,7 @@
 | **Domain** | Configure protections and detections |
 | **Objectives** | Create a rule-based device group; set an automation/remediation level; delegate scoped access to a role identity; measure membership propagation |
 | **Depends on** | Lab 00, Lab 03 (an onboarded device to scope) |
-| **Status** | 🔨 Built, documentation in progress |
+| **Status** | ✅ Built, documented, validated |
 | **Built** | 2026-07-19 |
 
 > Numbered 05 rather than 04 to avoid renumbering `labs/04-sentinel-workspace`.

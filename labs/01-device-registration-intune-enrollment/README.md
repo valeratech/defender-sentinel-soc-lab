@@ -64,7 +64,24 @@ Full evidence chain and the join-path hypothesis: `POS-022`, and §7 below.
 
 ## 5. Evidence
 
-*(pending — sanitized per SANITIZATION.md; device names are attributable, see §1)*
+Evidence here is portal and on-device reads, recorded in the posture register on 2026-07-17 and reproduced sanitized; the endpoint is named by its register identifier, not its directory name.
+
+| Claim | Surface | Observed | Date |
+|---|---|---|---|
+| Entra join completed | Entra ID → Devices | Device object present, joined | 2026-07-17 |
+| MDM user scope | Intune → Enrollment → Automatic enrollment | All | 2026-07-17 |
+| Device believes itself eligible | On-device diagnostics | `DeviceEligible : YES`, `AzureAdPrt : YES` | 2026-07-17 |
+| Enrolment ever attempted | Event log, enrolment IDs 71/72/75/76 | **Absent**, over a span predating the VM | 2026-07-17 |
+| Enrolment scheduled | `\Microsoft\Windows\EnterpriseMgmt` tasks | **None** | 2026-07-17 |
+| VM security type | Azure → (VM) → JSON view → `securityProfile` | Standard — block absent; vTPM and Secure Boot absent (`POS-018`) | 2026-07-17 |
+| RDP exposure | Azure → (VM) → Networking | TCP 3389 allow, source restricted to operator public IP, was Any (`POS-019`) | 2026-07-17 |
+| NLA | VM registry `…\RDP-Tcp\UserAuthentication` + local `.rdp` | Disabled on both sides (`POS-020`) | 2026-07-17 |
+| Endpoint sign-in identity | Entra ID → Users; Azure → (VM) → IAM | labuser, no roles, Virtual Machine User Login on the VM only (`POS-021`) | 2026-07-17 |
+| GA login right on endpoint | Azure → (VM) → IAM → Role assignments | Global Administrator holds Virtual Machine Administrator Login, scope "This resource" (`POS-024`) | 2026-07-17 |
+| Local admin account | Azure → (VM) → Run command | `labadmin`, enabled, renamed built-in Administrator (RID 500), password does not expire (`POS-025`) | 2026-07-17 |
+| Auto-shutdown | Azure → (VM) → Operations → Auto-shutdown | Enabled, 23:00 Pacific, email notification (`POS-023`) | 2026-07-17 |
+
+The full evidence chain for the enrolment absence, including counter-evidence considered, is `POS-022`.
 
 ## 6. Failures & Fixes
 
@@ -92,7 +109,7 @@ Every precondition for enrolment is satisfied and individually verified: MDM use
 
 **Left unenrolled deliberately.** Lab 03 onboards to Defender via local script and does not require Intune. The available force (`deviceenroller.exe /c /AutoEnrollMDM`) needs local administrator and enrols in the calling user's context, so running it as Global Admin would bind the device to the exact account `POS-021` exists to keep off the endpoint. The fix is worse than the gap; the gap is better documentation.
 
-*(pending — further analysis; the VM build itself (`POS-018`–`POS-021`, `POS-023`–`POS-025`) is recorded in the posture register and not yet written up here, see §3)*
+**The VM build itself is a ledger of trades, and the register prices each one** (`POS-018`–`POS-021`, `POS-023`–`POS-025`). Two entries harden: RDP scoped from Any down to one operator address, and a dedicated no-role sign-in identity for the endpoint. Two weaken by choice: Standard security type where Trusted Launch is the portal default — no vTPM, no Secure Boot, accepted silently from the deployment template — and NLA disabled on both sides, the price paid to reach Entra credentials over RDP. One weakens by accumulation: at the measured state (2026-07-17), the identity holding Global Administrator also held Virtual Machine Administrator Login, scope "This resource", on the same endpoint `POS-021` scopes the unprivileged identity to (`POS-024`). And one entry is load-bearing out of proportion to its size: the 23:00 auto-shutdown was the documented automatic control that deallocated the VM without operator intervention, limiting VM compute exposure — budgets themselves only report, and per `POS-016`'s 2026-08-01 correction deallocation ends compute spend while disks and public IPs bill until deleted (`POS-023`, `POS-015`). Individually each trade is defensible; the register is where they stop being individual.
 
 ## 8. References
 

@@ -1166,7 +1166,7 @@ because they are a distinct observation set, not further Azure-portal subsection
 - **State (2026-07-27):** `Use MDE to enforce security configuration settings from Intune` = **Off**. Observed, not changed.
 - **Why it matters:** it corrects Lab 06's asserted claim that local PowerShell was the only deployment path. It was not — this path exists for exactly the unenrolled case, and was simply off.
 - **Adjacent:** `Intune Permissions` is empty; no Entra group has ever been granted Endpoint Security permissions in Intune.
-- **Deferred test:** deploying the two ASR rules as policy and watching whether the ASR report starts showing them is a direct test of `POS-031`'s mechanism. Needs a live endpoint, so it batches with custom detections and analytics rules. *(pending)*
+- **Converted to a decision, 2026-09-01** (`PC-REM-01`, Reviewer-locked): deploying the two ASR rules as policy and watching whether the ASR report starts showing them would require activation, configuration and a live endpoint — disproportionate to post-closure documentation remediation. The switched-off management path is recorded; effective behaviour through it is NOT MEASURED. Original note: it batches with custom detections and analytics rules.
 
 
 ### 12.11 Threat analytics - read-only survey, 2026-07-27 (no configuration)
@@ -1190,7 +1190,7 @@ because they are a distinct observation set, not further Azure-portal subsection
 - **Residency ≠ billability.** The store-partition census answers *which store*; `Usage | where IsBillable` answers *what is metered*. `AzureActivity` is workspace-resident **and free** — see the Lab 08 §7 correction.
 - **Enabling is three acts** — feature toggle, directory sync, data source connection — and the page reports "enabled" after the first, with `0 sources` and both directories `Sync disabled`.
 - **Measured:** initial sync under an hour against Learn's "a few days"; `BehaviorAnalytics` inherits the **source event's** timestamp, so UEBA's own latency is not measurable from `TimeGenerated`.
-- **Open:** `BehaviorAnalytics` billability — absent from the billable list, but its only row postdates `Usage`'s reporting lag. *(pending)*
+- **Resolved by read, 2026-09-01:** `BehaviorAnalytics` **is billable**. In a lag-cleared window (31d…2d) the table holds 579 rows and `Usage` reports 143 records for it with **IsBillable = true**, at a volume that rounds to 0.000 GB at three decimals — billable classification at very small measured volume, not zero ingestion. The earlier inconclusive reading is superseded forward, not rewritten.
 
 
 ### 12.13 Sentinel analytics rules - `POS-045`, `POS-046` ✅ (Lab 11)

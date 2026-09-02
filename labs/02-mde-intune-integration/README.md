@@ -56,7 +56,20 @@ The vendor documents 1–2 hours for service-to-service synchronization. **That 
 
 ## 5. Evidence
 
-*(pending)*
+Evidence is the integration's two surfaces read in full — the Intune-side blade and the Defender-side toggle — recorded 2026-07-16; per the repository's screenshot policy the reads are recorded as text.
+
+| Claim | Surface | Observed | Date |
+|---|---|---|---|
+| Connection established | Intune → Endpoint security → Microsoft Defender for Endpoint | **Available** | 2026-07-16 |
+| Service sync occurring | Same blade, last-synchronized timestamp | `2026-07-16 17:34:32` | 2026-07-16 |
+| Defender-side Intune connection | Defender → Settings → Endpoints → Advanced features (`POS-009`) | **On** — the far end of the same channel | 2026-07-16 |
+| MDE may enforce endpoint security configurations | Intune blade (`POS-010`) | On — shipped default | 2026-07-16 |
+| Windows devices connected to MDE for compliance | Intune blade (`POS-011`) | **Off** — the gap §7 analyses | 2026-07-16 |
+| Android / iOS devices to MDE | Intune blade (`POS-012`) | Off — default; no mobile devices in this lab, out of scope rather than missing | 2026-07-16 |
+| Block unsupported OS versions | Intune blade (`POS-013`) | Off — default | 2026-07-16 |
+| Days until partner unresponsive | Intune blade (`POS-014`) | 7 — default | 2026-07-16 |
+
+What this establishes is the service-to-service integration channel, not effective risk-to-compliance propagation. Effective propagation additionally depended on the relevant device and enrolment state (Lab 03's problem) and on the compliance connector this table records as measured **Off** (`POS-011`).
 
 ## 6. Failures & Fixes
 
@@ -66,7 +79,7 @@ Worth noting the dependency that did **not** bite: greyed-out or unsaveable sett
 
 ## 7. Analysis
 
-**A connection reading "Available" is not a working integration, and this lab is the proof.**
+**An available service connection does not establish effective risk-to-compliance propagation, and this lab is the proof.**
 
 The service-to-service connection is established and synchronizing. Both toggles from the build are On. And device risk still does not reach Intune compliance for Windows, because the toggle that carries it — *Connect Windows devices version 10.0.15063 and above to Microsoft Defender for Endpoint*, under **Compliance policy evaluation** — is **Off**.
 

@@ -35,7 +35,7 @@ entries:
     lab: "00"
     setting: Admin identity model
     location: Tenant-wide
-    state: Single standing Global Administrator across all portals
+    state: Single standing Global Administrator; no alternative active or eligible admin identity measured
     baseline: n/a
     kind: weakening
     production: Role-scoped admin accounts; PIM eligible assignment
@@ -80,8 +80,10 @@ entries:
       still a single standing Global Administrator, and the Global Administrator
       is still the account doing the work. This closes when the second identity
       is the one being used, not when it exists. POS-021 recorded the endpoint
-      version of that distinction as closed and POS-024 found it open three days
-      later.
+      version of that distinction as closed, while POS-024 later established that the
+      standing Global Administrator's VM Administrator Login assignment still
+      existed. The first changed practice; the second showed the underlying
+      capability had not been removed.
 
   - id: POS-003
     lab: "00"
@@ -171,7 +173,9 @@ entries:
       LIMITS, recorded rather than assumed away:
       (1) Azure budgets notify, they do not cap. There is no spending limit on
       pay-as-you-go, so spend continues past 100 percent. POS-016 —
-      deallocating the VM — remains the only actual control; the budget only
+      deallocating the VM — is the direct control on VM compute consumption, while
+      managed disks, public IPs and other resources continue billing until separately
+      deleted (POS-016); the budget only
       reports that the habit slipped.
       (2) Azure evaluates budgets roughly every 8-24 hours, not on demand, so
       an alert can arrive a day after a runaway resource starts billing.
@@ -579,8 +583,11 @@ entries:
 
       Load-bearing because of POS-005 and POS-015: pay-as-you-go has no
       spending limit, and budgets notify but do not cap and are only evaluated
-      every 8-24 hours. This schedule is the only mechanism in the environment
-      that ends spend without a human deciding to.
+      every 8-24 hours. This schedule is the documented automatic control
+      that deallocates the VM without operator intervention, limiting VM compute
+      exposure; budgets themselves only report. Per POS-016's 2026-08-01
+      correction, deallocation ends COMPUTE spend — managed disks and public IP
+      addresses bill while they exist, so only deletion ends resource spend.
 
   # ---------- Lab 02 — MDE / Intune integration ----------
   - id: POS-009

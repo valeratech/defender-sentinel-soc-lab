@@ -153,7 +153,7 @@ received both notifications, and hit **Permission Required** on the landing page
 and "the button targets the wrong place" is eliminated. What remains is a genuine
 role requirement or browser-session contamination — the portal was open as admin in
 the same browser.
-*(pending — access untested in a clean private session; labuser holds no roles by design)*
+**Converted to a decision, 2026-09-01** (`PC-REM-01`, Reviewer-locked). Opening the training link writes training state against the preserved campaign, for modest remediation value. **Scope measured:** persisted completed campaign and current AST reporting/settings state (2026-09-01). **Scope not measured:** clean/private-session retry behaviour; role requirement vs session contamination is established in neither direction. **Reopening trigger:** a separately authorized expendable AST campaign or training-link validation designed from inception for that test.
 
 ## 7. Analysis
 
@@ -171,7 +171,7 @@ to stand down; or conclude the tenant is covered — nothing about detection was
 exercised. Validating the detection path is a different exercise against different
 artifacts — the safe form is vendor-published test artifacts, as `DET-001` did for
 the endpoint.
-*(pending — real phishing detection path untested, distinct from simulation)*
+**Converted to a decision, 2026-09-01** (`PC-REM-01`, Reviewer-locked). The real phishing-detection path stays untested here: building a fresh phishing experiment to clear this line would be new technical construction, not documentation of work performed. **Scope measured:** the Attack Simulation Training campaign and its observed telemetry and reporting behaviour — the simulation payload was absent from both `EmailEvents` and `EmailUrlInfo`, and the campaign did not establish real-phishing detection coverage. **Scope not measured:** end-to-end detection of a real phish; established in neither direction. **Reopening trigger:** a separately authorized, safely bounded real-phishing-detection validation.
 
 **A negative result only counts when it was predicted.** The absence of an incident
 was written down as the expected outcome before the click. Noticing afterwards that
@@ -238,7 +238,7 @@ be identified as a SecOps mailbox specifically when Attack simulation training i
 use, or a user report may trigger an unwanted training assignment. This tenant's is
 not. The campaign was live while this was discovered, and testing it would have
 falsified the committed 0%.
-*(pending — SecOps-mailbox interaction with simulation reporting not exercised)*
+**Converted to a decision, 2026-09-01** (`PC-REM-01`, Reviewer-locked). The SecOps-mailbox interaction was not exercised while the campaign was live because testing it would have falsified the committed 0%, and it is not exercised now because the committed campaign is the evidence this lab exists to preserve. **Scope measured:** campaign and reporting behaviour with the reporting mailbox *not* designated SecOps, as recorded above; current AST settings state measured 2026-09-01 (Repeat offender threshold 2, Training threshold 90 days, training completion 0%, repeat offenders 0). **Scope not measured:** behaviour under designation, including whether a user report triggers an unwanted training assignment. Neither outcome is established. **Reopening trigger:** a separately authorized expendable AST campaign designed from inception for that test.
 
 Secure Score gives this a falsifiable follow-up. Its history shows *Ensure Microsoft
 365 audit log search is Enabled* at **0/3** as of 07-19; auditing was turned on
@@ -260,7 +260,7 @@ is not the blocker (`Have license? Yes`).
 Practical consequence: a Secure Score recommendation reading *To address* means
 either the control is absent **or** that product has not re-evaluated since it was
 added. Read `Last synced` before concluding anything from a status.
-*(pending — audit-log-search credit still unverified; not synced since 2026-07-25)*
+**Resolved by read, 2026-09-01.** "Ensure Microsoft 365 audit log search is Enabled" renders **Completed**, **3/3 points**, **Last synced 8/31/2026** — the recommendation is credited. The historical *To address* state (stale sync 2026-07-25) stands as recorded and is superseded forward, not rewritten; this read does not independently establish the exact time the control became effective.
 
 **What a 100% compromise rate means with one target: nothing.** It is arithmetic.
 The metric that matters is the trend across campaigns, which this tenant cannot

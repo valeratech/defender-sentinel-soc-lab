@@ -5,7 +5,7 @@
 | **Domain** | Manage a security operations environment |
 | **Objectives** | Stand up a Log Analytics workspace; enable Microsoft Sentinel; connect Defender XDR; prove endpoint→XDR→SIEM data flow with a live event; keep ingestion cost-safe |
 | **Depends on** | Lab 03 (telemetry source), Lab 06 (events to forward), all prior labs (aggregated here) |
-| **Status** | 🔨 Built, documentation in progress |
+| **Status** | ✅ Built, documented, validated |
 | **Built** | 2026-07-19 |
 
 > This is the section capstone. Every prior lab feeds it: Lab 03's onboarded
@@ -42,7 +42,7 @@ lab's life is bounded by the M365 trial, not the Sentinel trial.
 RG is deleted); the M365 Defender trial (fixed calendar end — the *binding*
 constraint, since it kills the telemetry source); and the Sentinel 31-day trial
 (started at enablement, 2026-07-19 → 2026-08-19, 10 GB/day free on both Sentinel
-and Log Analytics). The Sentinel trial outlives the M365 trial, so enabling it now
+and Log Analytics). At build time the Sentinel trial outlived the M365 trial — superseded by the 2026-08-06 M365 extension (`POS-077`): the Sentinel trial ended 2026-08-19 and the M365 term now runs to 2026-09-14. On that original reading, enabling it then
 costs nothing in practice — the environment ends with M365 first.
 
 ## 3. Build
@@ -113,6 +113,14 @@ why the detection test was re-run.
 defaults to a point-and-click "Simple mode" with no text editor; writing KQL
 requires switching to **KQL mode**. The classic blade opened straight into the
 editor — a portal change worth knowing (`docs/navigation.md`).
+
+### Retention and the data lake
+
+Two workspace-level findings belong to this lab and were measured after the build.
+
+**Table retention (`POS-102`).** Read 2026-08-15/16, every table in the workspace carried Analytics 30 days and Total 30 days — no archive tier beyond the interactive window, so the gap long-term retention exists to fill was zero. That dated observation stands. **Re-measured 2026-09-01:** the pattern still holds across the workspace *except* `Usage` and `AzureActivity`, which now render **90/90**. Whether those two reflect platform-fixed defaults, a change since the earlier read, or a rendering difference is **NOT MEASURED**; the exception is recorded, not explained.
+
+**The data lake tier (`POS-103`).** Provisioned and integrated, holding no data — a fourth instance of the provisioned-but-inert pattern this section kept finding. Read 2026-09-01, the Tables surface still reports a **Data lake tier of 0** against 182 Analytics-tier tables. Integration status and data flow are different facts, and only the first was ever green.
 
 ## 7. Analysis
 

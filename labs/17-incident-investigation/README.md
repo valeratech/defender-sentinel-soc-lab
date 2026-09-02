@@ -110,7 +110,7 @@ Portal-only throughout (paths in `docs/navigation.md`). Condensed sequence:
 10. **Prohibited-edit read** — Detection Rules (unified portal) as analyst:
     both analytics rules readable in full (query, logic, schedule); the
     detail pane's toolbar carries no edit control.
-    *(pending — whether an edit control exists on this pane for an identity that holds authoring rights has not been read; until the admin-side comparison is made, the bare toolbar is a description, not a boundary)*
+    **Resolved by read, 2026-09-01.** Measured chain: unified RBAC is active on the rendered workloads; the sole custom unified role is `SOC Analyst - Read Only` (1 user, 0 groups); the admin identity is not represented by it and holds **Global Administrator (Direct, Active, Permanent)** in Entra; under that identity the pane's toolbar renders `Create detection rule` and the selected-rule edit workflow opens with rule fields editable. Read alongside the analyst's committed bare-toolbar observation, the boundary is a permission effect, not a portal quirk. *Provenance note: the edit-workflow observation was obtained during a procedural deviation from the read-only census plan (Builder instruction defect); it is admissible as a factual observation and is not a precedent for that procedure.*
 
 ## 5. Validation
 

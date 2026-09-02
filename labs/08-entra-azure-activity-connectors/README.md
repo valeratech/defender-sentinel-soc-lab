@@ -5,7 +5,7 @@
 | **Domain** | Ingest data into Microsoft Sentinel |
 | **Objectives** | Connect the two foundational first-party connectors — Azure Activity (control-plane) and Microsoft Entra ID (identity); verify data flow; resolve the P1/P2 sign-in licensing question by observation |
 | **Depends on** | Lab 04 (the Sentinel workspace), Lab 07 (AMA ingestion — the contrast case) |
-| **Status** | 🔨 Built, documentation in progress |
+| **Status** | ✅ Built, documented, validated |
 | **Built** | 2026-07-25 |
 
 > The connector lab that completes the ingestion section. Two first-party
@@ -139,7 +139,7 @@ wrong.
 | | Producer | Scope governed by | Cost |
 |---|---|---|---|
 | `SigninLogs`, `AuditLogs` | the Entra diagnostic setting written by this connector | **the four log types selected in §4** | billable |
-| `EntraIdSignInEvents`, `EntraIdSpnSignInEvents`, `GraphAPIAuditEvents`, `EmailEvents`, `EmailUrlInfo`, `IdentityInfo` | Defender XDR, natively | Microsoft | free |
+| `EntraIdSignInEvents`, `EntraIdSpnSignInEvents`, `GraphAPIAuditEvents`, `EmailEvents`, `EmailUrlInfo`, `IdentityInfo` | Defender XDR, natively | Microsoft | free *(as read 2026-07-26; `IdentityInfo` later measured workspace-resident and billable — see the store-partition finding below and the 2026-09-01 census)* |
 
 The decisive evidence was already in this lab and went unread. §4 records that the
 high-volume Entra log types — non-interactive, **service-principal**, **Graph
@@ -165,10 +165,10 @@ workspace-resident and billable. What drops out is XDR-native and free.**
 That converts a cost question from argument into measurement, costs nothing, and
 repeats on demand. Its first result was reassuring: `GraphAPIAuditEvents` — 3,578
 events in 24 hours, the volume that prompted the check — bills nothing. The entire
-billable surface is five tables at negligible volume against 10 GB/day.
+billable surface is five tables at negligible volume against 10 GB/day — **true at that first read and since superseded**: the later dated `Usage.IsBillable` measurement (2026-07-29, three tables) governs, and the 2026-09-01 census measured ten tables carrying `IsBillable = true`. The count tracks what has ingested in the window, not a fixed surface.
 
 It also settled a question ahead of the behavioural-analytics section: `IdentityInfo`
-is XDR-side, so it is **not** evidence of UEBA running in this workspace.
+was XDR-side **on that date**, so it was not evidence of UEBA running in this workspace. It later changed sides — measured workspace-resident and carrying `IsBillable = true` (2026-09-01 census) — which is the store-partition finding below, not a contradiction of the earlier read.
 
 Query kept at `kql/sentinel/store-partition-diff.kql`.
 

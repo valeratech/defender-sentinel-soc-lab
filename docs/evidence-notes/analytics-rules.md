@@ -90,7 +90,7 @@ portal: all seven logged as `Azure Portal`. The variance was in the test.
 ## What could not be tested
 
 **Whether an alert can carry an event *range* rather than a point** from a
-summarized result. *(pending)*
+summarized result. **Resolved by read, 2026-09-01:** the mechanism exists in the committed rule (`StartTime = min(TimeGenerated)`, `EndTime = max(TimeGenerated)`), while an existing fired alert renders First and Last activity identical to the second — a zero-second span. Cause of the collapse NOT MEASURED; see Lab 11.
 
 **The template's deviation threshold.** It failed on failure count before the
 deviation logic was reached, so the argument that a three-identity tenant cannot

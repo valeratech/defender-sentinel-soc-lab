@@ -15,24 +15,24 @@ The lab axis below is every lab directory in the repository, unioned with
 any lab ID the register names. A lab that owns no register entry renders
 `0/0`: that is a legitimate state and not a claim that it should own one.
 
-**81 of 103 entries cited in their own lab.**
+**103 of 103 entries cited in their own lab.**
 
 | Lab | Status | Cited | Uncited |
 |---|---|---|---|
-| 00 | 🔨 | 7/15 | `POS-001`, `POS-003`, `POS-004`, `POS-005`, `POS-016`, `POS-026`, `POS-027`, `POS-058` |
-| 01 | 🔨 | 8/11 | `POS-019`, `POS-020`, `POS-024` |
-| 02 | 🔨 | 1/6 | `POS-009`, `POS-010`, `POS-012`, `POS-013`, `POS-014` |
-| 03 | 🔨 | 3/3 | — |
-| 04 | 🔨 | 1/3 | `POS-102`, `POS-103` |
-| 05 | 🔨 | 1/1 | — |
+| 00 | 🔨 | 15/15 | — |
+| 01 | 🔨 | 11/11 | — |
+| 02 | 🔨 | 6/6 | — |
+| 03 | ✅ | 3/3 | — |
+| 04 | ✅ | 3/3 | — |
+| 05 | ✅ | 1/1 | — |
 | 06 | 🔨 | 2/2 | — |
-| 07 | 🔨 | 1/1 | — |
-| 08 | 🔨 | 2/2 | — |
+| 07 | ✅ | 1/1 | — |
+| 08 | ✅ | 2/2 | — |
 | 09 | 🔨 | 6/6 | — |
 | 10 | 🔨 | 1/1 | — |
 | 11 | 🔨 | 2/2 | — |
-| 12 | 🔨 | 5/9 | `POS-049`, `POS-050`, `POS-051`, `POS-052` |
-| 13 | 🔨 | 2/2 | — |
+| 12 | ✅ | 9/9 | — |
+| 13 | ✅ | 2/2 | — |
 | 14 | ✅ | 4/4 | — |
 | 15 | 🔨 | 3/3 | — |
 | 16 | 🔨 | 5/5 | — |

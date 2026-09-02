@@ -36,7 +36,9 @@ The distinction is load-bearing. An unenrolled but onboarded device is watched a
 | MDM user scope | Entra ID → Mobility (MDM and WIP) → Microsoft Intune | All |
 | WIP / MAM user scope | Entra ID → Mobility (MDM and WIP) → Microsoft Intune | All |
 
-*(build narrative pending)*
+Three directory settings, all in the Entra portal, all set to **All**: who may join devices, MDM user scope, and WIP/MAM user scope. Device-join scope is the deliberate lab-only weakening §2 records — unrestricted join means any compromised credential can register a device into the directory. MDM and WIP/MAM scope were widened together so that every joined device should enrol without per-device work.
+
+The configuration was written through the Entra path only. Both portals write the same object, so one is sufficient to configure — but the Intune-side view was never opened to confirm the result independently, and §4 is where that omission stops being a footnote: the settings above all read correctly while the behaviour they exist to produce never occurred (`POS-022`).
 
 ## 4. Validation
 

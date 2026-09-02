@@ -59,7 +59,12 @@ SCOPE_NOTE = (
 # early and a trailing `\*` then fails against the rest of the line — which is
 # exactly what labs/01 line 95 does. Requiring the closing asterisk drops that
 # real marker from the census.
-PENDING = re.compile(r"\*\(pending[^)]*\)", re.I)
+# HARDENED: the leading emphasis asterisk is what excludes product UI text such as
+# the Action center's "(pending / history)" tab, so it is retained — but requiring
+# "pending" to be the FIRST token let variants like `*(build narrative pending)*`
+# escape the census entirely while still reading as markers to a human. Match the
+# word anywhere inside the emphasized parenthetical instead.
+PENDING = re.compile(r"\*\([^)]*pending[^)]*\)", re.I)
 # The census is line-oriented, and a marker wrapped across source lines
 # escapes it silently — which is exactly how the Lab-17 instance survived
 # until Stage 6 found it by hand. OPENING matches the marker's opening
@@ -70,7 +75,7 @@ PENDING = re.compile(r"\*\(pending[^)]*\)", re.I)
 # This is deliberately NOT multiline parsing. The contract stays one
 # marker, one line; the detector makes a violation of that contract
 # visible instead of invisible.
-OPENING = re.compile(r"\*\(pending", re.I)
+OPENING = re.compile(r"\*\([^)]*pending", re.I)
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
 STATUS = re.compile(r"^\|\s*\*\*Status\*\*\s*\|\s*(.+?)\s*\|", re.M)
 # A marker inside backticks is prose *about* the convention, not a use of it.

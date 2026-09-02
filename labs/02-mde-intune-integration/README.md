@@ -40,7 +40,9 @@ Without this connection the two products manage the same devices while knowing n
 | Grant MTD role permissions to MDE | ↳ Mobile Threat Defense role | Off |
 | Days until partner is unresponsive | ↳ Shared settings | 7 (default) |
 
-*(build narrative pending)*
+The connection was enabled from the Defender side — Settings → Endpoints → Advanced features → Microsoft Intune connection **On** — and accepted on the Intune side, where the blade then reported **Available** with a fresh synchronization timestamp. That is the whole of the build: one toggle on each end of one channel.
+
+Everything else in the table above is a shipped default left untouched, and one of those defaults is the finding. **Connect Windows devices to MDE** for compliance policy evaluation ships **Off** (`POS-011`), so the connection that reports Available carries no device risk into any compliance verdict. §7 is where that distinction gets priced.
 
 ## 4. Validation
 

@@ -475,8 +475,13 @@ actually **returns**.
 - **Source guidance:** None. G1 assumes credits and a hard stop, so it has no reason to
   discuss budgets.
 - **What we did:** two budgets, deliberately:
-  - `rg-soc-lab` scope, $15/mo, Actual 50/80/100
-  - Subscription scope, $25/mo, Actual 50/80/100 **+ Forecasted 100**
+  - `rg-soc-lab` scope, $15/mo, Actual 50/80/100 **as first configured**
+  - Subscription scope, $25/mo, Actual 50/80/100 **+ Forecasted 100** **as first configured**
+  - **Raised 2026-07-19** to `$40/mo` (resource group) and `$50/mo` (subscription).
+    **Re-measured 2026-09-01:** both budgets carry Actual alerts at 50/80/100 **and a
+    Forecasted alert at 100** — every condition's action group is `None`, so the
+    configured effect is recipient email only, and whether a notification fires
+    remains untested.
 - **Decision:** two scopes, not one. **Rejected consolidating in both directions** — a
   resource-group budget cannot see spend outside its group (Lab 04's workspace may land
   elsewhere, and ingestion is the largest projected cost); a subscription budget cannot
@@ -490,7 +495,10 @@ actually **returns**.
      a day after a runaway resource starts billing
   3. Covers **Azure only**; the M365 conversion (`POS-017`) bills through a separate
      system and is invisible to Azure Cost Management at any scope
-  4. The resource-group budget remains Actual-only — its warnings arrive after spend
+  4. ~~The resource-group budget remains Actual-only — its warnings arrive after spend~~
+     **Superseded 2026-09-01:** the resource-group budget now also carries a Forecasted
+     100% alert. The limitation as written was true of the first configuration and is
+     no longer true of the measured current state
   5. **Neither alert has ever fired.** Recipients are set; the notification path is
      unvalidated, which by this repo's standard makes it a hypothesis, not a control
 
@@ -542,8 +550,9 @@ actually **returns**.
 - **What we deployed:** `Standard_D2s_v3` (2 vCPU / 8 GiB), Windows 11
   `10.0.26200.8875`, Entra login on, auto-shutdown 23:00 Pacific with notification.
   **Deviation:** named for its purpose rather than G5's suggested name.
-- **Cost:** ~$70/month running continuously, against a $25/month subscription budget
-  (`POS-015`) — 100% in roughly ten days of uptime. `POS-023` is what keeps that
+- **Cost:** ~$70/month running continuously, against the $25/month subscription budget
+  in force at the time of this record (`POS-015`; raised to $50/month on 2026-07-19) —
+  100% of the then-current budget in roughly ten days of uptime. `POS-023` is what keeps that
   theoretical.
 
 #### Security Type = Standard — `POS-018` ⚠️

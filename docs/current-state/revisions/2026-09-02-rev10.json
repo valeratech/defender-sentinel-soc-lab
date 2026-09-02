@@ -1,12 +1,12 @@
 {
-  "id": "2026-09-01-rev9",
-  "status": "SUPERSEDED",
+  "id": "2026-09-02-rev10",
+  "status": "CURRENT",
   "supersedes": [
-    "2026-08-31-rev8"
+    "2026-09-01-rev9"
   ],
   "reviewer_authority": {
-    "file": "docs/current-state/reviewer-authority/2026-09-01-closeout-serialization.md",
-    "sha256": "a86af81c917b6b6db0b05c73dbd74b8b20658eef1e350782dd520faae8a3fb5a"
+    "file": "docs/current-state/reviewer-authority/2026-09-02-pc-rem-01-closeout-serialization.md",
+    "sha256": "c5cc40323ff81ba1da6618b1c14020dbd418685c68bf79ab6ce9c3d73952d55f"
   },
   "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
   "stage_board": {
@@ -50,7 +50,8 @@
     "S8A-EXEC-3A-01": "CLOSED_FAIL_CLOSED_PRE_RUNNER_STOP",
     "POST-AUDIT-README-01": "CLOSED_PASS_PUBLISHED_CI_VERIFIED",
     "CAL-XFER-01": "CLOSED_AS_CORRECTED",
-    "CAL-XFER-02": "CLOSED_AS_CORRECTED"
+    "CAL-XFER-02": "CLOSED_AS_CORRECTED",
+    "PC-REM-01": "CLOSED_PASS_PUBLISHED_CI_VERIFIED"
   },
   "message_policy_measurement": {
     "commits_scanned": 74,
@@ -91,7 +92,7 @@
     "ci_result": "success",
     "disposition": "CLOSED_PASS"
   },
-  "note": "Reviewer-owned current revision adopted at post-audit closeout serialization. Supersedes rev8. This is not an audit stage: the eight-stage audit closed at Stage 8 and is not reopened here. This revision exists so the repository's own current-state chain, rather than a working handoff document or conversation history, records the closeout dispositions. POST-AUDIT-README-01 is CLOSED / PASS / PUBLISHED / CI VERIFIED at commit 2824e076ed658d6ed11bfb550e52f8845421e063, CI run 33524115154, three jobs, twelve of twelve required gates success, none skipped. CAL-XFER-01 and CAL-XFER-02 are CLOSED AS CORRECTED by this durable serialization; they were OPEN under rev8 precisely because no current-state record yet carried them. Scratch is RETAIN / DO NOT REUSE with no cleanup required for project closeout. Stage 2 remains CLOSED WITH ACCEPTED LIMITATION by permanent Operator decision, unrepaired and not reassessed. The Stage-8 records carried in this revision are history and are not rewritten to resemble Publication-1 state; the stage3 through stage8 closure records and historical_stage2_governed_snapshot_sha256 are carried forward as history, not as current repository identities. Unit 6 remains inert with u6/ unchanged at deb025cf611164476c2e7c0365b41f74818ba838. S7-D01, S7-D02 and S8-M01 remain NOT MEASURED and are not converted to a pass. The commit that publishes this revision cannot record its own identity, sanitize measurement, or CI verification. Those post-publication facts are recorded after publication in the final Reviewer ruling and successor Global Transfer; this bound authority does not self-bind the commit that publishes it. The final Global Transfer freeze, the final mechanical re-derivation of mutable repository facts, and administrative project closeout remain outstanding and are not performed here.",
+  "note": "rev10 is the Reviewer-owned current revision for post-PC-REM-01 closeout. It supersedes rev9 without rewriting historical stage closure evidence. PC-REM-01 is CLOSED / PASS / PUBLISHED / CI VERIFIED at Commit A d1894a6035de3d617b4387348ab17cf7747b161c, CI run 33677863289. Stage 2 remains CLOSED WITH ACCEPTED LIMITATION under the permanent Operator decision. Unit 6 remains inert and unchanged. The Commit-B publishing SHA and its exact-SHA CI verification are not self-recordable inside rev10 and are recorded by the final Reviewer closeout.",
   "stage5_closure": {
     "baseline": "0f42eeb08dc98fdf1a37233bacd89dfae9a31856",
     "accepted_commit": "e7821b4a68ed9e1e67df1d8dff0554034a177013",
@@ -183,5 +184,101 @@
     "core_hooksPath": "UNSET_AT_ALL_HOOK_REACHABLE_STOPS",
     "disposition": "CLOSED_PASS_PUBLISHED_CI_VERIFIED"
   },
-  "superseded_by": "2026-09-02-rev10"
+  "pc_rem_01": {
+    "disposition": "CLOSED_PASS_PUBLISHED_CI_VERIFIED",
+    "pcr_total": 24,
+    "pcr_resolve_read": [
+      "PCR-002",
+      "PCR-003",
+      "PCR-004",
+      "PCR-005",
+      "PCR-007",
+      "PCR-008",
+      "PCR-009",
+      "PCR-018",
+      "PCR-019",
+      "PCR-020",
+      "PCR-022"
+    ],
+    "pcr_convert_to_decision": [
+      "PCR-001",
+      "PCR-015",
+      "PCR-016",
+      "PCR-017",
+      "PCR-021",
+      "PCR-023",
+      "PCR-024"
+    ],
+    "pcr_resolve_writeup": [
+      "PCR-006",
+      "PCR-010",
+      "PCR-011",
+      "PCR-012",
+      "PCR-013",
+      "PCR-014"
+    ],
+    "doc_closed": [
+      "DOC-001",
+      "DOC-002",
+      "DOC-003",
+      "DOC-004",
+      "DOC-005",
+      "DOC-006",
+      "DOC-007",
+      "DOC-008",
+      "DOC-009",
+      "DOC-010",
+      "DOC-011",
+      "DOC-012",
+      "DOC-013",
+      "DOC-015",
+      "DOC-016",
+      "DOC-017",
+      "DOC-018"
+    ],
+    "doc_014": "NOT_CREATED_SCOPE_MERGED_INTO_DOC-008",
+    "locked_candidate_archive_sha256": "0d7abd7308523287842479b1e72052cd9c54f6aeae986464e554e235667659b1",
+    "locked_candidate_tree": "fae17db9ea28343043756f3436cd1a645cc3e0d2",
+    "open_items": 0,
+    "lab_coverage": "103/103",
+    "lab_validated": 16,
+    "lab_documentation_in_progress": 11
+  },
+  "publication2": {
+    "id": "PC-REM-01",
+    "baseline": "c10eea0e9ec4d3c4d0fd04409b600a41e4938c48",
+    "baseline_tree": "63f0758e9246ada8a63cce032f9d348b0f89986c",
+    "commit": "d1894a6035de3d617b4387348ab17cf7747b161c",
+    "tree": "fae17db9ea28343043756f3436cd1a645cc3e0d2",
+    "parent": "c10eea0e9ec4d3c4d0fd04409b600a41e4938c48",
+    "parents": 1,
+    "ahead_of_baseline": 1,
+    "changed_paths": 28,
+    "changed_paths_under_u6": 0,
+    "u6_subtree": "deb025cf611164476c2e7c0365b41f74818ba838",
+    "push": "FAST_FORWARD_ONE_COMMIT_NO_FORCE_NO_TAGS",
+    "ci_run": "33677863289",
+    "ci_workflow": "scrub",
+    "ci_event": "push",
+    "ci_branch": "main",
+    "ci_matching_runs": 1,
+    "ci_jobs": 3,
+    "ci_named_gates_verified": 12,
+    "ci_gates_skipped": 0,
+    "ci_result": "success",
+    "sanitize_standing_condition": "A2_TRACKED_FILE_INTERSECTION_0_AND_PRECOMMIT_GITLEAKS_PASS",
+    "core_hooksPath": "UNSET_AT_ALL_HOOK_REACHABLE_PUBLICATION_STOPS",
+    "disposition": "CLOSED_PASS_PUBLISHED_CI_VERIFIED"
+  },
+  "exchange2_census_provenance": {
+    "sha256": "b8c4246b0ce3c915847cae26e9cfa58a18fc865fd2636dd5f7aaa1d2e240de95",
+    "bytes": 46059,
+    "role": "FROZEN_CENSUS_REMEDIATION_PROVENANCE_NOT_CURRENT_AUTHORITY"
+  },
+  "current_state_serialization": {
+    "publishing_commit": "SELF_NOT_SELF_RECORDABLE",
+    "ci_verification": "EXACT_SHA_VERIFICATION_RECORDED_OUTSIDE_THIS_REVISION",
+    "changed_paths": 4,
+    "changed_paths_under_u6": 0
+  }
 }

@@ -1,12 +1,12 @@
 {
-  "id": "2026-09-02-rev10",
-  "status": "SUPERSEDED",
+  "id": "2026-09-02-rev11",
+  "status": "CURRENT",
   "supersedes": [
-    "2026-09-01-rev9"
+    "2026-09-02-rev10"
   ],
   "reviewer_authority": {
-    "file": "docs/current-state/reviewer-authority/2026-09-02-pc-rem-01-closeout-serialization.md",
-    "sha256": "c5cc40323ff81ba1da6618b1c14020dbd418685c68bf79ab6ce9c3d73952d55f"
+    "file": "docs/current-state/reviewer-authority/2026-09-02-pc-rem-02-closeout-serialization.md",
+    "sha256": "8d7329fb2184fe3532f1f7c70cb9913c96a10383f157575d97018b346df69709"
   },
   "historical_stage2_governed_snapshot_sha256": "ffd499494e6dccc876957a4cb09ec39c85585ca8a11ca29de4bc3345215aafb3",
   "stage_board": {
@@ -51,7 +51,8 @@
     "POST-AUDIT-README-01": "CLOSED_PASS_PUBLISHED_CI_VERIFIED",
     "CAL-XFER-01": "CLOSED_AS_CORRECTED",
     "CAL-XFER-02": "CLOSED_AS_CORRECTED",
-    "PC-REM-01": "CLOSED_PASS_PUBLISHED_CI_VERIFIED"
+    "PC-REM-01": "CLOSED_PASS_PUBLISHED_CI_VERIFIED",
+    "PC-REM-02": "CLOSED_PASS_PUBLISHED_CI_VERIFIED"
   },
   "message_policy_measurement": {
     "commits_scanned": 74,
@@ -92,7 +93,7 @@
     "ci_result": "success",
     "disposition": "CLOSED_PASS"
   },
-  "note": "rev10 is the Reviewer-owned current revision for post-PC-REM-01 closeout. It supersedes rev9 without rewriting historical stage closure evidence. PC-REM-01 is CLOSED / PASS / PUBLISHED / CI VERIFIED at Commit A d1894a6035de3d617b4387348ab17cf7747b161c, CI run 33677863289. Stage 2 remains CLOSED WITH ACCEPTED LIMITATION under the permanent Operator decision. Unit 6 remains inert and unchanged. The Commit-B publishing SHA and its exact-SHA CI verification are not self-recordable inside rev10 and are recorded by the final Reviewer closeout.",
+  "note": "rev11 is the Reviewer-owned current revision for post-PC-REM-02 closeout. It supersedes rev10 without rewriting historical stage closure evidence or PC-REM-01's closure. PC-REM-02 is CLOSED / PASS / PUBLISHED / CI VERIFIED at Commit C d4e34dea6de444caf4aee65ca7352bee68c5dc77, CI run 33681928931. PC-REM-01 remains CLOSED / PASS / PUBLISHED / CI VERIFIED. Stage 2 remains CLOSED WITH ACCEPTED LIMITATION. Unit 6 remains inert and unchanged. The Commit-D publishing SHA and its exact-SHA CI verification are not self-recordable inside rev11 and are recorded by the final Reviewer closeout.",
   "stage5_closure": {
     "baseline": "0f42eeb08dc98fdf1a37233bacd89dfae9a31856",
     "accepted_commit": "e7821b4a68ed9e1e67df1d8dff0554034a177013",
@@ -281,5 +282,42 @@
     "changed_paths": 4,
     "changed_paths_under_u6": 0
   },
-  "superseded_by": "2026-09-02-rev11"
+  "pc_rem_02": {
+    "disposition": "CLOSED_PASS_PUBLISHED_CI_VERIFIED",
+    "scope": [
+      "LAB01_ESCAPED_BUILD_NARRATIVE_MARKER",
+      "LAB02_ESCAPED_BUILD_NARRATIVE_MARKER",
+      "POS-015_CONFIGURATION_INVENTORY_PROPAGATION",
+      "OPEN_ITEMS_DETECTOR_HARDENING"
+    ],
+    "origin": "THIRD_PARTY_POST_REMEDIATION_REVIEW",
+    "reopens_pc_rem_01": false,
+    "reopens_audit_stages": false,
+    "tenant_mutation": "NONE",
+    "changed_paths": 4,
+    "changed_paths_under_u6": 0,
+    "open_items_after_correction": 0,
+    "escaped_markers_after_correction": 0
+  },
+  "publication3": {
+    "id": "PC-REM-02",
+    "baseline": "eb477fad856ee2b774f880a0251f14f5b27860be",
+    "commit": "d4e34dea6de444caf4aee65ca7352bee68c5dc77",
+    "tree": "a9e1dc06b24efd6191721f09fabcafbd369a44ef",
+    "parent": "eb477fad856ee2b774f880a0251f14f5b27860be",
+    "parents": 1,
+    "changed_paths": 4,
+    "changed_paths_under_u6": 0,
+    "current_state_changes": 0,
+    "push": "FAST_FORWARD_ONE_COMMIT_NO_FORCE_NO_TAGS",
+    "ci_run": "33681928931",
+    "ci_workflow": "scrub",
+    "ci_event": "push",
+    "ci_branch": "main",
+    "ci_jobs": 3,
+    "ci_steps": 32,
+    "ci_steps_skipped": 0,
+    "ci_result": "success",
+    "disposition": "CLOSED_PASS_PUBLISHED_CI_VERIFIED"
+  }
 }
